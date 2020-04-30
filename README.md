@@ -14,8 +14,8 @@ func (*UserService) Add(ctx *model.Claims, req *model.SignupReq) (*model.User, e
 	pick.Api(func() interface{} {
 		return pick.Method(http.MethodPost).//定义请求的方法
 			Title("用户注册").//接口描述
-            Middleware(nil).//中间件
-            //接口迭代信息
+                        Middleware(nil).//中间件
+                        //接口迭代信息
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").//创建，唯一
 			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").//变更，可有多个
 			Deprecated("1.0.0", "jyb", "2019/12/16", "删除")//废弃，唯一

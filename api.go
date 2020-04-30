@@ -113,7 +113,7 @@ func (api *apiInfo) Api(methodType reflect.Type, tag, dec string) {
 				for j := 0; j < InType.NumField(); j++ {
 					param := spec.Parameter{
 						ParamProps: spec.ParamProps{
-							Name: InType.Field(1).Name,
+							Name: InType.Field(j).Tag.Get("json"),
 							In:   "query",
 						},
 					}

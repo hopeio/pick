@@ -3,10 +3,10 @@ package response
 import "net/http"
 
 type ResData struct {
-	Code    uint32 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
-	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Code    uint32 `json:"code"`
+	Message string `json:"message"`
 	//验证码
-	Details interface{} `protobuf:"bytes,3,opt,name=details,proto3" json:"details,omitempty"`
+	Details interface{} `json:"details"`
 }
 
 type File struct {

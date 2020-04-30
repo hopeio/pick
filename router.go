@@ -155,11 +155,13 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 		if h1 != nil {
 			h1.ServeHTTP(w, req)
+			return
 		}
 		if h2.IsValid() {
 			commonHandler(w, req, h2)
+			return
 		}
-		return
+
 	}
 	for i := range r.es {
 		if strings.HasPrefix(req.URL.Path, r.es[i].preUrl) {

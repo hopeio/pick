@@ -137,10 +137,11 @@ func WriteToFile(args ...string) {
 	if len(args) > 1 {
 		mod = args[1]
 		realPath = realPath + mod
-		err := os.MkdirAll(realPath, 0666)
-		if err != nil {
-			log.Println(err)
-		}
+	}
+
+	err := os.MkdirAll(realPath, 0666)
+	if err != nil {
+		log.Println(err)
 	}
 
 	apiType := "json"
@@ -148,13 +149,13 @@ func WriteToFile(args ...string) {
 		apiType = args[1]
 	}
 
-	realPath = filepath.Join(realPath, mod+".service.swagger."+apiType)
+	realPath = filepath.Join(realPath, mod+"swagger."+apiType)
 
 	if _, err := os.Stat(realPath); err == nil {
 		os.Remove(realPath)
 	}
 	var file *os.File
-	file, err := os.Create(realPath)
+	file, err = os.Create(realPath)
 	if err != nil {
 		log.Println(err)
 	}

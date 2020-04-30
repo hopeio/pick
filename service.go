@@ -28,7 +28,7 @@ func registered() {
 	svcs = nil
 }
 
-func NewRouter(genApi bool, modName string) *Router {
+func NewRouter(genApi bool) *Router {
 	router := &Router{
 		route: make(map[string][]*methodHandle),
 	}
@@ -75,16 +75,13 @@ func NewRouter(genApi bool, modName string) *Router {
 				utils.Blue(utils.FormatLen(methodInfo.path, 50)), utils.Purple(methodInfo.title))
 			if genApi {
 				methodInfo.Api(value.Method(j).Type(), describe, value.Type().Name())
-				openapi.WriteToFile(openapi.FilePath, modName)
 			}
 		}
 	}
 	if genApi {
-		doc := GenDoc(modName, svcs)
-		router.Handle(http.MethodGet, "/api-doc/md", "api文档", func(w http.ResponseWriter, req *http.Request) {
-			w.Write([]byte(doc))
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		})
+		GenDoc(svcs, openapi.FilePath)
+		OpenApi(router, "./apidoc/")
+		openapi.WriteToFile(openapi.FilePath)
 	}
 	registered()
 	return router

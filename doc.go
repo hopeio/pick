@@ -3,21 +3,40 @@ package pick
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"mime"
+	"net/http"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/liov/pick/openapi"
 	"github.com/liov/pick/utils"
 	"github.com/liov/pick/validator"
 )
 
+//swagger
+func OpenApi(mux *Router, filePath string) {
+	_ = mime.AddExtensionType(".svg", "image/svg+xml")
+	openapi.FilePath = filePath
+	mux.Handle(http.MethodGet, "/api-doc/md", "api文档", func(w http.ResponseWriter, req *http.Request) {
+		http.ServeFile(w, req, filePath+"apidoc.md")
+	})
+	mux.Handle(http.MethodGet, "/api-doc/swagger", "swagger文档", openapi.HttpHandle)
+	mux.Handle(http.MethodGet, "/api-doc/swagger.json", "swagger.json", openapi.HttpHandle)
+}
+
 //有swagger,有没有必要做
-func GenDoc(modName string, svcs []Service) string {
-	buf := new(strings.Builder)
+func GenDoc(svcs []Service, args ...string) {
+	buf, err := genFile(args...)
+	if err != nil {
+		log.Println(err)
+	}
+	defer buf.Close()
 	fmt.Fprintln(buf, "[TOC]")
-	fmt.Fprintf(buf, "# %s接口文档  \n", modName)
-	fmt.Fprintln(buf, "----------")
 	for _, v := range svcs {
 		describe, preUrl, _ := v.Service()
 		fmt.Fprintf(buf, "# %s  \n", describe)
@@ -29,9 +48,6 @@ func GenDoc(modName string, svcs []Service) string {
 				continue
 			}
 			methodInfo := getMethodInfo(value.Method(j))
-			if methodInfo.deprecated != nil {
-				methodInfo.title += "(废弃)"
-			}
 			methodInfo.path, methodInfo.version = parseMethodName(method.Name)
 			methodInfo.path = preUrl + "/" + methodInfo.path
 			methodInfo.path = strings.Replace(methodInfo.path, "${version}", "v"+strconv.Itoa(methodInfo.version), 1)
@@ -92,7 +108,36 @@ func GenDoc(modName string, svcs []Service) string {
 			fmt.Fprint(buf, "```  \n")
 		}
 	}
-	return buf.String()
+}
+
+func genFile(args ...string) (*os.File, error) {
+	realPath := "."
+	if len(args) > 0 {
+		realPath = args[0]
+	}
+
+	mod := ""
+	if len(args) > 1 {
+		mod = args[1]
+		realPath = realPath + mod
+	}
+
+	err := os.MkdirAll(realPath, 0666)
+	if err != nil {
+		return nil, err
+	}
+
+	realPath = filepath.Join(realPath, mod+"apidoc.md")
+
+	if _, err := os.Stat(realPath); err == nil {
+		os.Remove(realPath)
+	}
+	var file *os.File
+	file, err = os.Create(realPath)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
 type ParamTable struct {

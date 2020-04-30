@@ -106,6 +106,13 @@ func (claims *Claims) Parse(req *http.Request) error {
 
 > 作为一个建议这部分可以用protobuf定义，简直完美，当然这样得为第一个参数实现Context
 
+如果是复杂场景呢,我们也是可以注册http.HandlerFunc的
+```go
+router.Handle(http.MethodGet, "/api-doc/md", "api文档", func(w http.ResponseWriter, req *http.Request) {
+			w.Write([]byte(doc))
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		})
+```
 然后，注册我们的服务
 
 ```go
@@ -122,8 +129,8 @@ func init(){
 最后启动我们的服务
 ```go
 func main() {
-    //是否生成文档，及模块名
-	router := pick.NewRouter(true, "example")
+    //是否生成文档
+	router := pick.NewRouter(true)
 	router.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
@@ -133,7 +140,7 @@ func main() {
 
 ## 文档生成
 
-是的，你看到了`pick.NewRouter(true, "example")`,当传入true时，会为我们生成文档
+是的，你看到了`pick.NewRouter(true)`,当传入true时，会为我们生成文档
 当然，这需要你定义的请求配合，例如
 ```go
 type User struct {
@@ -147,8 +154,7 @@ type User struct {
 如果你需要markdown文档，/api-doc/md
 它会为我们生成如下文档
 > [TOC]
-> # example接口文档  
-> ----------
+> 
 > # 用户相关  
 > ----------
 > ## 用户注册-v1(`/api/v1/user/add`)  
@@ -188,11 +194,13 @@ type User struct {
 > 	"password": "梊朖迍髽栳"
 > }  
 > ```  
-> ## ~~用户编辑(废弃)-v1(废弃)(`/api/v1/user/edit`)~~  
+> ## ~~用户编辑-v1(废弃)(`/api/v1/user/edit`)~~  
 > **PUT** `/api/v1/user/edit` _(Principal jyb)_  
 > ### 接口记录  
 > ...
 
 是的，示例并不那么好看，并非不能支持简体字和英文字母，我计划单独写一个mock模块
 
-当然你钟情swagger，也可以
+当然你钟情swagger，也可以`/api-doc/swagger`
+![Image text](./static/20200430100211.jpg)
+

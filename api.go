@@ -89,7 +89,7 @@ func (api *apiInfo) getPrincipal() string {
 }
 
 func (api *apiInfo) Api(methodType reflect.Type, tag, dec string) {
-	doc := openapi.GetDoc()
+	doc := openapi.GetDoc(openapi.FilePath)
 	var pathItem *spec.PathItem
 	if doc.Paths != nil && doc.Paths.Paths != nil {
 		if path, ok := doc.Paths.Paths[api.path]; ok {

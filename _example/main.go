@@ -13,7 +13,7 @@ func init() {
 }
 
 func main() {
-	router := pick.NewRouter(true, "example")
+	router := pick.NewRouter(true)
 	router.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

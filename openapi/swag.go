@@ -2,11 +2,8 @@ package openapi
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"path"
-	"strings"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime/middleware"
@@ -14,11 +11,11 @@ import (
 )
 
 var PrefixUri = "/api-doc/"
-var FilePath = "../protobuf/api/"
+var FilePath = "./apidoc/"
 
 func HttpHandle(w http.ResponseWriter, r *http.Request) {
 	if r.RequestURI[len(r.RequestURI)-5:] == ".json" {
-		specDoc, err := loads.Spec(FilePath + r.RequestURI[len(PrefixUri):])
+		specDoc, err := loads.Spec(FilePath + "swagger.json")
 		if err != nil {
 			w.Write([]byte(err.Error()))
 		}
@@ -43,21 +40,7 @@ func HttpHandle(w http.ResponseWriter, r *http.Request) {
 	mod := r.RequestURI[len(PrefixUri):]
 	middleware.Redoc(middleware.RedocOpts{
 		BasePath: PrefixUri,
-		SpecURL:  path.Join(PrefixUri+mod, mod+".service.swagger.json"),
+		SpecURL:  path.Join(PrefixUri, "swagger.json"),
 		Path:     mod,
 	}, http.NotFoundHandler()).ServeHTTP(w, r)
-}
-
-func ApiMod(w http.ResponseWriter, r *http.Request) {
-	fileInfos, err := ioutil.ReadDir(FilePath)
-	if err != nil {
-		log.Println(err)
-	}
-	var ret []string
-	for i := range fileInfos {
-		if fileInfos[i].IsDir() {
-			ret = append(ret, `<a href="`+PrefixUri+fileInfos[i].Name()+`">`+fileInfos[i].Name()+`</a>`)
-		}
-	}
-	w.Write([]byte(strings.Join(ret, "<br>")))
 }

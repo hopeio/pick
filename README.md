@@ -148,7 +148,7 @@ type User struct {
 	Name string `json:"name" annotation:"名字" validate:"gte=3,lte=10"`
 	Password string `json:"password" annotation:"密码" validate:"gte=8,lte=15"`
 	Mail string `json:"mail" annotation:"邮箱" validate:"email"`
-	Phone string `json:"mail" annotation:"手机" validate:"phone"`
+	Phone string `json:"phone" annotation:"手机" validate:"phone"`
 }
 ```
 如果你需要markdown文档，/api-doc/md

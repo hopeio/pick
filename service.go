@@ -1,15 +1,42 @@
 package pick
 
 import (
-	"fmt"
-	"log"
+	"context"
+	"encoding/json"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/hopeio/lemon/context/http_context"
+	"io"
 	"net/http"
 	"reflect"
-	"strconv"
-	"strings"
 
-	"github.com/liov/pick/openapi"
-	"github.com/liov/pick/utils"
+	"github.com/hopeio/lemon/protobuf/errorcode"
+	httpi "github.com/hopeio/lemon/utils/net/http"
+	http_fs "github.com/hopeio/lemon/utils/net/http/fs"
+	"google.golang.org/grpc"
+)
+
+type Context interface {
+	context.Context
+	jwt.Claims
+	grpc.ServerTransportStream
+}
+
+type ParseFromHttpRequest interface {
+	Parse(req *http.Request) error
+}
+
+var parseType = reflect.TypeOf((*ParseFromHttpRequest)(nil)).Elem()
+
+type ParseToHttpResponse interface {
+	Parse() ([]byte, error)
+}
+
+var (
+	Svcs         = make([]Service, 0)
+	isRegistered = false
+	ClaimsType   = reflect.TypeOf((*Context)(nil)).Elem()
+	ContextType  = reflect.TypeOf((*context.Context)(nil)).Elem()
+	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
 )
 
 type Service interface {
@@ -17,123 +44,49 @@ type Service interface {
 	Service() (describe, prefix string, middleware []http.HandlerFunc)
 }
 
-var svcs = make([]Service, 0)
-
 func RegisterService(svc ...Service) {
-	svcs = append(svcs, svc...)
+	Svcs = append(Svcs, svc...)
 }
 
-func registered() {
+func Registered() {
 	isRegistered = true
-	svcs = nil
+	Svcs = nil
+	GroupApiInfos = nil
 }
 
-func NewRouter(genApi bool) *Router {
-	router := &Router{
-		route: make(map[string][]*methodHandle),
+func Api(f func()) {
+	if !isRegistered {
+		f()
 	}
-	for _, v := range svcs {
-		describe, preUrl, middleware := v.Service()
-		value := reflect.ValueOf(v)
-		if value.Kind() != reflect.Ptr {
-			log.Fatal("必须传入指针")
-		}
-		if preUrl[len(preUrl)-1] != '/' {
-			preUrl += "/"
-		}
-		router.group = appendGroupSorted(router.group, groupMiddle{preUrl, middleware})
-		for j := 0; j < value.NumMethod(); j++ {
-			method := value.Type().Method(j)
-			if method.Type.NumIn() < 2 || method.Type.NumOut() != 2 {
-				continue
-			}
-			methodInfo := getMethodInfo(value.Method(j))
-			if methodInfo == nil {
-				log.Fatalf("%s未注册", method.Name)
-			}
-			methodInfo.path, methodInfo.version = parseMethodName(method.Name)
-			if methodInfo.deprecated != nil {
-				methodInfo.title += "(废弃)"
-			}
-			methodInfo.path = preUrl + "v" + strconv.Itoa(methodInfo.version) + "/" + methodInfo.path
-			if methodInfo.path == "" || methodInfo.method == "" || methodInfo.title == "" || methodInfo.createlog.version == "" {
-				log.Fatal("接口路径,方法,描述,创建日志均为必填")
-			}
-			if mh, ok := router.route[methodInfo.path]; ok {
-				if _, h2, _ := getHandle(methodInfo.method, mh); h2.IsValid() {
-					panic("url：" + methodInfo.path + "已注册")
-				} else {
-					mh = append(mh, &methodHandle{methodInfo.method, methodInfo.middleware, nil, value.Method(j)})
-					router.route[methodInfo.path] = mh
-				}
-			} else {
-				router.route[methodInfo.path] = []*methodHandle{{methodInfo.method, methodInfo.middleware, nil, value.Method(j)}}
-			}
-			fmt.Printf(" %s\t %s %s\t %s\n",
-				utils.Green("API:"),
-				utils.Yellow(utils.FormatLen(methodInfo.method, 6)),
-				utils.Blue(utils.FormatLen(methodInfo.path, 50)), utils.Purple(methodInfo.title))
-			if genApi {
-				methodInfo.Api(value.Method(j).Type(), describe, value.Type().Name())
-			}
-		}
-	}
-	if genApi {
-		GenDoc(svcs, openapi.FilePath)
-		OpenApi(router, "./apidoc/")
-		openapi.WriteToFile(openapi.FilePath)
-	}
-	registered()
-	return router
 }
 
-func getMethodInfo(fv reflect.Value) (info *apiInfo) {
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(*apiInfo); ok {
-				info = v
-			} else {
-				log.Panic(err)
-			}
-		}
-	}()
-	methodType := fv.Type()
-	params := make([]reflect.Value, 0, fv.Type().NumIn())
-	numIn := methodType.NumIn()
-	numOut := methodType.NumOut()
-	if numIn == 1 {
-		panic("method至少一个参数且参数必须实现Session接口")
+// 兼容有返回值和无返回值的写法
+func Api2(f func() any) {
+	if !isRegistered {
+		panic(f())
 	}
-	if numIn > 2 {
-		panic("method参数最多为两个")
-	}
-	if numOut != 2 {
-		panic("method返回值必须为两个")
-	}
-	if !methodType.In(0).Implements(contextType) {
-		panic("service第一个参数必须实现Session接口")
-	}
-	if !methodType.Out(1).Implements(errorType) {
-		panic("service第二个返回值必须为error类型")
-	}
-	for i := 0; i < numIn; i++ {
-		params = append(params, reflect.New(methodType.In(i).Elem()))
-	}
-	fv.Call(params)
-	return nil
 }
 
-// 从方法名称分析出接口名和版本号
-func parseMethodName(originName string) (name string, version int) {
-	idx := strings.LastIndexByte(originName, 'V')
-	version = 1
-	if idx > 0 {
-		if v, err := strconv.Atoi(originName[idx+1:]); err == nil {
-			version = v
-		}
-	} else {
-		idx = len(originName)
+func ResHandler(c *http_context.Context, w http.ResponseWriter, result []reflect.Value) {
+	if !result[1].IsNil() {
+		err := errorcode.ErrHandle(result[1].Interface())
+		c.HandleError(err)
+		json.NewEncoder(w).Encode(err)
+		return
 	}
-	name = utils.ConvertToSnackCase(originName[:idx])
-	return
+	if info, ok := result[0].Interface().(*http_fs.File); ok {
+		header := w.Header()
+		header.Set(httpi.HeaderContentType, httpi.ContentBinaryHeaderValue)
+		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
+		io.Copy(w, info.File)
+		if flusher, canFlush := w.(http.Flusher); canFlush {
+			flusher.Flush()
+		}
+		info.File.Close()
+		return
+	}
+	json.NewEncoder(w).Encode(httpi.ResAnyData{
+		Message: "OK",
+		Details: result[0].Interface(),
+	})
 }

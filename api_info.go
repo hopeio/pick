@@ -1,16 +1,32 @@
 package pick
 
 import (
+	"errors"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/go-openapi/spec"
-	"github.com/liov/pick/openapi"
-	"github.com/liov/pick/utils"
+	"github.com/hopeio/lemon/utils/log"
+	"github.com/hopeio/lemon/utils/reflect"
+	"github.com/hopeio/lemon/utils/strings"
 )
 
-var isRegistered = false
+const Template = `
+func (*UserService) Add(ctx *model.Context, req *model.SignupReq) (*response.TinyRep, error) {
+	pick.Api(func() {
+		pick.Post("/add").
+			Title("用户注册").
+			Version(2).
+			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
+			ChangeLog("2.0.1", "jyb", "2019/12/16", "修改测试").End()
+	})
+
+	return &response.TinyRep{Message: req.Name}, nil
+}
+`
 
 type apiInfo struct {
 	path, method, title string
@@ -25,34 +41,52 @@ type changelog struct {
 	version, auth, date, log string
 }
 
-func Api(f func() interface{}) {
-	if !isRegistered {
-		panic(f())
-	}
+func Get(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodGet}
 }
-
-func Path(p string) *apiInfo {
-	return &apiInfo{path: p}
+func Post(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodPost}
 }
-
-func Method(m string) *apiInfo {
-	return &apiInfo{method: m}
+func Put(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodPut}
 }
-
-func (api *apiInfo) Method(m string) *apiInfo {
-	api.method = m
-	return api
+func Delete(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodDelete}
+}
+func Patch(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodPatch}
+}
+func Trace(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodTrace}
+}
+func Head(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodHead}
+}
+func Options(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodOptions}
+}
+func Connect(p string) *apiInfo {
+	return &apiInfo{path: p, method: http.MethodConnect}
 }
 
 func (api *apiInfo) ChangeLog(v, auth, date, log string) *apiInfo {
+	v = version(v)
 	api.changelog = append(api.changelog, changelog{v, auth, date, log})
 	return api
+}
+
+func version(v string) string {
+	if v[0] != 'v' {
+		return "v" + v
+	}
+	return v
 }
 
 func (api *apiInfo) CreateLog(v, auth, date, log string) *apiInfo {
 	if api.createlog.version != "" {
 		panic("创建记录只允许一条")
 	}
+	v = version(v)
 	api.createlog = changelog{v, auth, date, log}
 	return api
 }
@@ -68,6 +102,7 @@ func (api *apiInfo) Version(v int) *apiInfo {
 }
 
 func (api *apiInfo) Deprecated(v, auth, date, log string) *apiInfo {
+	v = version(v)
 	api.deprecated = &changelog{v, auth, date, log}
 	return api
 }
@@ -77,7 +112,38 @@ func (api *apiInfo) Middleware(m ...http.HandlerFunc) *apiInfo {
 	return api
 }
 
-//获取负责人
+func (api *apiInfo) End() {
+	panic(api)
+}
+
+func (api *apiInfo) Check() error {
+	if api.path == "" || api.method == "" || api.title == "" || api.createlog.version == "" {
+		return errors.New("接口路径,方法,描述,创建日志均为必填")
+	}
+	return nil
+}
+
+func (api *apiInfo) Log() {
+	Log(api.method, api.path, api.title)
+}
+
+type ApiInfo struct {
+	Path, Method, Title string
+	Version             int
+	Changelog           []changelog
+	Createlog           changelog
+	Deprecated          *changelog
+	Middleware          []http.HandlerFunc
+}
+
+func (api *ApiInfo) GetApiInfo() *apiInfo {
+	return (*apiInfo)(unsafe.Pointer(api))
+}
+func (api *apiInfo) GetApiInfo() *ApiInfo {
+	return (*ApiInfo)(unsafe.Pointer(api))
+}
+
+// 获取负责人
 func (api *apiInfo) getPrincipal() string {
 	if len(api.changelog) == 0 {
 		return api.createlog.auth
@@ -88,8 +154,79 @@ func (api *apiInfo) getPrincipal() string {
 	return api.changelog[len(api.changelog)-1].auth
 }
 
-func (api *apiInfo) Api(methodType reflect.Type, tag, dec string) {
-	doc := openapi.GetDoc(openapi.FilePath)
+// recover捕捉panic info
+func GetMethodInfo(method *reflect.Method, preUrl string, claimsTyp reflect.Type) (info *apiInfo) {
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(*apiInfo); ok {
+				//_,_, info.version = ParseMethodName(method.Name)
+				if v.version == 0 {
+					v.version = 1
+				}
+				v.path = preUrl + "/v" + strconv.Itoa(v.version) + v.path
+				info = v
+			} else {
+				log.Error(err)
+			}
+		}
+	}()
+	methodValue := method.Func
+	methodType := methodValue.Type()
+	numIn := methodType.NumIn()
+	numOut := methodType.NumOut()
+	var err error
+	defer func() {
+		if err != nil {
+			log.Debugf("%s %s 未注册:%v", preUrl, method.Name, err)
+		}
+	}()
+
+	if numIn != 3 {
+		err = errors.New("method参数必须为两个")
+		return
+	}
+	if numOut != 2 {
+		err = errors.New("method返回值必须为两个")
+		return
+	}
+	if !methodType.In(1).Implements(claimsTyp) {
+		return
+	}
+	if !methodType.Out(1).Implements(ErrorType) {
+		err = errors.New("service第二个返回值必须为error类型")
+		return
+	}
+	params := make([]reflect.Value, numIn, numIn)
+	for i := 0; i < numIn; i++ {
+		params[i] = reflect.New(methodType.In(i).Elem())
+	}
+	methodValue.Call(params)
+	return nil
+}
+
+// 从方法名称分析出接口名和版本号
+func ParseMethodName(originName string, methods []string) (method, name string, version int) {
+	idx := strings.LastIndexByte(originName, 'V')
+	version = 1
+	if idx > 0 {
+		if v, err := strconv.Atoi(originName[idx+1:]); err == nil {
+			version = v
+		} else {
+			idx = len(originName)
+		}
+	} else {
+		idx = len(originName)
+	}
+	name = stringsi.LowerFirst(originName[:idx])
+	for _, method := range methods {
+		if strings.HasPrefix(name, method) {
+			return method, name[len(method):], version
+		}
+	}
+	return http.MethodPost, name, version
+}
+
+func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec string) {
 	var pathItem *spec.PathItem
 	if doc.Paths != nil && doc.Paths.Paths != nil {
 		if path, ok := doc.Paths.Paths[api.path]; ok {
@@ -107,13 +244,13 @@ func (api *apiInfo) Api(methodType reflect.Type, tag, dec string) {
 	numIn := methodType.NumIn()
 
 	if numIn == 2 {
-		if !methodType.In(1).Implements(contextType) {
+		if !methodType.In(1).Implements(ClaimsType) {
 			if api.method == http.MethodGet {
 				InType := methodType.In(1).Elem()
 				for j := 0; j < InType.NumField(); j++ {
 					param := spec.Parameter{
 						ParamProps: spec.ParamProps{
-							Name: InType.Field(j).Tag.Get("json"),
+							Name: InType.Field(j).Name,
 							In:   "query",
 						},
 					}
@@ -139,7 +276,7 @@ func (api *apiInfo) Api(methodType reflect.Type, tag, dec string) {
 		}
 	}
 
-	if !methodType.Out(0).Implements(errorType) {
+	if !methodType.Out(0).Implements(ErrorType) {
 		var responses spec.Responses
 		responses.StatusCodeResponses = make(map[int]spec.Response)
 		response := spec.Response{ResponseProps: spec.ResponseProps{Schema: new(spec.Schema)}}
@@ -197,6 +334,7 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 
 	body := reflect.TypeOf(v).Elem()
 	var typ, subFieldName string
+	var arraySubType string
 	for i := 0; i < body.NumField(); i++ {
 		json := strings.Split(body.Field(i).Tag.Get("json"), ",")[0]
 		if json == "" || json == "-" {
@@ -206,7 +344,7 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 		switch fieldType.Kind() {
 		case reflect.Struct:
 			typ = "object"
-			v = reflect.ValueOf(v).Elem().Field(i).Addr().Interface()
+			v = reflect.New(fieldType).Interface()
 			subFieldName = fieldType.Name()
 		case reflect.Ptr:
 			typ = "object"
@@ -217,15 +355,27 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 			typ = "integer"
 		case reflect.Array, reflect.Slice:
 			typ = "array"
-			v = reflect.New(utils.GetDereferenceType(fieldType)).Interface()
-			subFieldName = utils.GetDereferenceType(fieldType).Name()
+			subType := reflecti.OriginalType(fieldType)
+			subFieldName = subType.Name()
+			switch subType.Kind() {
+			case reflect.Struct, reflect.Ptr, reflect.Array, reflect.Slice:
+				v = reflect.New(subType).Interface()
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				arraySubType = "integer"
+			case reflect.Float32, reflect.Float64:
+				arraySubType = "number"
+			case reflect.String:
+				arraySubType = "string"
+			case reflect.Bool:
+				arraySubType = "boolean"
+			}
 		case reflect.Float32, reflect.Float64:
 			typ = "number"
 		case reflect.String:
 			typ = "string"
 		case reflect.Bool:
 			typ = "boolean"
-
 		}
 		subSchema := spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -239,8 +389,13 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 		if typ == "array" {
 			subSchema.Items = new(spec.SchemaOrArray)
 			subSchema.Items.Schema = &spec.Schema{}
-			subSchema.Items.Schema.Ref = spec.MustCreateRef("#/definitions/" + subFieldName)
-			DefinitionsApi(definitions, v, nil)
+			if arraySubType == "" {
+				subSchema.Items.Schema.Ref = spec.MustCreateRef("#/definitions/" + subFieldName)
+				DefinitionsApi(definitions, v, nil)
+			} else {
+				subSchema.Items.Schema.Type = []string{arraySubType}
+			}
+
 		}
 		schema.Properties[json] = subSchema
 	}

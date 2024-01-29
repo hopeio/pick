@@ -1,4 +1,4 @@
-package middleware
+package middle
 
 import (
 	"log"
@@ -6,5 +6,5 @@ import (
 )
 
 func Log(w http.ResponseWriter, r *http.Request) {
-	log.Println("请求", r.RequestURI)
+	log.Println(r.RequestURI)
 }

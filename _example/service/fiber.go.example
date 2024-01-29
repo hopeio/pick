@@ -1,0 +1,25 @@
+package service
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/hopeio/lemon/_example/user/middle"
+	"github.com/hopeio/lemon/context/fasthttp_context"
+	"github.com/hopeio/lemon/pick"
+	"github.com/hopeio/lemon/protobuf/response"
+)
+
+func (*UserService) FiberService() (string, string, []fiber.Handler) {
+	return "用户相关", "/api/user", []fiber.Handler{middle.FiberLog}
+}
+
+func (*UserService) Addv(ctx *fasthttp_context.Context, req *response.TinyRep) (*response.TinyRep, error) {
+	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
+	fiber.Api(func() {
+		pick.Post("/add").
+			Title("用户注册").
+			Version(1).
+			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
+			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").End()
+	})
+	return req, nil
+}

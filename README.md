@@ -1,5 +1,6 @@
-# pick
-基于依赖注入的api开发框架
+## [pick框架](https://github.com/actliboy/pick)
+一个基于依赖注入的api开发框架http api服务器,灵感来自于grpc和springmvc,pick的路由基于httprouter改造,如不想使用，pick同时兼容gin,fiber(fasthttp),底层可选择。
+
 
 ## 特点
 
@@ -9,7 +10,7 @@
     >不再编写这样`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
 - 专注于业务
 ```go
-func (*UserService) Add(ctx *model.Claims, req *model.SignupReq) (*model.User, error) {
+func (*UserService) Add(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() interface{} {
 		return pick.Method(http.MethodPost).//定义请求的方法
@@ -27,7 +28,7 @@ func (*UserService) Add(ctx *model.Claims, req *model.SignupReq) (*model.User, e
 ```  
 ## 使用
 
-go get github.com/liov/pick
+go get github.com/hopeio/pick
 
 ## 快速开始
 
@@ -43,7 +44,7 @@ func (*UserService) Service() (string, string, []http.HandlerFunc) {
 然后可以写我们的业务方法
 ```go
 //不同的api版本在方法名后加V+数字版本
-func (*UserService) AddV2(ctx *model.Claims, req *model.SignupReq) (*model.User, error) {
+func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() interface{} {
 		return pick.Method(http.MethodPost).
@@ -56,7 +57,7 @@ func (*UserService) AddV2(ctx *model.Claims, req *model.SignupReq) (*model.User,
 }
 
 
-func (*UserService) Edit(ctx *model.Claims, req *model.User) (*model.User, error) {
+func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.User, error) {
 	pick.Api(func() interface{} {
 		return pick.Method(http.MethodPut).
 			Title("用户编辑").

@@ -1,19 +1,18 @@
 package main
 
 import (
+	pick2 "github.com/hopeio/pick"
+	service2 "github.com/hopeio/pick/_example/service"
+	router2 "github.com/hopeio/pick/router"
 	"log"
 	"net/http"
 
-	"github.com/liov/pick"
-	"github.com/liov/pick/_example/service"
+	_ "github.com/hopeio/pick/_example/service"
 )
 
-func init() {
-	pick.RegisterService(&service.UserService{})
-}
-
 func main() {
-	router := pick.NewRouter(true)
+	pick2.RegisterService(&service2.UserService{}, &service2.TestService{}, &service2.StaticService{})
+	router := router2.New(false, "httptpl")
 	router.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

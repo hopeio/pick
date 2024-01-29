@@ -1,48 +1,79 @@
 package service
 
 import (
+	"context"
+	"github.com/hopeio/lemon/context/http_context"
+	pick2 "github.com/hopeio/pick"
+	"github.com/hopeio/pick/_example/middle"
 	"net/http"
-
-	"github.com/liov/pick"
-	"github.com/liov/pick/_example/middleware"
-	"github.com/liov/pick/_example/model"
 )
 
 type UserService struct{}
 
 func (*UserService) Service() (string, string, []http.HandlerFunc) {
-	return "用户相关", "/api/user", []http.HandlerFunc{middleware.Log}
+	return "用户相关", "/api/user", []http.HandlerFunc{middle.Log}
 }
 
-func (*UserService) Add(ctx *model.Claims, req *model.SignupReq) (*model.User, error) {
+func (*UserService) Add(ctx context.Context, req *SignupReq) (*TinyRep, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodPost).
+	pick2.Api(func() {
+		pick2.Post("").
 			Title("用户注册").
+			Version(2).
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试")
+			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").End()
 	})
 
-	return &model.User{Name: "测试"}, nil
+	return &TinyRep{Message: "测试"}, nil
 }
 
-func (*UserService) Edit(ctx *model.Claims, req *model.User) (*model.User, error) {
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodPut).
+type EditReq struct {
+}
+type EditReq_EditDetails struct {
+}
+
+func (*UserService) Edit(ctx *http_context.Context, req *EditReq) (*EditReq_EditDetails, error) {
+	pick2.Api(func() {
+		pick2.Put("/:id").
 			Title("用户编辑").
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-			Deprecated("1.0.0", "jyb", "2019/12/16", "删除")
+			Deprecated("1.0.0", "jyb", "2019/12/16", "删除").End()
 	})
 
 	return nil, nil
 }
 
-func (*UserService) LoginV2(ctx *model.Claims, req *model.LoginReq) (*model.LoginRep, error) {
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodGet).
-			Title("用户登录").
-			CreateLog("1.0.0", "jyb", "2019/12/16", "创建")
+type Object struct {
+	Id uint64 `json:"id"`
+}
+
+func (*UserService) Get(ctx *http_context.Context, req *Object) (*TinyRep, error) {
+	pick2.Api(func() {
+		pick2.Get("/:id").
+			Title("用户注册").
+			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
 	})
 
-	return &model.LoginRep{Token: ctx.Id}, nil
+	return &TinyRep{Code: uint32(req.Id), Message: "测试"}, nil
+}
+
+type StaticService struct{}
+
+func (*StaticService) Service() (string, string, []http.HandlerFunc) {
+	return "静态资源", "/api/static", nil
+}
+
+type TinyRep struct {
+	Code    uint32 `json:"code"`
+	Message string `json:"message"`
+}
+
+func (*StaticService) Get2(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+	pick2.Api(func() {
+		pick2.Get("/*mail").
+			Title("用户注册").
+			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
+	})
+
+	return &TinyRep{Message: req.Mail}, nil
 }

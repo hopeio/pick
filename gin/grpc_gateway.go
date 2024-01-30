@@ -1,17 +1,17 @@
 package gin
 
 import (
-	"github.com/hopeio/lemon/context/http_context"
 	"github.com/hopeio/pick"
+	"github.com/hopeio/tiga/context/http_context"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/lemon/utils/log"
-	"github.com/hopeio/lemon/utils/net/http/api/apidoc"
-	"github.com/hopeio/lemon/utils/net/http/gin/handler"
+	"github.com/hopeio/tiga/utils/log"
+	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
+	"github.com/hopeio/tiga/utils/net/http/gin/handler"
 )
 
 // Deprecated:这种方法不推荐使用了，目前就两种定义api的方式，一种grpc-gateway，一种pick自定义

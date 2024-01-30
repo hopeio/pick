@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hopeio/lemon/utils/mock"
-	"github.com/hopeio/lemon/utils/reflect"
-	"github.com/hopeio/lemon/utils/strings"
-	"github.com/hopeio/lemon/utils/verification/validator"
+	"github.com/hopeio/tiga/utils/mock"
+	"github.com/hopeio/tiga/utils/reflect"
+	"github.com/hopeio/tiga/utils/strings"
+	"github.com/hopeio/tiga/utils/verification/validator"
 )
 
 type ApiDocInfo struct {

@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/hopeio/lemon/_example/user/middle"
-	"github.com/hopeio/lemon/context/fasthttp_context"
-	"github.com/hopeio/lemon/pick"
-	"github.com/hopeio/lemon/protobuf/response"
+	"github.com/gofiber/fiber/v3"
+	"github.com/hopeio/tiga/_example/user/middle"
+	"github.com/hopeio/tiga/context/fasthttp_context"
+	"github.com/hopeio/tiga/pick"
+	"github.com/hopeio/tiga/protobuf/response"
 )
 
 func (*UserService) FiberService() (string, string, []fiber.Handler) {

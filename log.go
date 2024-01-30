@@ -2,8 +2,8 @@ package pick
 
 import (
 	"fmt"
-	"github.com/hopeio/lemon/utils/console/concolor"
-	stringsi "github.com/hopeio/lemon/utils/strings"
+	"github.com/hopeio/tiga/utils/console/concolor"
+	stringsi "github.com/hopeio/tiga/utils/strings"
 )
 
 func Log(method, path, title string) {

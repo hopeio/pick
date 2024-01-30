@@ -9,9 +9,9 @@ import (
 	"unsafe"
 
 	"github.com/go-openapi/spec"
-	"github.com/hopeio/lemon/utils/log"
-	"github.com/hopeio/lemon/utils/reflect"
-	"github.com/hopeio/lemon/utils/strings"
+	"github.com/hopeio/tiga/utils/log"
+	"github.com/hopeio/tiga/utils/reflect"
+	"github.com/hopeio/tiga/utils/strings"
 )
 
 const Template = `

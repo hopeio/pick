@@ -3,19 +3,18 @@ package fiber
 import (
 	"context"
 	"encoding/json"
-	"github.com/hopeio/lemon/context/fasthttp_context"
-	http_fs "github.com/hopeio/lemon/utils/net/http/fs"
 	"github.com/hopeio/pick"
+	"github.com/hopeio/tiga/context/fasthttp_context"
+	http_fs "github.com/hopeio/tiga/utils/net/http/fs"
 	"io"
 	"net/http"
 	"reflect"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/hopeio/lemon/protobuf/errorcode"
-	"github.com/hopeio/lemon/utils/log"
-	httpi "github.com/hopeio/lemon/utils/net/http"
-	"github.com/hopeio/lemon/utils/net/http/api/apidoc"
-	fiber_build "github.com/hopeio/lemon/utils/net/http/fasthttp/fiber"
+	"github.com/hopeio/tiga/protobuf/errorcode"
+	"github.com/hopeio/tiga/utils/log"
+	httpi "github.com/hopeio/tiga/utils/net/http"
+	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
+	fiber_build "github.com/hopeio/tiga/utils/net/http/fasthttp/fiber"
 )
 
 type Service interface {
@@ -42,7 +41,7 @@ func Api(f func()) {
 	}
 }
 
-func fiberResHandler(ctx *fiber.Ctx, result []reflect.Value) error {
+func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {
 	writer := ctx.Response().BodyWriter()
 	if !result[1].IsNil() {
 		return json.NewEncoder(writer).Encode(errorcode.ErrHandle(result[1].Interface()))
@@ -89,7 +88,7 @@ func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
 			methodValue := method.Func
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
-			engine.Add(methodInfoExport.Method, methodInfoExport.Path, func(ctx *fiber.Ctx) error {
+			engine.Add(methodInfoExport.Method, methodInfoExport.Path, func(ctx fiber.Ctx) error {
 				in1 := reflect.ValueOf(fasthttp_context.ContextWithRequest(context.Background(), ctx.Request()))
 				in2 := reflect.New(in2Type.Elem())
 				if err := fiber_build.Bind(ctx, in2.Interface()); err != nil {

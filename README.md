@@ -1,5 +1,5 @@
 ## [pick框架](https://github.com/actliboy/pick)
-一个基于依赖注入的api开发框架http api服务器,灵感来自于grpc和springmvc,pick的路由基于httprouter改造,如不想使用，pick同时兼容gin,fiber(fasthttp),底层可选择。
+一个基于反射的自动注入式的api开发框架http api服务器,灵感来自于grpc和springmvc,pick的路由基于httprouter改造,如不想使用，pick同时兼容gin,fiber(fasthttp),底层可选择。
 
 
 ## 特点

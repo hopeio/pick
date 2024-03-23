@@ -14,7 +14,7 @@ func commonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 	handleNumIn := handleTyp.NumIn()
 	if handleNumIn != 0 {
 		params := make([]reflect.Value, handleNumIn)
-		ctxi, s := http_context.ContextFromRequest(req, tracing)
+		ctxi, s := http_context.ContextFromRequestResponse(req, w, tracing)
 		if s != nil {
 			defer s.End()
 		}

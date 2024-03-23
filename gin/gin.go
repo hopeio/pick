@@ -40,7 +40,7 @@ func Register(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			engine.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
-				ctxi, span := http_context.ContextFromRequest(ctx.Request, tracing)
+				ctxi, span := http_context.ContextFromRequestResponse(ctx.Request, ctx.Writer, tracing)
 				if span != nil {
 					defer span.End()
 				}

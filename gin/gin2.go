@@ -52,7 +52,7 @@ func RegisterGinAPI(engine *gin.Engine, genDoc bool, modName string, tracing boo
 	},
 		func(method, path string, in2Type reflect.Type, methodValue, value reflect.Value) {
 			engine.Handle(method, path, func(ctx *gin.Context) {
-				ctxi, span := http_context.ContextFromRequest(ctx.Request, tracing)
+				ctxi, span := http_context.ContextFromRequestResponse(ctx.Request, ctx.Writer, tracing)
 				if span != nil {
 					defer span.End()
 				}

@@ -3,6 +3,7 @@ package fiber
 import (
 	"context"
 	"encoding/json"
+	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/pick"
 	"github.com/hopeio/tiga/context/fasthttp_context"
 	http_fs "github.com/hopeio/tiga/utils/net/http/fs"
@@ -88,8 +89,8 @@ func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
 			methodValue := method.Func
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
-			engine.Add(methodInfoExport.Method, methodInfoExport.Path, func(ctx fiber.Ctx) error {
-				in1 := reflect.ValueOf(fasthttp_context.ContextWithRequest(context.Background(), ctx.Request()))
+			engine.Add([]string{methodInfoExport.Method}, methodInfoExport.Path, func(ctx fiber.Ctx) error {
+				in1 := reflect.ValueOf(fasthttp_context.ContextFromRequestResponse(context.Background(), ctx.Request()))
 				in2 := reflect.New(in2Type.Elem())
 				if err := fiber_build.Bind(ctx, in2.Interface()); err != nil {
 					return ctx.Status(http.StatusBadRequest).JSON(errorcode.InvalidArgument.ErrRep())

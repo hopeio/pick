@@ -12,14 +12,15 @@
 ```go
 func (*UserService) Add(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodPost).//定义请求的方法
+	pick.Api(func() {
+		return pick.Post("").//定义请求的方法及路由
 			Title("用户注册").//接口描述
-                        Middleware(nil).//中间件
-                        //接口迭代信息
+            Middleware(nil).//中间件
+            //接口迭代信息
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").//创建，唯一
 			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").//变更，可有多个
-			Deprecated("1.0.0", "jyb", "2019/12/16", "删除")//废弃，唯一
+			Deprecated("1.0.0", "jyb", "2019/12/16", "删除").//废弃，唯一
+            End()
 	})
 
 	return &model.User{Name: "测试"}, nil
@@ -37,7 +38,7 @@ go get github.com/hopeio/pick
 type UserService struct{}
 //需要实现Service方法，返回该服务的说明，url前缀，以及需要的中间件
 func (*UserService) Service() (string, string, []http.HandlerFunc) {
-    return "用户相关", "/api/user", []http.HandlerFunc{middleware.Log}
+    return "用户相关", "/api/${version}/user", []http.HandlerFunc{middleware.Log}
 }
 
 ```
@@ -46,11 +47,13 @@ func (*UserService) Service() (string, string, []http.HandlerFunc) {
 //不同的api版本在方法名后加V+数字版本
 func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodPost).
+	pick.Api(func() {
+		return pick.Post("").
 			Title("用户注册").
+			Version(2).
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试")
+			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
+            End()
 	})
 
 	return &model.User{Name: "测试"}, nil
@@ -58,11 +61,12 @@ func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*mod
 
 
 func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.User, error) {
-	pick.Api(func() interface{} {
-		return pick.Method(http.MethodPut).
+	pick.Api(func() {
+		return pick.Put("/:id").
 			Title("用户编辑").
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-			Deprecated("1.0.0", "jyb", "2019/12/16", "删除")
+			Deprecated("1.0.0", "jyb", "2019/12/16", "删除").
+            End()
 	})
 
 	return nil, nil
@@ -72,35 +76,42 @@ func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.Use
 
 这会生成如下的Api
 ```shell
- API:	 POST   /api/user/v2/add    用户注册
- API:	 PUT    /api/user/v1/edit   用户编辑(废弃)
+ API:	 POST   /api/v2 /user   用户注册
+ API:	 PUT    /api/v1/user/:id   用户编辑(废弃)
 ```
-服务有特定的规范,方法名会作为url的结尾,
-第一个参数可以用于身份验证，当然你必须自己实现`type Session interface {Parse(*http.Request) error}`
+
+第一个参数可以用于身份验证，当然你必须自己实现
 作为一个例子,jwt验证，这会直接在传入我们的业务方法前调用
 ```go
-func (claims *Claims) Parse(req *http.Request) error {
+import (
+  "errors"
+  "github.com/golang-jwt/jwt/v5"
+  "github.com/hopeio/tiga/context/http_context"
+)
 
-	token := req.Header.Get("Authorization")
-
-	if token == "" {
-		return errors.New("未登录")
-	}
-	tokenClaims, _ := (&jwt.Parser{SkipClaimsValidation: true}).ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return "TokenSecret", nil
-	})
-
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-			now := time.Now().Unix()
-			if claims.VerifyExpiresAt(now, false) == false {
-				return errors.New("登录超时")
-			}
-			return nil
-		}
-	}
-	return errors.New("未登录")
+type AuthInfo struct {
+  Id int
+  jwt.RegisteredClaims
 }
+
+func ParseAuthInfo(ctx *http_context.Context) (*AuthInfo, error) {
+  token := ctx.Request.Header.Get("Authorization")
+  authInfo := &AuthInfo{}
+  if token == "" {
+    return nil, errors.New("未登录")
+  }
+  tokenClaims, _ := (&jwt.Parser{}).ParseWithClaims(token, authInfo, func(token *jwt.Token) (interface{}, error) {
+    return "TokenSecret", nil
+  })
+  
+  if tokenClaims != nil {
+    if claims, ok := tokenClaims.Claims.(*AuthInfo); ok && tokenClaims.Valid {
+    return claims,nil
+    }
+  }
+  return nil,errors.New("未登录")
+}
+
 ```
 第二个参数为我们定义的参数，
 返回值分别是自定义的返回结构体及错误，
@@ -146,20 +157,20 @@ func main() {
 ```go
 type User struct {
 	Id uint64 `json:"id"`
-	Name string `json:"name" annotation:"名字" validate:"gte=3,lte=10"`
-	Password string `json:"password" annotation:"密码" validate:"gte=8,lte=15"`
-	Mail string `json:"mail" annotation:"邮箱" validate:"email"`
-	Phone string `json:"phone" annotation:"手机" validate:"phone"`
+	Name string `json:"name" comment:"名字" validate:"gte=3,lte=10"`
+	Password string `json:"password" comment:"密码" validate:"gte=8,lte=15"`
+	Mail string `json:"mail" comment:"邮箱" validate:"email"`
+	Phone string `json:"phone" comment:"手机" validate:"phone"`
 }
 ```
-如果你需要markdown文档，/api-doc/md
+如果你需要markdown文档，/api-doc/markdown
 它会为我们生成如下文档
 > [TOC]
 > 
 > # 用户相关  
 > ----------
-> ## 用户注册-v1(`/api/v1/user/add`)  
-> **POST** `/api/v1/user/add` _(Principal jyb)_  
+> ## 用户注册-v1(`/api/v1/user`)  
+> **POST** `/api/v1/user` _(Principal jyb)_  
 > ### 接口记录  
 > |版本|操作|时间|负责人|日志|  
 > | :----: | :----: | :----: | :----: | :----: |  
@@ -195,13 +206,13 @@ type User struct {
 > 	"password": "梊朖迍髽栳"
 > }  
 > ```  
-> ## ~~用户编辑-v1(废弃)(`/api/v1/user/edit`)~~  
-> **PUT** `/api/v1/user/edit` _(Principal jyb)_  
+> ## ~~用户编辑-v1(废弃)(`/api/v1/user/:id`)~~  
+> **PUT** `/api/v1/user/:id` _(Principal jyb)_  
 > ### 接口记录  
 > ...
 
 是的，示例并不那么好看，并非不能支持简体字和英文字母，我计划单独写一个mock模块
 
 当然你钟情swagger，也可以`/api-doc/swagger`
-![Image text](./static/20200430100211.jpg)
+![Image text](./static/1712546925271.jpg)
 

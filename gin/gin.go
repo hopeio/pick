@@ -28,7 +28,7 @@ func Register(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 		engine.Group(preUrl, handler.Converts(middleware)...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.ClaimsType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
 			if methodInfo == nil {
 				continue
 			}

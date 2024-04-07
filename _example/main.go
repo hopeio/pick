@@ -12,7 +12,7 @@ import (
 
 func main() {
 	pick2.RegisterService(&service2.UserService{}, &service2.TestService{}, &service2.StaticService{})
-	router := router2.New(false, "httptpl")
+	router := router2.New(true, "httptpl")
 	router.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

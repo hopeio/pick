@@ -110,7 +110,7 @@ func handleValid(h1 http.Handler, h2 *reflect.Value) bool {
 }
 
 func (h *methodHandle) Valid() bool {
-	return h.httpHandler != nil || h.handle.IsValid()
+	return h.httpHandler != nil || (h.handle != nil && h.handle.IsValid())
 }
 
 type node struct {

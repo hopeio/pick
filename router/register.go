@@ -20,7 +20,7 @@ func register(router *Router, genApiDoc bool, modName string) {
 		var infos []*pick.ApiDocInfo
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.ClaimsType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -52,10 +52,10 @@ func openApi(mux *Router, filePath, modName string) {
 	apidoc.FilePath = filePath
 	pick.Markdown(filePath, modName)
 	_ = mime.AddExtensionType(".svg", "image/svg+xml")
-	mux.Handler(http.MethodGet, apidoc.PrefixUri+"Markdown/*file", func(w http.ResponseWriter, req *http.Request) {
-		http.ServeFile(w, req, filePath+".apidoc.Markdown")
+	mux.Handler(http.MethodGet, apidoc.PrefixUri+"markdown", func(w http.ResponseWriter, req *http.Request) {
+		http.ServeFile(w, req, filePath+modName+"/"+modName+".apidoc.md")
 	})
 	pick.Swagger(filePath, modName)
 	mux.Handler(http.MethodGet, apidoc.PrefixUri[:len(apidoc.PrefixUri)-1], apidoc.ApiMod)
-	mux.Handler(http.MethodGet, apidoc.PrefixUri+"Swagger/*file", apidoc.HttpHandle)
+	mux.Handler(http.MethodGet, apidoc.PrefixUri+"swagger/*file", apidoc.HttpHandle)
 }

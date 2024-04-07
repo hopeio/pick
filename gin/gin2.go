@@ -14,6 +14,7 @@ import (
 	"reflect"
 )
 
+// 与gin.go功能相同,只是做了拆分
 func genApi(middlewareHandler func(preUrl string, middleware []http.HandlerFunc), handle func(method, path string, in2Type reflect.Type, methodValue, value reflect.Value)) {
 	for _, v := range pick.Svcs {
 		describe, preUrl, middleware := v.Service()
@@ -26,7 +27,7 @@ func genApi(middlewareHandler func(preUrl string, middleware []http.HandlerFunc)
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.ClaimsType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
 			if methodInfo == nil {
 				continue
 			}

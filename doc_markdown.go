@@ -73,7 +73,7 @@ func Markdown(filePath, modName string) {
 				fmt.Fprint(buf, "| :----  | :----: | :----: | :----: |  \n")
 				params := getParamTable(methodInfo.Method.In(2).Elem(), "")
 				for i := range params {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].annotation, params[i].validator)
+					fmt.Fprintf(buf, "|%s|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment, params[i].validator)
 				}
 
 			} else {
@@ -91,7 +91,7 @@ func Markdown(filePath, modName string) {
 			fmt.Fprint(buf, "| :----  | :----: | :----: | \n")
 			params := getParamTable(methodInfo.Method.Out(0).Elem(), "")
 			for i := range params {
-				fmt.Fprintf(buf, "|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].annotation)
+				fmt.Fprintf(buf, "|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment)
 			}
 			fmt.Fprint(buf, "__返回示例__  \n")
 			fmt.Fprint(buf, "```json  \n")
@@ -113,7 +113,7 @@ func genFile(filePath, modName string) (*os.File, error) {
 		return nil, err
 	}
 
-	filePath = filepath.Join(filePath, modName+".apidoc.Markdown")
+	filePath = filepath.Join(filePath, modName+".apidoc.md")
 
 	if _, err := os.Stat(filePath); err == nil {
 		os.Remove(filePath)
@@ -127,7 +127,7 @@ func genFile(filePath, modName string) (*os.File, error) {
 }
 
 type ParamTable struct {
-	json, annotation, typ, validator string
+	json, comment, typ, validator string
 }
 
 func getParamTable(param reflect.Type, pre string) []*ParamTable {
@@ -152,13 +152,13 @@ func getParamTable(param reflect.Type, pre string) []*ParamTable {
 		} else {
 			p.json = pre + json
 		}
-		p.annotation = field.Tag.Get("annotation")
-		if p.annotation == "-" {
-			p.annotation = p.json
+		p.comment = field.Tag.Get("comment")
+		if p.comment == "-" {
+			p.comment = p.json
 		}
 		p.typ = getJsType(field.Type)
 		if valid := validator.Trans(validator.Validator.StructPartial(newParam, field.Name)); valid != "" {
-			p.validator = valid[len(p.annotation):]
+			p.validator = valid[len(p.comment):]
 		}
 		if p.typ == "object" || p.typ == "[]object" {
 			p.json = "**" + p.json + "**"

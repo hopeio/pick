@@ -19,7 +19,7 @@ func commonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 			defer s.End()
 		}
 		for i := 0; i < handleNumIn; i++ {
-			if handleTyp.In(i).Implements(pick.ClaimsType) {
+			if handleTyp.In(i).ConvertibleTo(pick.HttpContextType) {
 				params[i] = reflect.ValueOf(ctxi)
 			} else {
 				params[i] = reflect.New(handleTyp.In(i).Elem())

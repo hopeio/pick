@@ -3,7 +3,6 @@ package pick
 import (
 	"context"
 	"encoding/json"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/hopeio/tiga/context/http_context"
 	"io"
 	"net/http"
@@ -12,31 +11,18 @@ import (
 	"github.com/hopeio/tiga/protobuf/errorcode"
 	httpi "github.com/hopeio/tiga/utils/net/http"
 	http_fs "github.com/hopeio/tiga/utils/net/http/fs"
-	"google.golang.org/grpc"
 )
-
-type Context interface {
-	context.Context
-	jwt.Claims
-	grpc.ServerTransportStream
-}
-
-type ParseFromHttpRequest interface {
-	Parse(req *http.Request) error
-}
-
-var parseType = reflect.TypeOf((*ParseFromHttpRequest)(nil)).Elem()
 
 type ParseToHttpResponse interface {
 	Parse() ([]byte, error)
 }
 
 var (
-	Svcs         = make([]Service, 0)
-	isRegistered = false
-	ClaimsType   = reflect.TypeOf((*Context)(nil)).Elem()
-	ContextType  = reflect.TypeOf((*context.Context)(nil)).Elem()
-	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
+	Svcs            = make([]Service, 0)
+	isRegistered    = false
+	HttpContextType = reflect.TypeOf((*http_context.Context)(nil))
+	ContextType     = reflect.TypeOf((*context.Context)(nil)).Elem()
+	ErrorType       = reflect.TypeOf((*error)(nil)).Elem()
 )
 
 type Service interface {

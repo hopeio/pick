@@ -37,9 +37,9 @@ func RegisterGrpcGateway(engine *gin.Engine, genDoc bool, modName string, tracin
 				!methodType.Out(1).Implements(pick.ErrorType) {
 				continue
 			}
-
+			methodInfoExport := methodInfo.GetApiInfo()
 			in2Type := methodType.In(2)
-			group.Handle(methodInfo.method, methodInfo.path, func(ctx *gin.Context) {
+			group.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
 				ctxi, s := http_context.ContextFromRequestResponse(ctx.Request, ctx.Writer, tracing)
 				if s != nil {
 					defer s.End()

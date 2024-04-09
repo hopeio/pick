@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"reflect"
-	"strconv"
 	"strings"
 	"unsafe"
 
@@ -165,7 +164,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 				if v.version == 0 {
 					v.version = 1
 				}
-				v.path = strings.Replace(preUrl, "${version}", "v"+strconv.Itoa(v.version), 1) + v.path
+				v.path = preUrl + v.path
 				info = v
 			} else {
 				log.Error(err)

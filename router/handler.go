@@ -1,4 +1,4 @@
-package router
+package pickrouter
 
 import (
 	"github.com/hopeio/pick"
@@ -14,12 +14,15 @@ func commonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 	handleNumIn := handleTyp.NumIn()
 	if handleNumIn != 0 {
 		params := make([]reflect.Value, handleNumIn)
-		ctxi, s := http_context.ContextFromRequestResponse(req, w, tracing)
+		ctxi, s := http_context.ContextFromRequest(http_context.RequestCtx{
+			Request:  req,
+			Response: w,
+		}, tracing)
 		if s != nil {
 			defer s.End()
 		}
 		for i := 0; i < handleNumIn; i++ {
-			if handleTyp.In(i).ConvertibleTo(pick.HttpContextType) {
+			if handleTyp.In(i).ConvertibleTo(HttpContextType) {
 				params[i] = reflect.ValueOf(ctxi)
 			} else {
 				params[i] = reflect.New(handleTyp.In(i).Elem())
@@ -33,7 +36,7 @@ func commonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 							}
 						}
 					}
-					binding.PickDecode(params[i], src)
+					binding.Decode(params[i], src)
 				}
 				if req.Method != http.MethodGet {
 					json.NewDecoder(req.Body).Decode(params[i].Interface())

@@ -1,4 +1,4 @@
-package router
+package pickrouter
 
 import (
 	"fmt"

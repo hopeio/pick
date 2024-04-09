@@ -1,22 +1,23 @@
-package gin
+package pickgin
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/tiga/context/http_context"
+	"github.com/hopeio/tiga/context/gin_context"
 	"github.com/hopeio/tiga/protobuf/errorcode"
 	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
 	gin_build "github.com/hopeio/tiga/utils/net/http/gin"
-	"github.com/hopeio/tiga/utils/net/http/gin/handler"
 	"github.com/hopeio/tiga/utils/net/http/request"
 	"log"
 	"net/http"
 	"reflect"
 )
 
+type Handler = func(method, path string, in2Type reflect.Type, methodValue, value reflect.Value)
+
 // 与gin.go功能相同,只是做了拆分
-func genApi(middlewareHandler func(preUrl string, middleware []http.HandlerFunc), handle func(method, path string, in2Type reflect.Type, methodValue, value reflect.Value)) {
-	for _, v := range pick.Svcs {
+func genApi(middlewareHandler func(preUrl string, middleware []gin.HandlerFunc), handle Handler) {
+	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		middlewareHandler(preUrl, middleware)
 		value := reflect.ValueOf(v)
@@ -27,7 +28,7 @@ func genApi(middlewareHandler func(preUrl string, middleware []http.HandlerFunc)
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -44,16 +45,16 @@ func genApi(middlewareHandler func(preUrl string, middleware []http.HandlerFunc)
 		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{describe, infos})
 	}
 
-	pick.Registered()
+	pick.Registered(Svcs)
 }
 
-func RegisterGinAPI(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
-	genApi(func(preUrl string, middleware []http.HandlerFunc) {
-		engine.Group(preUrl, handler.Converts(middleware)...)
+func Start2(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
+	genApi(func(preUrl string, middleware []gin.HandlerFunc) {
+		engine.Group(preUrl, middleware...)
 	},
 		func(method, path string, in2Type reflect.Type, methodValue, value reflect.Value) {
 			engine.Handle(method, path, func(ctx *gin.Context) {
-				ctxi, span := http_context.ContextFromRequestResponse(ctx.Request, ctx.Writer, tracing)
+				ctxi, span := gin_context.ContextFromRequest(ctx, tracing)
 				if span != nil {
 					defer span.End()
 				}

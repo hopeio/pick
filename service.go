@@ -1,9 +1,8 @@
 package pick
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/hopeio/tiga/context/http_context"
+	contexti "github.com/hopeio/tiga/context"
 	"io"
 	"net/http"
 	"reflect"
@@ -18,25 +17,18 @@ type ParseToHttpResponse interface {
 }
 
 var (
-	Svcs            = make([]Service, 0)
-	isRegistered    = false
-	HttpContextType = reflect.TypeOf((*http_context.Context)(nil))
-	ContextType     = reflect.TypeOf((*context.Context)(nil)).Elem()
-	ErrorType       = reflect.TypeOf((*error)(nil)).Elem()
+	isRegistered = false
+	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-type Service interface {
+type Service[T any] interface {
 	//返回描述，url的前缀，中间件
-	Service() (describe, prefix string, middleware []http.HandlerFunc)
+	Service() (describe, prefix string, middleware []T)
 }
 
-func RegisterService(svc ...Service) {
-	Svcs = append(Svcs, svc...)
-}
-
-func Registered() {
+func Registered[T any](svcs []Service[T]) {
 	isRegistered = true
-	Svcs = nil
+	svcs = nil
 	GroupApiInfos = nil
 }
 
@@ -46,14 +38,7 @@ func Api(f func()) {
 	}
 }
 
-// 兼容有返回值和无返回值的写法
-func Api2(f func() any) {
-	if !isRegistered {
-		panic(f())
-	}
-}
-
-func ResHandler(c *http_context.Context, w http.ResponseWriter, result []reflect.Value) {
+func ResHandler[T any](c *contexti.RequestContext[T], w http.ResponseWriter, result []reflect.Value) {
 	if !result[1].IsNil() {
 		err := errorcode.ErrHandle(result[1].Interface())
 		c.HandleError(err)

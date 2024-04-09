@@ -1,29 +1,29 @@
-package gin
+package pickgrpcgetway
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/tiga/context/http_context"
+	"github.com/hopeio/pick/gin"
+	"github.com/hopeio/tiga/context/gin_context"
 	"github.com/hopeio/tiga/utils/log"
 	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
 	gin_build "github.com/hopeio/tiga/utils/net/http/gin"
-	"github.com/hopeio/tiga/utils/net/http/gin/handler"
 	"reflect"
 )
 
-func RegisterGrpcGateway(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
+func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 
-	for _, v := range pick.Svcs {
+	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("必须传入指针")
 		}
 		var infos []*pick.ApiDocInfo
-		group := engine.Group(preUrl, handler.Converts(middleware)...)
+		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, pickgin.GinContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -33,14 +33,14 @@ func RegisterGrpcGateway(engine *gin.Engine, genDoc bool, modName string, tracin
 			methodType := method.Type
 			methodValue := method.Func
 			if method.Type.NumIn() < 3 || method.Type.NumOut() != 2 ||
-				!methodType.In(1).Implements(pick.ContextType) ||
+				!methodType.In(1).Implements(ContextType) ||
 				!methodType.Out(1).Implements(pick.ErrorType) {
 				continue
 			}
 			methodInfoExport := methodInfo.GetApiInfo()
 			in2Type := methodType.In(2)
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
-				ctxi, s := http_context.ContextFromRequestResponse(ctx.Request, ctx.Writer, tracing)
+				ctxi, s := gin_context.ContextFromRequest(ctx, tracing)
 				if s != nil {
 					defer s.End()
 				}
@@ -58,5 +58,5 @@ func RegisterGrpcGateway(engine *gin.Engine, genDoc bool, modName string, tracin
 		pick.GenApiDoc(modName)
 		gin_build.OpenApi(engine, apidoc.FilePath)
 	}
-
+	pick.Registered(Svcs)
 }

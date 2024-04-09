@@ -10,7 +10,7 @@ import (
 type UserService struct{}
 
 func (*UserService) Service() (string, string, []http.HandlerFunc) {
-	return "用户相关", "/api/${version}/user", []http.HandlerFunc{middle.Log}
+	return "用户相关", "/api/v1/user", []http.HandlerFunc{middle.Log}
 }
 
 func (*UserService) Add(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {

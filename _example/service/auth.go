@@ -12,7 +12,7 @@ type AuthInfo struct {
 }
 
 func ParseAuthInfo(ctx *http_context.Context) (*AuthInfo, error) {
-	token := ctx.Request.Header.Get("Authorization")
+	token := ctx.RequestCtx.Request.Header.Get("Authorization")
 	authInfo := &AuthInfo{}
 	if token == "" {
 		return nil, errors.New("未登录")

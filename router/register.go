@@ -1,4 +1,4 @@
-package router
+package pickrouter
 
 import (
 	"github.com/hopeio/pick"
@@ -11,7 +11,7 @@ import (
 
 func register(router *Router, genApiDoc bool, modName string) {
 	methods := make(map[string]struct{})
-	for _, v := range pick.Svcs {
+	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
@@ -20,7 +20,7 @@ func register(router *Router, genApiDoc bool, modName string) {
 		var infos []*pick.ApiDocInfo
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -45,7 +45,7 @@ func register(router *Router, genApiDoc bool, modName string) {
 	}
 	router.globalAllowed = allowedMethod(allowed)
 
-	pick.Registered()
+	pick.Registered(Svcs)
 }
 
 func openApi(mux *Router, filePath, modName string) {

@@ -1,11 +1,10 @@
-package fiber
+package pickfiber
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/tiga/context/fasthttp_context"
+	"github.com/hopeio/tiga/context/fiber_context"
 	http_fs "github.com/hopeio/tiga/utils/net/http/fs"
 	"io"
 	"net/http"
@@ -17,30 +16,6 @@ import (
 	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
 	fiber_build "github.com/hopeio/tiga/utils/net/http/fasthttp/fiber"
 )
-
-type Service interface {
-	//返回描述，url的前缀，中间件
-	FiberService() (describe, prefix string, middleware []fiber.Handler)
-}
-
-var fiberSvcs = make([]Service, 0)
-
-func RegisterFiberService(svc ...Service) {
-	fiberSvcs = append(fiberSvcs, svc...)
-}
-
-var faberIsRegistered = false
-
-func faberRegistered() {
-	faberIsRegistered = true
-	fiberSvcs = nil
-}
-
-func Api(f func()) {
-	if !faberIsRegistered {
-		f()
-	}
-}
 
 func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {
 	writer := ctx.Response().BodyWriter()
@@ -65,10 +40,10 @@ func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {
 }
 
 // 复用pick service，不支持单个接口的中间件
-func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
+func Start(engine *fiber.App, genApi bool, modName string) {
 
-	for _, v := range fiberSvcs {
-		describe, preUrl, middleware := v.FiberService()
+	for _, v := range Svcs {
+		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("必须传入指针")
@@ -77,7 +52,7 @@ func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
 		engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, pick.ClaimsType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -90,7 +65,11 @@ func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			engine.Add([]string{methodInfoExport.Method}, methodInfoExport.Path, func(ctx fiber.Ctx) error {
-				in1 := reflect.ValueOf(fasthttp_context.ContextFromRequestResponse(context.Background(), ctx.Request()))
+				ctxi, span := fiber_context.ContextFromRequest(ctx, true)
+				if span != nil {
+					defer span.End()
+				}
+				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
 				if err := fiber_build.Bind(ctx, in2.Interface()); err != nil {
 					return ctx.Status(http.StatusBadRequest).JSON(errorcode.InvalidArgument.ErrRep())
@@ -108,5 +87,5 @@ func RegisterWithCtx(engine *fiber.App, genApi bool, modName string) {
 		pick.Swagger(filePath, modName)
 		//gin_build.OpenApi(engine, filePath)
 	}
-	faberRegistered()
+	pick.Registered(Svcs)
 }

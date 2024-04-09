@@ -9,7 +9,7 @@ import (
 type TestService struct{}
 
 func (*TestService) Service() (string, string, []http.HandlerFunc) {
-	return "测试相关", "/api/${version}/test", nil
+	return "测试相关", "/api/v2/test", nil
 }
 
 type SignupReq struct {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	pick2 "github.com/hopeio/pick"
 	service2 "github.com/hopeio/pick/_example/service"
 	router2 "github.com/hopeio/pick/router"
 	"log"
@@ -11,7 +10,7 @@ import (
 )
 
 func main() {
-	pick2.RegisterService(&service2.UserService{}, &service2.TestService{}, &service2.StaticService{})
+	router2.RegisterService(&service2.UserService{}, &service2.TestService{}, &service2.StaticService{})
 	router := router2.New(true, "httptpl")
 	router.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")

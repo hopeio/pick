@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-package router
+package pickrouter
 
 import (
 	"net/http"
@@ -17,17 +17,10 @@ import (
 
 const MethodAny = "*"
 
-func min(a, b int) int {
-	if a <= b {
-		return a
-	}
-	return b
-}
-
 func longestCommonPrefix(a, b string) int {
 	i := 0
-	max := min(len(a), len(b))
-	for i < max && a[i] == b[i] {
+	n := min(len(a), len(b))
+	for i < n && a[i] == b[i] {
 		i++
 	}
 	return i
@@ -102,7 +95,7 @@ func getHandle(method string, mhs []*methodHandle) (mh *methodHandle) {
 			return mh
 		}
 	}
-	return &methodHandle{}
+	return nil
 }
 
 func handleValid(h1 http.Handler, h2 *reflect.Value) bool {
@@ -110,7 +103,7 @@ func handleValid(h1 http.Handler, h2 *reflect.Value) bool {
 }
 
 func (h *methodHandle) Valid() bool {
-	return h.httpHandler != nil || (h.handle != nil && h.handle.IsValid())
+	return h != nil && h.httpHandler != nil || (h != nil && h.handle != nil && h.handle.IsValid())
 }
 
 type node struct {
@@ -120,7 +113,7 @@ type node struct {
 	indices    []byte
 	cType      nodeType //if>3 wildChild,代替原来的wildChild
 	children   []*node
-	middleware httpi.HandlerFuncs `json:"-"`
+	middleware httpi.HandlerFuncs
 	handle     []*methodHandle
 }
 

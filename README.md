@@ -38,19 +38,18 @@ go get github.com/hopeio/pick
 type UserService struct{}
 //需要实现Service方法，返回该服务的说明，url前缀，以及需要的中间件
 func (*UserService) Service() (string, string, []http.HandlerFunc) {
-    return "用户相关", "/api/${version}/user", []http.HandlerFunc{middleware.Log}
+    return "用户相关", "/api/v1/user", []http.HandlerFunc{middleware.Log}
 }
 
 ```
 然后可以写我们的业务方法
 ```go
-//不同的api版本在方法名后加V+数字版本
+
 func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() {
 		return pick.Post("").
 			Title("用户注册").
-			Version(2).
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
 			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
             End()
@@ -76,7 +75,7 @@ func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.Use
 
 这会生成如下的Api
 ```shell
- API:	 POST   /api/v2 /user   用户注册
+ API:	 POST   /api/v1 /user   用户注册
  API:	 PUT    /api/v1/user/:id   用户编辑(废弃)
 ```
 
@@ -129,21 +128,21 @@ router.Handle(http.MethodGet, "/api-doc/md", "api文档", func(w http.ResponseWr
 
 ```go
 func init(){
-	pick.RegisterService(&service.UserService{})
+    pickrouter.RegisterService(&service.UserService{})
 }
 ```
 当然你可以注册多个
 ```go
 func init(){
-	pick.RegisterService(&service.UserService{},&other.Service{})
+    pickrouter.RegisterService(&service.UserService{},&other.Service{})
 }
 ```
 最后启动我们的服务
 ```go
 func main() {
     //是否生成文档
-	router := pick.NewRouter(true)
-	router.ServeFiles("/static", "E:/")
+	router := pickrouter.NewRouter(true)
+    pickrouter.ServeFiles("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

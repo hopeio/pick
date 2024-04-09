@@ -10,7 +10,6 @@ require (
 )
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 )
@@ -42,7 +41,7 @@ require (
 	github.com/gofiber/utils/v2 v2.0.0-beta.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/hopeio/tiga v1.7.5
+	github.com/hopeio/tiga v1.7.8
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect

@@ -175,27 +175,27 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	methodType := methodValue.Type()
 	numIn := methodType.NumIn()
 	numOut := methodType.NumOut()
-	var err error
-	defer func() {
-		if err != nil {
-			log.Debugf("未注册: %s 原因:%v", method.Name, err)
-		}
-	}()
+	/*	var err error
+		defer func() {
+			if err != nil {
+				log.Debugf("未注册: %s 原因:%v", method.Name, err)
+			}
+		}()*/
 
 	if numIn != 3 {
-		err = errors.New("method参数必须为两个")
+		//err = errors.New("method参数必须为两个")
 		return
 	}
 	if numOut != 2 {
-		err = errors.New("method返回值必须为两个")
+		//err = errors.New("method返回值必须为两个")
 		return
 	}
-	/*	if !methodType.In(1).ConvertibleTo(httpContext) {
-		err = errors.New("service第一个参数必须为*http_context.Context类型")
+	if !methodType.In(1).ConvertibleTo(httpContext) {
+		//err = errors.New("service第一个参数必须为*http_context.Context类型")
 		return
-	}*/
+	}
 	if !methodType.Out(1).Implements(ErrorType) {
-		err = errors.New("service第二个返回值必须为error类型")
+		//err = errors.New("service第二个返回值必须为error类型")
 		return
 	}
 	params := make([]reflect.Value, numIn, numIn)

@@ -3,18 +3,18 @@ package pickfiber
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
+	"github.com/hopeio/cherry/context/fiber_context"
+	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/tiga/context/fiber_context"
-	http_fs "github.com/hopeio/tiga/utils/net/http/fs"
 	"io"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/tiga/protobuf/errorcode"
-	"github.com/hopeio/tiga/utils/log"
-	httpi "github.com/hopeio/tiga/utils/net/http"
-	"github.com/hopeio/tiga/utils/net/http/api/apidoc"
-	fiber_build "github.com/hopeio/tiga/utils/net/http/fasthttp/fiber"
+	"github.com/hopeio/cherry/protobuf/errorcode"
+	"github.com/hopeio/cherry/utils/log"
+	httpi "github.com/hopeio/cherry/utils/net/http"
+	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
+	fiber_build "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
 )
 
 func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {

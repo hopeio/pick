@@ -2,7 +2,7 @@ package pickrouter
 
 import (
 	"fmt"
-	"github.com/hopeio/tiga/utils/encoding/json"
+	"github.com/hopeio/cherry/utils/encoding/json"
 	"net/http"
 	"testing"
 )

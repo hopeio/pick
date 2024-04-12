@@ -85,7 +85,7 @@ func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.Use
 import (
   "errors"
   "github.com/golang-jwt/jwt/v5"
-  "github.com/hopeio/tiga/context/http_context"
+  "github.com/hopeio/cherry/context/http_context"
 )
 
 type AuthInfo struct {

@@ -12,7 +12,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	httpi "github.com/hopeio/tiga/utils/net/http"
+	httpi "github.com/hopeio/cherry/utils/net/http"
 )
 
 const MethodAny = "*"

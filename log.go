@@ -1,9 +1,9 @@
 package pick
 
 import (
-	"github.com/hopeio/tiga/utils/console/style"
-	"github.com/hopeio/tiga/utils/log"
-	stringsi "github.com/hopeio/tiga/utils/strings"
+	"github.com/hopeio/cherry/utils/console/style"
+	"github.com/hopeio/cherry/utils/log"
+	stringsi "github.com/hopeio/cherry/utils/strings"
 )
 
 func Log(method, path, title string) {

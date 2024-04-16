@@ -2,7 +2,8 @@ package pick
 
 import (
 	"github.com/hopeio/cherry/utils/console/style"
-	"github.com/hopeio/cherry/utils/log"
+	"log"
+
 	stringsi "github.com/hopeio/cherry/utils/strings"
 )
 

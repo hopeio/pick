@@ -49,7 +49,7 @@ func Start(engine *fiber.App, genApi bool, modName string) {
 			log.Fatal("必须传入指针")
 		}
 		var infos []*pick.ApiDocInfo
-		engine.Group(preUrl, middleware...)
+		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
 			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType)
@@ -64,7 +64,7 @@ func Start(engine *fiber.App, genApi bool, modName string) {
 			methodValue := method.Func
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
-			engine.Add([]string{methodInfoExport.Method}, methodInfoExport.Path, func(ctx fiber.Ctx) error {
+			group.Add([]string{methodInfoExport.Method}, methodInfoExport.Path[len(preUrl):], func(ctx fiber.Ctx) error {
 				ctxi, span := fiber_context.ContextFromRequest(ctx, true)
 				if span != nil {
 					defer span.End()

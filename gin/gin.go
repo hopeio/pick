@@ -24,7 +24,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			log.Fatal("必须传入指针")
 		}
 		var infos []*pick.ApiDocInfo
-		engine.Group(preUrl, middleware...)
+		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
 			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
@@ -38,7 +38,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			methodValue := method.Func
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
-			engine.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
+			group.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
 				ctxi, span := gin_context.ContextFromRequest(ctx, tracing)
 				if span != nil {
 					defer span.End()

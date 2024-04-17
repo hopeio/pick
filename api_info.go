@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-openapi/spec"
 	"github.com/hopeio/cherry/utils/log"
-	"github.com/hopeio/cherry/utils/reflect"
+	reflecti "github.com/hopeio/cherry/utils/reflect"
 )
 
 const Template = `

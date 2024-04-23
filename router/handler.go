@@ -3,7 +3,7 @@ package pickrouter
 import (
 	"github.com/hopeio/cherry/context/http_context"
 	"github.com/hopeio/cherry/utils/encoding/json"
-	"github.com/hopeio/cherry/utils/net/http/request/binding"
+	"github.com/hopeio/cherry/utils/net/http/binding"
 	"github.com/hopeio/pick"
 	"net/http"
 	"reflect"

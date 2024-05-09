@@ -13,7 +13,7 @@ import (
 	"github.com/hopeio/cherry/utils/mock"
 	reflecti "github.com/hopeio/cherry/utils/reflect"
 	stringsi "github.com/hopeio/cherry/utils/strings"
-	"github.com/hopeio/cherry/utils/verification/validator"
+	"github.com/hopeio/cherry/utils/validation/validator"
 )
 
 type ApiDocInfo struct {

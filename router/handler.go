@@ -1,7 +1,7 @@
 package pickrouter
 
 import (
-	"github.com/hopeio/cherry/context/http_context"
+	"github.com/hopeio/cherry/context/httpctx"
 	"github.com/hopeio/cherry/utils/encoding/json"
 	"github.com/hopeio/cherry/utils/net/http/binding"
 	"github.com/hopeio/pick"
@@ -14,7 +14,7 @@ func commonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 	handleNumIn := handleTyp.NumIn()
 	if handleNumIn != 0 {
 		params := make([]reflect.Value, handleNumIn)
-		ctxi, s := http_context.ContextFromRequest(http_context.RequestCtx{
+		ctxi, s := httpctx.ContextFromRequest(httpctx.RequestCtx{
 			Request:  req,
 			Response: w,
 		}, tracing)

@@ -1,7 +1,7 @@
 package pickgin
 
 import (
-	"github.com/hopeio/cherry/context/gin_context"
+	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/protobuf/errorcode"
 	httpi "github.com/hopeio/cherry/utils/net/http"
 	"github.com/hopeio/pick"
@@ -39,7 +39,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path[len(preUrl):], func(ctx *gin.Context) {
-				ctxi, span := gin_context.ContextFromRequest(ctx, tracing)
+				ctxi, span := ginctx.ContextFromRequest(ctx, tracing)
 				if span != nil {
 					defer span.End()
 				}

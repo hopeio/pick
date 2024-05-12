@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hopeio/cherry/context/http_context"
+	"github.com/hopeio/cherry/context/httpctx"
 )
 
 type AuthInfo struct {
@@ -11,7 +11,7 @@ type AuthInfo struct {
 	jwt.RegisteredClaims
 }
 
-func ParseAuthInfo(ctx *http_context.Context) (*AuthInfo, error) {
+func ParseAuthInfo(ctx *httpctx.Context) (*AuthInfo, error) {
 	token := ctx.RequestCtx.Request.Header.Get("Authorization")
 	authInfo := &AuthInfo{}
 	if token == "" {

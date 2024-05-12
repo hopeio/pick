@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/hopeio/cherry/context/http_context"
+	"github.com/hopeio/cherry/context/httpctx"
 	pick2 "github.com/hopeio/pick"
 	"github.com/hopeio/pick/_example/middle"
 	"net/http"
@@ -13,7 +13,7 @@ func (*UserService) Service() (string, string, []http.HandlerFunc) {
 	return "用户相关", "/api/v1/user", []http.HandlerFunc{middle.Log}
 }
 
-func (*UserService) Add(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*UserService) Add(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick2.Api(func() {
 		pick2.Post("").
@@ -31,7 +31,7 @@ type EditReq struct {
 type EditReq_EditDetails struct {
 }
 
-func (*UserService) Edit(ctx *http_context.Context, req *EditReq) (*EditReq_EditDetails, error) {
+func (*UserService) Edit(ctx *httpctx.Context, req *EditReq) (*EditReq_EditDetails, error) {
 	pick2.Api(func() {
 		pick2.Put("/:id").
 			Title("用户编辑").
@@ -46,7 +46,7 @@ type Object struct {
 	Id uint64 `json:"id"`
 }
 
-func (*UserService) Get(ctx *http_context.Context, req *Object) (*TinyRep, error) {
+func (*UserService) Get(ctx *httpctx.Context, req *Object) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Get("/:id").
 			Title("用户详情").
@@ -67,7 +67,7 @@ type TinyRep struct {
 	Message string `json:"message"`
 }
 
-func (*StaticService) Sign2(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*StaticService) Sign2(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Get("/*mail").
 			Title("用户注册by mail").

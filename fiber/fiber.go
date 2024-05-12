@@ -3,7 +3,7 @@ package pickfiber
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/cherry/context/fiber_context"
+	"github.com/hopeio/cherry/context/fiberctx"
 	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
 	"github.com/hopeio/pick"
 	"io"
@@ -65,7 +65,7 @@ func Start(engine *fiber.App, genApi bool, modName string) {
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Add([]string{methodInfoExport.Method}, methodInfoExport.Path[len(preUrl):], func(ctx fiber.Ctx) error {
-				ctxi, span := fiber_context.ContextFromRequest(ctx, true)
+				ctxi, span := fiberctx.ContextFromRequest(ctx, true)
 				if span != nil {
 					defer span.End()
 				}

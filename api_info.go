@@ -191,7 +191,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 		return
 	}
 	if !methodType.In(1).ConvertibleTo(httpContext) {
-		//err = errors.New("service第一个参数必须为*http_context.Context类型")
+		//err = errors.New("service第一个参数必须为*httpctx.Context类型")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) {

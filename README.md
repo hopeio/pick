@@ -10,7 +10,7 @@
     >不再编写这样`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
 - 专注于业务
 ```go
-func (*UserService) Add(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
+func (*UserService) Add(ctx *httpctx.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() {
 		return pick.Post("").//定义请求的方法及路由
@@ -45,7 +45,7 @@ func (*UserService) Service() (string, string, []http.HandlerFunc) {
 然后可以写我们的业务方法
 ```go
 
-func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*model.User, error) {
+func (*UserService) AddV2(ctx *httpctx.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() {
 		return pick.Post("").
@@ -59,7 +59,7 @@ func (*UserService) AddV2(ctx *http_context.Context, req *model.SignupReq) (*mod
 }
 
 
-func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.User, error) {
+func (*UserService) Edit(ctx *httpctx.Context, req *model.User) (*model.User, error) {
 	pick.Api(func() {
 		return pick.Put("/:id").
 			Title("用户编辑").
@@ -85,7 +85,7 @@ func (*UserService) Edit(ctx *http_context.Context, req *model.User) (*model.Use
 import (
   "errors"
   "github.com/golang-jwt/jwt/v5"
-  "github.com/hopeio/cherry/context/http_context"
+  "github.com/hopeio/cherry/context/httpctx"
 )
 
 type AuthInfo struct {
@@ -93,7 +93,7 @@ type AuthInfo struct {
   jwt.RegisteredClaims
 }
 
-func ParseAuthInfo(ctx *http_context.Context) (*AuthInfo, error) {
+func ParseAuthInfo(ctx *httpctx.Context) (*AuthInfo, error) {
   token := ctx.Request.Header.Get("Authorization")
   authInfo := &AuthInfo{}
   if token == "" {

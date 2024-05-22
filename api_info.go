@@ -334,7 +334,7 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 			typ = "integer"
 		case reflect.Array, reflect.Slice:
 			typ = "array"
-			subType := reflecti.OriginalType(fieldType)
+			subType := reflecti.DerefType(fieldType)
 			subFieldName = subType.Name()
 			switch subType.Kind() {
 			case reflect.Struct, reflect.Ptr, reflect.Array, reflect.Slice:

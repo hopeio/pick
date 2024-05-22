@@ -131,7 +131,7 @@ type ParamTable struct {
 }
 
 func getParamTable(param reflect.Type, pre string) []*ParamTable {
-	param = reflecti.OriginalType(param)
+	param = reflecti.DerefType(param)
 	newParam := reflect.New(param).Interface()
 	var res []*ParamTable
 	for i := 0; i < param.NumField(); i++ {

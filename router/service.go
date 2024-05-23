@@ -1,7 +1,7 @@
 package pickrouter
 
 import (
-	"github.com/hopeio/cherry/context/http_context"
+	"github.com/hopeio/cherry/context/httpctx"
 	"github.com/hopeio/pick"
 	"net/http"
 	"reflect"
@@ -9,7 +9,7 @@ import (
 
 var (
 	Svcs            = make([]pick.Service[http.HandlerFunc], 0)
-	HttpContextType = reflect.TypeOf((*http_context.Context)(nil))
+	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
 )
 
 func RegisterService(svc ...pick.Service[http.HandlerFunc]) {

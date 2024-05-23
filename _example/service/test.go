@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/hopeio/cherry/context/http_context"
+	"github.com/hopeio/cherry/context/httpctx"
 	pick2 "github.com/hopeio/pick"
 	"net/http"
 )
@@ -16,7 +16,7 @@ type SignupReq struct {
 	Mail string `json:"mail"`
 }
 
-func (*TestService) Test(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*TestService) Test(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Post("").
 			Title("测试").
@@ -26,7 +26,7 @@ func (*TestService) Test(ctx *http_context.Context, req *SignupReq) (*TinyRep, e
 	return &TinyRep{Message: "测试"}, nil
 }
 
-func (*TestService) Test1(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*TestService) Test1(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Post("/").
 			Title("测试1").
@@ -38,7 +38,7 @@ func (*TestService) Test1(ctx *http_context.Context, req *SignupReq) (*TinyRep, 
 	return &TinyRep{Message: "测试"}, nil
 }
 
-func (*TestService) Test2(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*TestService) Test2(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Post("/a/").
 			Title("测试2").
@@ -49,7 +49,7 @@ func (*TestService) Test2(ctx *http_context.Context, req *SignupReq) (*TinyRep, 
 	return &TinyRep{Message: "测试"}, nil
 }
 
-func (*TestService) Test3(ctx *http_context.Context, req *SignupReq) (*TinyRep, error) {
+func (*TestService) Test3(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Post("/a/:b").
 			Title("测试3").

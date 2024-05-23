@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-openapi/spec"
 	"github.com/hopeio/cherry/utils/log"
-	"github.com/hopeio/cherry/utils/reflect"
+	reflecti "github.com/hopeio/cherry/utils/reflect"
 )
 
 const Template = `
@@ -191,7 +191,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 		return
 	}
 	if !methodType.In(1).ConvertibleTo(httpContext) {
-		//err = errors.New("service第一个参数必须为*http_context.Context类型")
+		//err = errors.New("service第一个参数必须为*httpctx.Context类型")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) {
@@ -334,7 +334,7 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 			typ = "integer"
 		case reflect.Array, reflect.Slice:
 			typ = "array"
-			subType := reflecti.OriginalType(fieldType)
+			subType := reflecti.DerefType(fieldType)
 			subFieldName = subType.Name()
 			switch subType.Kind() {
 			case reflect.Struct, reflect.Ptr, reflect.Array, reflect.Slice:

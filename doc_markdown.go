@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/hopeio/cherry/utils/mock"
-	"github.com/hopeio/cherry/utils/reflect"
-	"github.com/hopeio/cherry/utils/strings"
-	"github.com/hopeio/cherry/utils/verification/validator"
+	reflecti "github.com/hopeio/cherry/utils/reflect"
+	stringsi "github.com/hopeio/cherry/utils/strings"
+	"github.com/hopeio/cherry/utils/validation/validator"
 )
 
 type ApiDocInfo struct {
@@ -131,7 +131,7 @@ type ParamTable struct {
 }
 
 func getParamTable(param reflect.Type, pre string) []*ParamTable {
-	param = reflecti.OriginalType(param)
+	param = reflecti.DerefType(param)
 	newParam := reflect.New(param).Interface()
 	var res []*ParamTable
 	for i := 0; i < param.NumField(); i++ {

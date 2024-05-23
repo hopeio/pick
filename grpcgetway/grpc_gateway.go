@@ -2,7 +2,7 @@ package pickgrpcgetway
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/cherry/context/gin_context"
+	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/utils/log"
 	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
 	gin_build "github.com/hopeio/cherry/utils/net/http/gin"
@@ -40,7 +40,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			methodInfoExport := methodInfo.GetApiInfo()
 			in2Type := methodType.In(2)
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
-				ctxi, s := gin_context.ContextFromRequest(ctx, tracing)
+				ctxi, s := ginctx.ContextFromRequest(ctx, tracing)
 				if s != nil {
 					defer s.End()
 				}

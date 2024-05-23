@@ -1,9 +1,9 @@
 package pickgin
 
 import (
-	"github.com/hopeio/cherry/context/gin_context"
+	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/protobuf/errorcode"
-	"github.com/hopeio/cherry/utils/net/http/request"
+	httpi "github.com/hopeio/cherry/utils/net/http"
 	"github.com/hopeio/pick"
 	"log"
 	"net/http"
@@ -39,7 +39,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path[len(preUrl):], func(ctx *gin.Context) {
-				ctxi, span := gin_context.ContextFromRequest(ctx, tracing)
+				ctxi, span := ginctx.ContextFromRequest(ctx, tracing)
 				if span != nil {
 					defer span.End()
 				}
@@ -47,7 +47,7 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 				in2 := reflect.New(in2Type.Elem())
 				err := gin_build.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(request.Error(err)))
+					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(httpi.Error(err)))
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})

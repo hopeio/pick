@@ -64,10 +64,10 @@ func Register(engine *fiber.App, tracing bool, svcs ...pick.Service[fiber.Handle
 }
 
 func openApi(mux *fiber.App) {
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
-	mux.Get(apidoc.UriPrefix+"/markdown", fiberi.Markdown)
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "api文档列表")
 	mux.Get(apidoc.UriPrefix, DocList)
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/swagger/*file", "swagger文档")
 	mux.Get(apidoc.UriPrefix+"/swagger/*file", fiberi.Swagger)
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
+	mux.Get(apidoc.UriPrefix+"/markdown", fiberi.Markdown)
 }

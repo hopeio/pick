@@ -65,10 +65,10 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 }
 
 func openApi(mux *gin.Engine) {
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
-	mux.GET(apidoc.UriPrefix+"/markdown/*file", gin.WrapF(apidoc.Markdown))
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "api文档列表")
 	mux.GET(apidoc.UriPrefix, gin.WrapF(pick.DocList))
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/swagger/*file", "swagger文档")
 	mux.GET(apidoc.UriPrefix+"/swagger/*file", gin.WrapF(apidoc.Swagger))
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
+	mux.GET(apidoc.UriPrefix+"/markdown/*file", gin.WrapF(apidoc.Markdown))
 }

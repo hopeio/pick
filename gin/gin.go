@@ -14,12 +14,13 @@ import (
 	gin_build "github.com/hopeio/cherry/utils/net/http/gin"
 )
 
-// 虽然我写的路由比httprouter更强大(没有map,lru cache)，但是还是选择用gin,理由是gin也用同样的方式改造了路由
+var (
+	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
+)
 
-func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc]) {
-	Svcs = append(Svcs, svc...)
+func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.HandlerFunc]) {
 	openApi(engine)
-	for _, v := range Svcs {
+	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
@@ -60,7 +61,7 @@ func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc
 		}
 		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
-	pick.Registered(Svcs)
+	pick.Registered()
 }
 
 func openApi(mux *gin.Engine) {

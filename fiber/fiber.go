@@ -13,11 +13,14 @@ import (
 	fiberi "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
 )
 
+var (
+	FiberContextType = reflect.TypeOf((*fiberctx.Context)(nil))
+)
+
 // 复用pick service，不支持单个接口的中间件
-func Start(engine *fiber.App, tracing bool, svc ...pick.Service[fiber.Handler]) {
-	Svcs = append(Svcs, svc...)
+func Register(engine *fiber.App, tracing bool, svcs ...pick.Service[fiber.Handler]) {
 	openApi(engine)
-	for _, v := range Svcs {
+	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
@@ -57,7 +60,7 @@ func Start(engine *fiber.App, tracing bool, svc ...pick.Service[fiber.Handler]) 
 		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 
-	pick.Registered(Svcs)
+	pick.Registered()
 }
 
 func openApi(mux *fiber.App) {

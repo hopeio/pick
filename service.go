@@ -18,9 +18,8 @@ type Service[T any] interface {
 	Service() (describe, prefix string, middleware []T)
 }
 
-func Registered[T any](svcs []Service[T]) {
+func Registered() {
 	isRegistered = true
-	svcs = nil
 }
 
 func Api(f func()) {

@@ -10,9 +10,12 @@ import (
 	"reflect"
 )
 
-func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc]) {
-	Svcs = append(Svcs, svc...)
-	for _, v := range Svcs {
+var (
+	ContextType = reflect.TypeOf((*context.Context)(nil)).Elem()
+)
+
+func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.HandlerFunc]) {
+	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
@@ -54,5 +57,5 @@ func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc
 		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 
-	pick.Registered(Svcs)
+	pick.Registered()
 }

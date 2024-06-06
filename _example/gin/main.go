@@ -8,6 +8,6 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	server := gin.New()
-	pickgin.Start(server, true, &UserService{})
+	pickgin.Register(server, true, &UserService{})
 	server.Run(":8080")
 }

@@ -11,7 +11,3 @@ var (
 	Svcs           = make([]pick.Service[gin.HandlerFunc], 0)
 	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
 )
-
-func RegisterService(svc ...pick.Service[gin.HandlerFunc]) {
-	Svcs = append(Svcs, svc...)
-}

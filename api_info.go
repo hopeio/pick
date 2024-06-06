@@ -207,6 +207,10 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 }
 
 func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec string) {
+	if doc.Definitions == nil {
+		doc.Definitions = make(map[string]spec.Schema)
+	}
+
 	var pathItem *spec.PathItem
 	if doc.Paths != nil && doc.Paths.Paths != nil {
 		if path, ok := doc.Paths.Paths[api.path]; ok {
@@ -224,7 +228,6 @@ func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec
 	numIn := methodType.NumIn()
 
 	if numIn == 3 {
-
 		if api.method == http.MethodGet {
 			InType := methodType.In(2).Elem()
 			for j := 0; j < InType.NumField(); j++ {
@@ -248,9 +251,6 @@ func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec
 			param.Schema = new(spec.Schema)
 			param.Schema.Ref = spec.MustCreateRef("#/definitions/" + reqName)
 			parameters = append(parameters, param)
-			if doc.Definitions == nil {
-				doc.Definitions = make(map[string]spec.Schema)
-			}
 			DefinitionsApi(doc.Definitions, reflect.New(methodType.In(2)).Elem().Interface(), nil)
 		}
 	}

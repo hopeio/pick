@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hopeio/cherry/context/httpctx"
+	"github.com/hopeio/cherry/context/fiberctx"
 )
 
 type AuthInfo struct {
@@ -11,9 +11,13 @@ type AuthInfo struct {
 	jwt.RegisteredClaims
 }
 
-func ParseAuthInfo(ctx *httpctx.Context) (*AuthInfo, error) {
-	token := ctx.RequestCtx.Request.Header.Get("Authorization")
+func ParseAuthInfo(ctx *fiberctx.Context) (*AuthInfo, error) {
+	tokens := ctx.RequestCtx.GetReqHeaders()["Authorization"]
+	if len(tokens) == 0 {
+		return nil, errors.New("未登录")
+	}
 	authInfo := &AuthInfo{}
+	token := tokens[0]
 	if token == "" {
 		return nil, errors.New("未登录")
 	}

@@ -53,18 +53,21 @@ func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
-				pick.ResHandler(ctxi, ctx.Writer, result)
+				httpi.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
 			})
 			methodInfo.Log()
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})
 		}
-		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{Describe: describe, Infos: infos})
+		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered(Svcs)
 }
 
 func openApi(mux *gin.Engine) {
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
 	mux.GET(apidoc.UriPrefix+"/markdown/*file", gin.WrapF(apidoc.Markdown))
+	pick.Log(http.MethodGet, apidoc.UriPrefix, "api文档列表")
 	mux.GET(apidoc.UriPrefix, gin.WrapF(pick.DocList))
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/swagger/*file", "swagger文档")
 	mux.GET(apidoc.UriPrefix+"/swagger/*file", gin.WrapF(apidoc.Swagger))
 }

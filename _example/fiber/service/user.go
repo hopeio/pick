@@ -1,19 +1,19 @@
 package service
 
 import (
-	"github.com/hopeio/cherry/context/httpctx"
+	"github.com/gofiber/fiber/v3"
+	"github.com/hopeio/cherry/context/fiberctx"
 	pick2 "github.com/hopeio/pick"
-	"github.com/hopeio/pick/_example/router/middle"
-	"net/http"
+	"github.com/hopeio/pick/_example/fiber/middle"
 )
 
 type UserService struct{}
 
-func (*UserService) Service() (string, string, []http.HandlerFunc) {
-	return "用户相关", "/api/v1/user", []http.HandlerFunc{middle.Log}
+func (*UserService) Service() (string, string, []fiber.Handler) {
+	return "用户相关", "/api/v1/user", []fiber.Handler{middle.Log}
 }
 
-func (*UserService) Add(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
+func (*UserService) Add(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick2.Api(func() {
 		pick2.Post("").
@@ -31,7 +31,7 @@ type EditReq struct {
 type EditReq_EditDetails struct {
 }
 
-func (*UserService) Edit(ctx *httpctx.Context, req *EditReq) (*EditReq_EditDetails, error) {
+func (*UserService) Edit(ctx *fiberctx.Context, req *EditReq) (*EditReq_EditDetails, error) {
 	pick2.Api(func() {
 		pick2.Put("/:id").
 			Title("用户编辑").
@@ -46,7 +46,7 @@ type Object struct {
 	Id uint64 `json:"id"`
 }
 
-func (*UserService) Get(ctx *httpctx.Context, req *Object) (*TinyRep, error) {
+func (*UserService) Get(ctx *fiberctx.Context, req *Object) (*TinyRep, error) {
 	pick2.Api(func() {
 		pick2.Get("/:id").
 			Title("用户详情").
@@ -56,23 +56,7 @@ func (*UserService) Get(ctx *httpctx.Context, req *Object) (*TinyRep, error) {
 	return &TinyRep{Code: uint32(req.Id), Message: "测试"}, nil
 }
 
-type StaticService struct{}
-
-func (*StaticService) Service() (string, string, []http.HandlerFunc) {
-	return "静态资源", "/api/static", nil
-}
-
 type TinyRep struct {
 	Code    uint32 `json:"code"`
 	Message string `json:"message"`
-}
-
-func (*StaticService) Sign2(ctx *httpctx.Context, req *SignupReq) (*TinyRep, error) {
-	pick2.Api(func() {
-		pick2.Get("/*mail").
-			Title("用户注册by mail").
-			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
-	})
-
-	return &TinyRep{Message: req.Mail}, nil
 }

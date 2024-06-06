@@ -26,7 +26,11 @@ type GroupApiInfo struct {
 	Infos    []*ApiDocInfo
 }
 
-var GroupApiInfos []*GroupApiInfo
+var groupApiInfos []*GroupApiInfo
+
+func RegisterApiInfo(apiInfo *GroupApiInfo) {
+	groupApiInfos = append(groupApiInfos, apiInfo)
+}
 
 // 有swagger,有没有必要做
 func Markdown(filePath, modName string) {
@@ -40,7 +44,7 @@ func Markdown(filePath, modName string) {
 		fmt.Fprintf(buf, "# %s接口文档  \n", modName)
 		fmt.Fprintln(buf, "----------")
 	}
-	for _, groupApiInfo := range GroupApiInfos {
+	for _, groupApiInfo := range groupApiInfos {
 		fmt.Fprintf(buf, "# %s  \n", groupApiInfo.Describe)
 		fmt.Fprintln(buf, "----------")
 		for _, methodInfo := range groupApiInfo.Infos {

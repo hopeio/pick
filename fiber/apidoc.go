@@ -7,12 +7,12 @@ import (
 	"github.com/hopeio/pick"
 )
 
-func DocList(ctx fiber.Ctx) {
+func DocList(ctx fiber.Ctx) error {
 	modName := ctx.Query("modName")
 	if modName == "" {
 		modName = "api"
 	}
 	pick.Markdown(apidoc.ApiDocDir, modName)
 	pick.Swagger(apidoc.ApiDocDir, modName)
-	fiberi.DocList(ctx)
+	return fiberi.DocList(ctx)
 }

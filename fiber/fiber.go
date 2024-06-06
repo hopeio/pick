@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/cherry/context/fiberctx"
+	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
 	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
 	"github.com/hopeio/pick"
 	"io"
@@ -13,8 +14,7 @@ import (
 	"github.com/hopeio/cherry/protobuf/errorcode"
 	"github.com/hopeio/cherry/utils/log"
 	httpi "github.com/hopeio/cherry/utils/net/http"
-	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
-	fiber_build "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
+	fiberi "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
 )
 
 func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {
@@ -40,13 +40,14 @@ func fiberResHandler(ctx fiber.Ctx, result []reflect.Value) error {
 }
 
 // 复用pick service，不支持单个接口的中间件
-func Start(engine *fiber.App, genApi bool, modName string) {
-
+func Start(engine *fiber.App, tracing bool, svc ...pick.Service[fiber.Handler]) {
+	Svcs = append(Svcs, svc...)
+	openApi(engine)
 	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
-			log.Fatal("必须传入指针")
+			log.Fatal("service must be a pointer")
 		}
 		var infos []*pick.ApiDocInfo
 		group := engine.Group(preUrl, middleware...)
@@ -71,7 +72,7 @@ func Start(engine *fiber.App, genApi bool, modName string) {
 				}
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
-				if err := fiber_build.Bind(ctx, in2.Interface()); err != nil {
+				if err := fiberi.Bind(ctx, in2.Interface()); err != nil {
 					return ctx.Status(http.StatusBadRequest).JSON(errorcode.InvalidArgument.ErrRep())
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
@@ -81,11 +82,12 @@ func Start(engine *fiber.App, genApi bool, modName string) {
 		}
 		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
-	if genApi {
-		filePath := apidoc.FilePath
-		pick.Markdown(filePath, modName)
-		pick.Swagger(filePath, modName)
-		//gin_build.OpenApi(engine, filePath)
-	}
+
 	pick.Registered(Svcs)
+}
+
+func openApi(mux *fiber.App) {
+	mux.Get(apidoc.UriPrefix+"/markdown", fiberi.Markdown)
+	mux.Get(apidoc.UriPrefix, fiberi.DocList)
+	mux.Get(apidoc.UriPrefix+"/swagger/*file", fiberi.Swagger)
 }

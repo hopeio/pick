@@ -4,15 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/utils/log"
-	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
-	gin_build "github.com/hopeio/cherry/utils/net/http/gin"
 	"github.com/hopeio/pick"
 	"github.com/hopeio/pick/gin"
 	"reflect"
 )
 
-func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
-
+func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc]) {
+	Svcs = append(Svcs, svc...)
 	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -54,9 +52,6 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 		}
 		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
-	if genDoc {
-		pick.GenApiDoc(modName)
-		gin_build.OpenApi(engine, apidoc.FilePath)
-	}
+
 	pick.Registered(Svcs)
 }

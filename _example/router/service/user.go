@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/hopeio/cherry/context/httpctx"
 	pick2 "github.com/hopeio/pick"
-	"github.com/hopeio/pick/_example/middle"
+	"github.com/hopeio/pick/_example/router/middle"
 	"net/http"
 )
 

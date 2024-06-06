@@ -1,9 +1,16 @@
 package pick
 
-import "github.com/hopeio/cherry/utils/net/http/api/apidoc"
+import (
+	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
+	"net/http"
+)
 
-func GenApiDoc(modName string) {
-	filePath := apidoc.FilePath
-	Markdown(filePath, modName)
-	Swagger(filePath, modName)
+func DocList(w http.ResponseWriter, r *http.Request) {
+	modName := r.URL.Query().Get("modName")
+	if modName == "" {
+		modName = "api"
+	}
+	Markdown(apidoc.ApiDocDir, modName)
+	Swagger(apidoc.ApiDocDir, modName)
+	apidoc.DocList(w, r)
 }

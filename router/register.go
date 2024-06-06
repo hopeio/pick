@@ -4,13 +4,14 @@ import (
 	"github.com/hopeio/cherry/utils/log"
 	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
 	"github.com/hopeio/pick"
-	"mime"
 	"net/http"
 	"reflect"
 )
 
-func register(router *Router, genApiDoc bool, modName string) {
+func register(router *Router, svc ...pick.Service[http.HandlerFunc]) {
 	methods := make(map[string]struct{})
+	openApi(router)
+	Svcs = append(Svcs, svc...)
 	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -36,9 +37,7 @@ func register(router *Router, genApiDoc bool, modName string) {
 		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{Describe: describe, Infos: infos})
 		router.GroupUse(preUrl, middleware...)
 	}
-	if genApiDoc {
-		openApi(router, apidoc.FilePath, modName)
-	}
+
 	allowed := make([]string, 0, 9)
 	for k := range methods {
 		allowed = append(allowed, k)
@@ -48,14 +47,8 @@ func register(router *Router, genApiDoc bool, modName string) {
 	pick.Registered(Svcs)
 }
 
-func openApi(mux *Router, filePath, modName string) {
-	apidoc.FilePath = filePath
-	pick.Markdown(filePath, modName)
-	_ = mime.AddExtensionType(".svg", "image/svg+xml")
-	mux.Handler(http.MethodGet, apidoc.PrefixUri+"markdown", func(w http.ResponseWriter, req *http.Request) {
-		http.ServeFile(w, req, filePath+modName+"/"+modName+".apidoc.md")
-	})
-	pick.Swagger(filePath, modName)
-	mux.Handler(http.MethodGet, apidoc.PrefixUri[:len(apidoc.PrefixUri)-1], apidoc.ApiMod)
-	mux.Handler(http.MethodGet, apidoc.PrefixUri+"swagger/*file", apidoc.HttpHandle)
+func openApi(mux *Router) {
+	mux.Handler(http.MethodGet, apidoc.UriPrefix+"/markdown", apidoc.Markdown)
+	mux.Handler(http.MethodGet, apidoc.UriPrefix, pick.DocList)
+	mux.Handler(http.MethodGet, apidoc.UriPrefix+"/swagger/*file", apidoc.Swagger)
 }

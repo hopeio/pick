@@ -83,6 +83,7 @@ package pickrouter
 import (
 	"context"
 	urli "github.com/hopeio/cherry/utils/net/url"
+	"github.com/hopeio/pick"
 	"net/http"
 	"reflect"
 	"strings"
@@ -210,7 +211,7 @@ type Router struct {
 	// unrecovered panics.
 	PanicHandler func(http.ResponseWriter, *http.Request, interface{})
 
-	Tracing bool
+	EnableTracing bool
 }
 
 // Make sure the Router conforms with the http.Handler interface
@@ -228,7 +229,7 @@ func (r *Router) putParams(ps *Params) {
 	}
 }
 
-func New(genApi bool, modName string) *Router {
+func New(svc ...pick.Service[http.HandlerFunc]) *Router {
 	router := &Router{
 		RedirectTrailingSlash:  true,
 		RedirectFixedPath:      true,
@@ -236,7 +237,7 @@ func New(genApi bool, modName string) *Router {
 		HandleOPTIONS:          true,
 		middleware:             make([]http.HandlerFunc, 0),
 	}
-	register(router, genApi, modName)
+	register(router, svc...)
 	return router
 }
 
@@ -430,7 +431,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				if r.SaveMatchedRoutePath {
 					*ps = append(*ps, Param{Key: MatchedRoutePathParam, Value: path})
 				}
-				commonHandler(w, req, mh.handle, ps, r.Tracing)
+				commonHandler(w, req, mh.handle, ps, r.EnableTracing)
 				return
 			}
 			if allow := r.allowed(path, req.Method, handles); allow != "" {

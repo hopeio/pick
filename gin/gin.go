@@ -4,24 +4,26 @@ import (
 	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/protobuf/errorcode"
 	httpi "github.com/hopeio/cherry/utils/net/http"
+	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
 	"github.com/hopeio/pick"
 	"log"
 	"net/http"
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
 	gin_build "github.com/hopeio/cherry/utils/net/http/gin"
 )
 
 // 虽然我写的路由比httprouter更强大(没有map,lru cache)，但是还是选择用gin,理由是gin也用同样的方式改造了路由
 
-func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
+func Start(engine *gin.Engine, tracing bool, svc ...pick.Service[gin.HandlerFunc]) {
+	Svcs = append(Svcs, svc...)
+	openApi(engine)
 	for _, v := range Svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
 		if value.Kind() != reflect.Ptr {
-			log.Fatal("必须传入指针")
+			log.Fatal("service must be a pointer")
 		}
 		var infos []*pick.ApiDocInfo
 		group := engine.Group(preUrl, middleware...)
@@ -58,9 +60,11 @@ func Start(engine *gin.Engine, genDoc bool, modName string, tracing bool) {
 		}
 		pick.GroupApiInfos = append(pick.GroupApiInfos, &pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
-	if genDoc {
-		pick.GenApiDoc(modName)
-		gin_build.OpenApi(engine, apidoc.FilePath)
-	}
 	pick.Registered(Svcs)
+}
+
+func openApi(mux *gin.Engine) {
+	mux.GET(apidoc.UriPrefix+"/markdown/*file", gin.WrapF(apidoc.Markdown))
+	mux.GET(apidoc.UriPrefix, gin.WrapF(pick.DocList))
+	mux.GET(apidoc.UriPrefix+"/swagger/*file", gin.WrapF(apidoc.Swagger))
 }

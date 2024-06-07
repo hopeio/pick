@@ -45,7 +45,7 @@ type Req struct {
 
 func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, error) {
 	pick.Api(func() {
-		pick.Get("/err/:id").
+		pick.Post("/err/:id").
 			Title("用户详情返回错误").
 			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
 	})

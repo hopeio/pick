@@ -11,7 +11,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	gin_build "github.com/hopeio/cherry/utils/net/http/gin"
+	gini "github.com/hopeio/cherry/utils/net/http/gin"
 )
 
 var (
@@ -48,7 +48,7 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 				}
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
-				err := gin_build.Bind(ctx, in2.Interface())
+				err := gini.Bind(ctx, in2.Interface())
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(httpi.Error(err)))
 					return

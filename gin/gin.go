@@ -4,7 +4,7 @@ import (
 	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/protobuf/errorcode"
 	httpi "github.com/hopeio/cherry/utils/net/http"
-	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
+	"github.com/hopeio/cherry/utils/net/http/apidoc"
 	"github.com/hopeio/pick"
 	"log"
 	"net/http"

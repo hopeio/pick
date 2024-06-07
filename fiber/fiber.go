@@ -3,7 +3,7 @@ package pickfiber
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/cherry/context/fiberctx"
-	"github.com/hopeio/cherry/utils/net/http/api/apidoc"
+	"github.com/hopeio/cherry/utils/net/http/apidoc"
 	"github.com/hopeio/pick"
 	"net/http"
 	"reflect"

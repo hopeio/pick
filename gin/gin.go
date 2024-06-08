@@ -3,15 +3,14 @@ package pickgin
 import (
 	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/protobuf/errorcode"
-	httpi "github.com/hopeio/cherry/utils/net/http"
 	"github.com/hopeio/cherry/utils/net/http/apidoc"
+	gini "github.com/hopeio/cherry/utils/net/http/gin/binding"
 	"github.com/hopeio/pick"
 	"log"
 	"net/http"
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	gini "github.com/hopeio/cherry/utils/net/http/gin"
 )
 
 var (
@@ -50,11 +49,11 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 				in2 := reflect.New(in2Type.Elem())
 				err := gini.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(httpi.Error(err)))
+					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(err.Error()))
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
-				httpi.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
+				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
 			})
 			methodInfo.Log()
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})

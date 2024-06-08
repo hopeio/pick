@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/cherry/context/fiberctx"
 	"github.com/hopeio/cherry/utils/net/http/apidoc"
+	"github.com/hopeio/cherry/utils/net/http/fasthttp/fiber/binding"
 	"github.com/hopeio/pick"
 	"net/http"
 	"reflect"
@@ -49,12 +50,13 @@ func Register(engine *fiber.App, tracing bool, svcs ...pick.Service[fiber.Handle
 				}
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
-				if err := fiberi.Bind(ctx, in2.Interface()); err != nil {
+				if err := binding.Bind(ctx, in2.Interface()); err != nil {
 					return ctx.Status(http.StatusBadRequest).JSON(errorcode.InvalidArgument.ErrRep())
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
-				return fiberi.ResWriterReflect(ctx, ctxi.TraceID, result)
+				return ResWriterReflect(ctx, ctxi.TraceID, result)
 			})
+			methodInfo.Log()
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})
 		}
 		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})

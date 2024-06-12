@@ -3,7 +3,7 @@ package pickfiber
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/cherry/protobuf/errorcode"
+	"github.com/hopeio/cherry/protobuf/errcode"
 	"github.com/hopeio/cherry/utils/log"
 	httpi "github.com/hopeio/cherry/utils/net/http"
 	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
@@ -16,7 +16,7 @@ import (
 func ResWriterReflect(ctx fiber.Ctx, traceId string, result []reflect.Value) error {
 	writer := ctx.Response().BodyWriter()
 	if !result[1].IsNil() {
-		err := errorcode.ErrHandle(result[1].Interface())
+		err := errcode.ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
 		json.NewEncoder(ctx.Response().BodyWriter()).Encode(err)
 	}

@@ -2,7 +2,7 @@ package pick
 
 import (
 	"encoding/json"
-	"github.com/hopeio/cherry/protobuf/errorcode"
+	"github.com/hopeio/cherry/protobuf/errcode"
 	"github.com/hopeio/cherry/utils/log"
 	httpi "github.com/hopeio/cherry/utils/net/http"
 	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
@@ -14,7 +14,7 @@ import (
 
 func ResWriteReflect(w http.ResponseWriter, traceId string, result []reflect.Value) {
 	if !result[1].IsNil() {
-		err := errorcode.ErrHandle(result[1].Interface())
+		err := errcode.ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
 		json.NewEncoder(w).Encode(err)
 		return

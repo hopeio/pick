@@ -2,7 +2,7 @@ package pickgin
 
 import (
 	"github.com/hopeio/cherry/context/ginctx"
-	"github.com/hopeio/cherry/protobuf/errorcode"
+	"github.com/hopeio/cherry/protobuf/errcode"
 	"github.com/hopeio/cherry/utils/net/http/apidoc"
 	gini "github.com/hopeio/cherry/utils/net/http/gin/binding"
 	"github.com/hopeio/pick"
@@ -49,7 +49,7 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 				in2 := reflect.New(in2Type.Elem())
 				err := gini.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errorcode.InvalidArgument.Message(err.Error()))
+					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Message(err.Error()))
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})

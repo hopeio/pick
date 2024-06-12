@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/cherry/protobuf/errorcode"
+	"github.com/hopeio/cherry/protobuf/errcode"
 	"github.com/hopeio/cherry/utils/log"
 	fiberi "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
 )
@@ -51,7 +51,7 @@ func Register(engine *fiber.App, tracing bool, svcs ...pick.Service[fiber.Handle
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					return ctx.Status(http.StatusBadRequest).JSON(errorcode.InvalidArgument.ErrRep())
+					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.ErrRep())
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
 				return ResWriterReflect(ctx, ctxi.TraceID, result)

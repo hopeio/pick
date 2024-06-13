@@ -94,6 +94,8 @@ github.com/hopeio/cherry v1.12.11 h1:3D+mlCArB3n2MQzvjkGDrb2VfL72aZpWs9yFyfYwmbM
 github.com/hopeio/cherry v1.12.11/go.mod h1:3io1CUUPXqV8Za3C0o1Sg8ZAjDhQlaA4SQPGVVQ8mq0=
 github.com/hopeio/cherry v1.13.0 h1:7eqnL6gtp2PGbvxW2Ngp3umOkNdPhiycGaM43Ruz4Pw=
 github.com/hopeio/cherry v1.13.0/go.mod h1:3io1CUUPXqV8Za3C0o1Sg8ZAjDhQlaA4SQPGVVQ8mq0=
+github.com/hopeio/cherry v1.13.1 h1:jHBILQ462N3GAB5I5DiygWrEEXTHkXtfw/zvfPyIvR4=
+github.com/hopeio/cherry v1.13.1/go.mod h1:EHncMXWyVF57eiLfL36alaKJGtEK1lflKhxBmG8YFcQ=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=

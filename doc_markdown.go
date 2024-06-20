@@ -152,7 +152,7 @@ func getParamTable(param reflect.Type, pre string) []*ParamTable {
 			continue
 		}
 		if json == "" {
-			p.json = pre + stringsi.ConvertToCamelCase(json)
+			p.json = pre + stringsi.SnakeToCamel(json)
 		} else {
 			p.json = pre + json
 		}

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hopeio/cherry/utils/mock"
 	reflecti "github.com/hopeio/cherry/utils/reflect"
+	"github.com/hopeio/cherry/utils/reflect/mock"
 	stringsi "github.com/hopeio/cherry/utils/strings"
 	"github.com/hopeio/cherry/utils/validation/validator"
 )

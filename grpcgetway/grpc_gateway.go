@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/cherry/context/ginctx"
 	"github.com/hopeio/cherry/utils/log"
-	httpi "github.com/hopeio/cherry/utils/net/http"
 	"github.com/hopeio/pick"
 	"reflect"
 )
@@ -42,15 +41,13 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 			methodInfoExport := methodInfo.GetApiInfo()
 			in2Type := methodType.In(2)
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path, func(ctx *gin.Context) {
-				ctxi, s := ginctx.ContextFromRequest(ctx, tracing)
-				if s != nil {
-					defer s.End()
-				}
+				ctxi := ginctx.FromRequest(ctx)
+				defer ctxi.RootSpan().End()
 				in1 := reflect.ValueOf(ctxi).Interface().(context.Context)
 				in2 := reflect.New(in2Type.Elem())
 				ctx.Bind(in2.Interface())
 				result := methodValue.Call([]reflect.Value{value, reflect.ValueOf(in1), in2})
-				httpi.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
+				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
 			})
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})
 		}

@@ -41,10 +41,8 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 			in2Type := methodType.In(2)
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path[len(preUrl):], func(ctx *gin.Context) {
-				ctxi, span := ginctx.ContextFromRequest(ctx, tracing)
-				if span != nil {
-					defer span.End()
-				}
+				ctxi := ginctx.FromRequest(ctx)
+				defer ctxi.RootSpan().End()
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
 				err := gini.Bind(ctx, in2.Interface())

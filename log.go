@@ -1,10 +1,10 @@
 package pick
 
 import (
-	"github.com/hopeio/cherry/utils/console/style"
+	"github.com/hopeio/utils/console/style"
 	"log"
 
-	stringsi "github.com/hopeio/cherry/utils/strings"
+	stringsi "github.com/hopeio/utils/strings"
 )
 
 func Log(method, path, title string) {

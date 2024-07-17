@@ -2,10 +2,10 @@ package pick
 
 import (
 	"encoding/json"
-	"github.com/hopeio/cherry/protobuf/errcode"
-	"github.com/hopeio/cherry/utils/log"
-	httpi "github.com/hopeio/cherry/utils/net/http"
-	http_fs "github.com/hopeio/cherry/utils/net/http/fs"
+	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/log"
+	httpi "github.com/hopeio/utils/net/http"
+	http_fs "github.com/hopeio/utils/net/http/fs"
 	"go.uber.org/zap"
 	"io"
 	"net/http"

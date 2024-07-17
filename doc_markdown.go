@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	reflecti "github.com/hopeio/cherry/utils/reflect"
-	"github.com/hopeio/cherry/utils/reflect/mock"
-	stringsi "github.com/hopeio/cherry/utils/strings"
-	"github.com/hopeio/cherry/utils/validation/validator"
+	reflecti "github.com/hopeio/utils/reflect"
+	"github.com/hopeio/utils/reflect/mock"
+	stringsi "github.com/hopeio/utils/strings"
+	"github.com/hopeio/utils/validation/validator"
 )
 
 type ApiDocInfo struct {

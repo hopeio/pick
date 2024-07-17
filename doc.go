@@ -1,7 +1,7 @@
 package pick
 
 import (
-	"github.com/hopeio/cherry/utils/net/http/apidoc"
+	"github.com/hopeio/utils/net/http/apidoc"
 	"net/http"
 )
 

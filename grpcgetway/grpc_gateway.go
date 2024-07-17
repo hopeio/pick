@@ -3,9 +3,9 @@ package pickgrpcgetway
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/cherry/context/ginctx"
-	"github.com/hopeio/cherry/utils/log"
+	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
+	"github.com/hopeio/utils/log"
 	"reflect"
 )
 

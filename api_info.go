@@ -8,8 +8,8 @@ import (
 	"unsafe"
 
 	"github.com/go-openapi/spec"
-	"github.com/hopeio/cherry/utils/log"
-	reflecti "github.com/hopeio/cherry/utils/reflect"
+	"github.com/hopeio/utils/log"
+	reflecti "github.com/hopeio/utils/reflect"
 )
 
 const Template = `

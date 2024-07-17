@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hopeio/cherry/context/fiberctx"
+	"github.com/hopeio/context/fiberctx"
 )
 
 type AuthInfo struct {

@@ -2,16 +2,16 @@ package pickfiber
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/cherry/context/fiberctx"
-	"github.com/hopeio/cherry/utils/net/http/apidoc"
-	"github.com/hopeio/cherry/utils/net/http/fasthttp/fiber/binding"
+	"github.com/hopeio/context/fiberctx"
 	"github.com/hopeio/pick"
+	"github.com/hopeio/utils/net/http/apidoc"
+	"github.com/hopeio/utils/net/http/fasthttp/fiber/binding"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/cherry/protobuf/errcode"
-	"github.com/hopeio/cherry/utils/log"
-	fiberi "github.com/hopeio/cherry/utils/net/http/fasthttp/fiber"
+	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/log"
+	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber"
 )
 
 var (

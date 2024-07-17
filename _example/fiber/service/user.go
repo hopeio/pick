@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/cherry/context/fiberctx"
+	"github.com/hopeio/context/fiberctx"
 	pick2 "github.com/hopeio/pick"
 	"github.com/hopeio/pick/_example/fiber/middle"
 )

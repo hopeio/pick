@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
-	errorsi "github.com/hopeio/utils/errors"
+	errorsi "github.com/hopeio/utils/errors/errcode"
 )
 
 type UserService struct{}

@@ -17,7 +17,7 @@ var (
 	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
 )
 
-func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.HandlerFunc]) {
+func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()

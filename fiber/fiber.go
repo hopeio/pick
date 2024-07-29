@@ -19,7 +19,7 @@ var (
 )
 
 // 复用pick service，不支持单个接口的中间件
-func Register(engine *fiber.App, tracing bool, svcs ...pick.Service[fiber.Handler]) {
+func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()

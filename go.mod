@@ -14,9 +14,9 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/hopeio/context v0.0.2 // indirect
+	github.com/hopeio/context v0.0.21 // indirect
 	github.com/hopeio/protobuf v0.0.1 // indirect
-	github.com/hopeio/utils v0.0.3 // indirect
+	github.com/hopeio/utils v0.0.26 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	go.opentelemetry.io/otel v1.27.0 // indirect
 	go.opentelemetry.io/otel/metric v1.27.0 // indirect

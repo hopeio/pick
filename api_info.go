@@ -22,7 +22,7 @@ func (*UserService) Add(ctx *model.Context, req *model.SignupReq) (*response.Tin
 			ChangeLog("2.0.1", "jyb", "2019/12/16", "修改测试").End()
 	})
 
-	return &response.TinyRep{Message: req.Name}, nil
+	return &response.TinyRep{Msg: req.Name}, nil
 }
 `
 

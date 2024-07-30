@@ -3,7 +3,8 @@ package pickfiber
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/errors/errcode"
+
 	"github.com/hopeio/utils/log"
 	httpi "github.com/hopeio/utils/net/http"
 	http_fs "github.com/hopeio/utils/net/http/fs"
@@ -31,8 +32,8 @@ func ResWriterReflect(ctx fiber.Ctx, traceId string, result []reflect.Value) err
 		return info.File.Close()
 	}
 	return ctx.JSON(httpi.ResAnyData{
-		Code:    0,
-		Message: "success",
-		Details: result[0].Interface(),
+		Code: 0,
+		Msg:  "success",
+		Data: result[0].Interface(),
 	})
 }

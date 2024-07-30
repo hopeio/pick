@@ -16,7 +16,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/hopeio/context v0.0.23 // indirect
 	github.com/hopeio/protobuf v0.0.1 // indirect
-	github.com/hopeio/utils v0.0.27 // indirect
+	github.com/hopeio/utils v0.0.28 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	go.opentelemetry.io/otel v1.27.0 // indirect
 	go.opentelemetry.io/otel/metric v1.27.0 // indirect

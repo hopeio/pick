@@ -52,7 +52,7 @@ func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, error) {
 	fmt.Println(req.Name)
 	// dao
 	return nil, &errorsi.ErrRep{
-		Code:    1,
-		Message: "error",
+		Code: 1,
+		Msg:  "error",
 	}
 }

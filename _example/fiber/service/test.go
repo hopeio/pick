@@ -23,7 +23,7 @@ func (*TestService) Test(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
 	})
 
-	return &TinyRep{Message: "测试"}, nil
+	return &TinyRep{Msg: "测试"}, nil
 }
 
 func (*TestService) Test1(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error) {
@@ -35,7 +35,7 @@ func (*TestService) Test1(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, erro
 			End()
 	})
 
-	return &TinyRep{Message: "测试"}, nil
+	return &TinyRep{Msg: "测试"}, nil
 }
 
 func (*TestService) Test2(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error) {
@@ -46,7 +46,7 @@ func (*TestService) Test2(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, erro
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
 	})
 
-	return &TinyRep{Message: "测试"}, nil
+	return &TinyRep{Msg: "测试"}, nil
 }
 
 func (*TestService) Test3(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error) {
@@ -57,5 +57,5 @@ func (*TestService) Test3(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, erro
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
 	})
 
-	return &TinyRep{Message: "测试"}, nil
+	return &TinyRep{Msg: "测试"}, nil
 }

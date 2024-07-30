@@ -4,12 +4,12 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/context/fiberctx"
 	"github.com/hopeio/pick"
+	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/net/http/apidoc"
 	"github.com/hopeio/utils/net/http/fasthttp/fiber/binding"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/protobuf/errcode"
 	"github.com/hopeio/utils/log"
 	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber"
 )

@@ -3,7 +3,8 @@ package pickgin
 import (
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/errors/errcode"
+
 	"github.com/hopeio/utils/net/http/apidoc"
 	gini "github.com/hopeio/utils/net/http/gin/binding"
 	"log"
@@ -47,7 +48,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				in2 := reflect.New(in2Type.Elem())
 				err := gini.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Message(err.Error()))
+					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})

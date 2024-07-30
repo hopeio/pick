@@ -2,7 +2,8 @@ package pick
 
 import (
 	"encoding/json"
-	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/errors/errcode"
+
 	"github.com/hopeio/utils/log"
 	httpi "github.com/hopeio/utils/net/http"
 	http_fs "github.com/hopeio/utils/net/http/fs"
@@ -31,7 +32,7 @@ func ResWriteReflect(w http.ResponseWriter, traceId string, result []reflect.Val
 		return
 	}
 	json.NewEncoder(w).Encode(httpi.ResAnyData{
-		Message: "OK",
-		Details: result[0].Interface(),
+		Msg:  "OK",
+		Data: result[0].Interface(),
 	})
 }

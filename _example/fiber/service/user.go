@@ -23,15 +23,15 @@ func (*UserService) Add(ctx *fiberctx.Context, req *SignupReq) (*TinyRep, error)
 			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").End()
 	})
 
-	return &TinyRep{Message: "测试"}, nil
+	return &TinyRep{Msg: "测试"}, nil
 }
 
 type EditReq struct {
 }
-type EditReq_EditDetails struct {
+type EditReq_EditDetail struct {
 }
 
-func (*UserService) Edit(ctx *fiberctx.Context, req *EditReq) (*EditReq_EditDetails, error) {
+func (*UserService) Edit(ctx *fiberctx.Context, req *EditReq) (*EditReq_EditDetail, error) {
 	pick2.Api(func() {
 		pick2.Put("/:id").
 			Title("用户编辑").
@@ -53,10 +53,10 @@ func (*UserService) Get(ctx *fiberctx.Context, req *Object) (*TinyRep, error) {
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").End()
 	})
 
-	return &TinyRep{Code: uint32(req.Id), Message: "测试"}, nil
+	return &TinyRep{Code: uint32(req.Id), Msg: "测试"}, nil
 }
 
 type TinyRep struct {
-	Code    uint32 `json:"code"`
-	Message string `json:"message"`
+	Code uint32 `json:"code"`
+	Msg  string `json:"msg"`
 }

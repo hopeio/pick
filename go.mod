@@ -14,7 +14,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/hopeio/context v0.0.23 // indirect
+	github.com/hopeio/context v0.0.24 // indirect
 	github.com/hopeio/protobuf v0.0.1 // indirect
 	github.com/hopeio/utils v0.0.28 // indirect
 	github.com/spf13/cast v1.6.0 // indirect

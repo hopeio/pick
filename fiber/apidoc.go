@@ -12,7 +12,7 @@ func DocList(ctx fiber.Ctx) error {
 	if modName == "" {
 		modName = "api"
 	}
-	pick.Markdown(apidoc.ApiDocDir, modName)
-	pick.Swagger(apidoc.ApiDocDir, modName)
+	pick.Markdown(apidoc.Dir, modName)
+	pick.Swagger(apidoc.Dir, modName)
 	return fiberi.DocList(ctx)
 }

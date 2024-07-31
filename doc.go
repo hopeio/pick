@@ -10,7 +10,7 @@ func DocList(w http.ResponseWriter, r *http.Request) {
 	if modName == "" {
 		modName = "api"
 	}
-	Markdown(apidoc.ApiDocDir, modName)
-	Swagger(apidoc.ApiDocDir, modName)
+	Markdown(apidoc.Dir, modName)
+	Swagger(apidoc.Dir, modName)
 	apidoc.DocList(w, r)
 }

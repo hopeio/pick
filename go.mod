@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-openapi/spec v0.21.0
 	github.com/hopeio/context v0.0.24
-	github.com/hopeio/utils v0.0.28
+	github.com/hopeio/utils v0.0.30
 )
 
 require (

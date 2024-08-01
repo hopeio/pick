@@ -4,9 +4,10 @@ import (
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
 	"github.com/hopeio/utils/errors/errcode"
+	gin2 "github.com/hopeio/utils/net/http/gin"
 
 	"github.com/hopeio/utils/net/http/apidoc"
-	gini "github.com/hopeio/utils/net/http/gin/binding"
+	binding "github.com/hopeio/utils/net/http/gin/binding"
 	"log"
 	"net/http"
 	"reflect"
@@ -19,7 +20,8 @@ var (
 )
 
 func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
-	openApi(engine)
+	gin2.OpenApi(engine, "", "")
+	openApiLog()
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -46,7 +48,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				defer ctxi.RootSpan().End()
 				in1 := reflect.ValueOf(ctxi)
 				in2 := reflect.New(in2Type.Elem())
-				err := gini.Bind(ctx, in2.Interface())
+				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
 					return
@@ -62,11 +64,8 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 	pick.Registered()
 }
 
-func openApi(mux *gin.Engine) {
+func openApiLog() {
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "api文档列表")
-	mux.GET(apidoc.UriPrefix, gin.WrapF(pick.DocList))
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/swagger/*file", "swagger文档")
-	mux.GET(apidoc.UriPrefix+"/swagger/*file", gin.WrapF(apidoc.Swagger))
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
-	mux.GET(apidoc.UriPrefix+"/markdown/*file", gin.WrapF(apidoc.Markdown))
 }

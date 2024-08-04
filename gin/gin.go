@@ -54,7 +54,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 					return
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
-				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
+				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID(), result)
 			})
 			methodInfo.Log()
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})

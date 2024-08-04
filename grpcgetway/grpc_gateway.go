@@ -47,7 +47,7 @@ func Register(engine *gin.Engine, tracing bool, svcs ...pick.Service[gin.Handler
 				in2 := reflect.New(in2Type.Elem())
 				ctx.Bind(in2.Interface())
 				result := methodValue.Call([]reflect.Value{value, reflect.ValueOf(in1), in2})
-				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID, result)
+				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID(), result)
 			})
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})
 		}

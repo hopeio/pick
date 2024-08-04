@@ -56,6 +56,6 @@ func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 			}
 		}
 		result := handle.Call(params)
-		ResWriteReflect(w, ctxi.TraceID, result)
+		ResWriteReflect(w, ctxi.TraceID(), result)
 	}
 }

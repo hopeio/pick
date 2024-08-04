@@ -52,7 +52,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.ErrRep())
 				}
 				result := methodValue.Call([]reflect.Value{value, in1, in2})
-				return ResWriterReflect(ctx, ctxi.TraceID, result)
+				return ResWriterReflect(ctx, ctxi.TraceID(), result)
 			})
 			methodInfo.Log()
 			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})

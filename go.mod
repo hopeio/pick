@@ -5,8 +5,8 @@ go 1.22
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-openapi/spec v0.21.0
-	github.com/hopeio/context v0.0.30
-	github.com/hopeio/utils v0.0.41
+	github.com/hopeio/context v0.0.31
+	github.com/hopeio/utils v0.0.43
 )
 
 require (

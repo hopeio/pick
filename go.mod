@@ -7,8 +7,8 @@ toolchain go1.23.0
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-openapi/spec v0.21.0
-	github.com/hopeio/context v0.0.32
-	github.com/hopeio/utils v0.1.0
+	github.com/hopeio/context v0.0.33
+	github.com/hopeio/utils v0.1.1
 )
 
 require (

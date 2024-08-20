@@ -3,7 +3,7 @@ package pick
 import (
 	"encoding/json"
 	"github.com/hopeio/context/httpctx"
-	"github.com/hopeio/utils/net/http/binding"
+	"github.com/hopeio/utils/reflect/mtos"
 	"net/http"
 	"reflect"
 )
@@ -48,7 +48,7 @@ func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 							}
 						}
 					}
-					binding.Decode(params[i], src)
+					mtos.Decode(params[i], src)
 				}
 				if req.Method != http.MethodGet {
 					json.NewDecoder(req.Body).Decode(params[i].Interface())

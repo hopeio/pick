@@ -41,17 +41,24 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 
 			methodType := method.Type
 			methodValue := method.Func
-			in2Type := methodType.In(2)
+			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Add([]string{methodInfoExport.Method}, methodInfoExport.Path[len(preUrl):], func(ctx fiber.Ctx) error {
 				ctxi := fiberctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
-				in1 := reflect.ValueOf(ctxi)
-				in2 := reflect.New(in2Type.Elem())
+				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
 					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.ErrRep())
 				}
-				result := methodValue.Call([]reflect.Value{value, in1, in2})
+				params := make([]reflect.Value, 3)
+				params[0] = value
+				if methodType.In(1).ConvertibleTo(FiberContextType) {
+					params[1] = reflect.ValueOf(ctxi)
+				} else {
+					params[1] = reflect.ValueOf(ctxi.Wrapper())
+				}
+				params[2] = in2
+				result := methodValue.Call(params)
 				return ResWriterReflect(ctx, ctxi.TraceID(), result)
 			})
 			methodInfo.Log()

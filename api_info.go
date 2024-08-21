@@ -1,6 +1,7 @@
 package pick
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"reflect"
@@ -25,6 +26,12 @@ func (*UserService) Add(ctx *model.Context, req *model.SignupReq) (*response.Tin
 	return &response.TinyRep{Msg: req.Name}, nil
 }
 `
+
+var (
+	ContextType  = reflect.TypeOf((*context.Context)(nil)).Elem()
+	ContextValue = reflect.ValueOf(context.Background())
+	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
+)
 
 type apiInfo struct {
 	path, method, title string
@@ -175,12 +182,12 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	methodType := methodValue.Type()
 	numIn := methodType.NumIn()
 	numOut := methodType.NumOut()
-	/*	var err error
-		defer func() {
-			if err != nil {
-				log.Debugf("未注册: %s 原因:%v", method.Name, err)
-			}
-		}()*/
+	var err error
+	defer func() {
+		if err != nil {
+			log.Debugf("未注册: %s 原因:%v", method.Name, err)
+		}
+	}()
 
 	if numIn != 3 {
 		//err = errors.New("method参数必须为两个")
@@ -190,18 +197,23 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 		//err = errors.New("method返回值必须为两个")
 		return
 	}
-	if !methodType.In(1).ConvertibleTo(httpContext) {
-		//err = errors.New("service第一个参数必须为*httpctx.Context类型")
+
+	if !methodType.In(1).ConvertibleTo(httpContext) && !methodType.In(1).Implements(ContextType) {
+		err = errors.New("service第一个参数必须为*httpctx.Context类型或context.Context")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) {
-		//err = errors.New("service第二个返回值必须为error类型")
+		err = errors.New("service第二个返回值必须为error类型")
 		return
 	}
-	params := make([]reflect.Value, numIn, numIn)
-	for i := 0; i < numIn; i++ {
-		params[i] = reflect.New(methodType.In(i).Elem())
+	params := make([]reflect.Value, numIn)
+	params[0] = reflect.New(methodType.In(0).Elem())
+	if methodType.In(1).ConvertibleTo(httpContext) {
+		params[1] = reflect.New(methodType.In(1).Elem())
+	} else {
+		params[1] = ContextValue
 	}
+	params[2] = reflect.New(methodType.In(2).Elem())
 	methodValue.Call(params)
 	return nil
 }

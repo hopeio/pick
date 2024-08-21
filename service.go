@@ -1,16 +1,11 @@
 package pick
 
-import (
-	"reflect"
-)
-
 type ParseToHttpResponse interface {
 	Parse() ([]byte, error)
 }
 
 var (
 	isRegistered = false
-	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
 )
 
 type Service[T any] interface {

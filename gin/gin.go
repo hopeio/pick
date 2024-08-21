@@ -41,19 +41,26 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			}
 			methodType := method.Type
 			methodValue := method.Func
-			in2Type := methodType.In(2)
+			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.GetApiInfo()
 			group.Handle(methodInfoExport.Method, methodInfoExport.Path[len(preUrl):], func(ctx *gin.Context) {
 				ctxi := ginctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
-				in1 := reflect.ValueOf(ctxi)
-				in2 := reflect.New(in2Type.Elem())
+				in2 := reflect.New(in2Type)
 				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
 					return
 				}
-				result := methodValue.Call([]reflect.Value{value, in1, in2})
+				params := make([]reflect.Value, 3)
+				params[0] = value
+				if methodType.In(1).ConvertibleTo(GinContextType) {
+					params[1] = reflect.ValueOf(ctxi)
+				} else {
+					params[1] = reflect.ValueOf(ctxi.Wrapper())
+				}
+				params[2] = in2
+				result := methodValue.Call(params)
 				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID(), result)
 			})
 			methodInfo.Log()

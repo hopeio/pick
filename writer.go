@@ -22,7 +22,7 @@ func ResWriteReflect(w http.ResponseWriter, traceId string, result []reflect.Val
 	}
 	if info, ok := result[0].Interface().(*http_fs.File); ok {
 		header := w.Header()
-		header.Set(httpi.HeaderContentType, httpi.ContentBinaryHeaderValue)
+		header.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
 		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
 		io.Copy(w, info.File)
 		if flusher, canFlush := w.(http.Flusher); canFlush {

@@ -23,7 +23,7 @@ func ResWriterReflect(ctx fiber.Ctx, traceId string, result []reflect.Value) err
 	}
 	if info, ok := result[0].Interface().(*http_fs.File); ok {
 		header := ctx.Response().Header
-		header.Set(httpi.HeaderContentType, httpi.ContentBinaryHeaderValue)
+		header.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
 		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
 		io.Copy(writer, info.File)
 		if flusher, canFlush := writer.(http.Flusher); canFlush {

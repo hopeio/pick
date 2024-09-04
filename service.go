@@ -22,3 +22,9 @@ func Api(f func()) {
 		f()
 	}
 }
+
+var prefix string
+
+func HandlerPrefix(p string) {
+	prefix = p
+}

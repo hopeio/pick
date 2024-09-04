@@ -161,7 +161,10 @@ func (api *apiInfo) getPrincipal() string {
 
 // recover捕捉panic info
 func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Type) (info *apiInfo) {
-	if method.Name == "Service" || method.Name == "FiberService" {
+	if method.Name == "Service" {
+		return nil
+	}
+	if !strings.HasPrefix(method.Name, prefix) {
 		return nil
 	}
 	defer func() {

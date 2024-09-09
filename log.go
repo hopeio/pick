@@ -1,7 +1,7 @@
 package pick
 
 import (
-	"github.com/hopeio/utils/console/style"
+	"github.com/hopeio/utils/terminal/style"
 	"log"
 
 	stringsi "github.com/hopeio/utils/strings"

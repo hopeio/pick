@@ -1,4 +1,4 @@
-package pick
+package apidoc
 
 import (
 	"encoding/json"
@@ -15,22 +15,6 @@ import (
 	stringsi "github.com/hopeio/utils/strings"
 	"github.com/hopeio/utils/validation/validator"
 )
-
-type ApiDocInfo struct {
-	ApiInfo *apiInfo
-	Method  reflect.Type
-}
-
-type GroupApiInfo struct {
-	Describe string
-	Infos    []*ApiDocInfo
-}
-
-var groupApiInfos []*GroupApiInfo
-
-func RegisterApiInfo(apiInfo *GroupApiInfo) {
-	groupApiInfos = append(groupApiInfos, apiInfo)
-}
 
 // 有swagger,有没有必要做
 func Markdown(filePath, modName string) {
@@ -50,24 +34,24 @@ func Markdown(filePath, modName string) {
 		for _, methodInfo := range groupApiInfo.Infos {
 			//title
 			apiinfo := methodInfo.ApiInfo
-			if apiinfo.deprecated != nil {
-				fmt.Fprintf(buf, "## ~~%s-v%d(废弃)(`%s`)~~  \n", apiinfo.title, apiinfo.version, apiinfo.path)
+			if apiinfo.Deprecated != nil {
+				fmt.Fprintf(buf, "## ~~%s-v%d(废弃)(`%s`)~~  \n", apiinfo.Title, apiinfo.Version, apiinfo.Path)
 			} else {
-				fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", apiinfo.title, apiinfo.version, apiinfo.path)
+				fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", apiinfo.Title, apiinfo.Version, apiinfo.Path)
 			}
 			//api
-			fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", apiinfo.method, apiinfo.path, apiinfo.getPrincipal())
+			fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", apiinfo.Method, apiinfo.Path, apiinfo.GetPrincipal())
 
 			fmt.Fprint(buf, "### 接口记录  \n")
 			fmt.Fprint(buf, "|版本|操作|时间|负责人|日志|  \n")
 			fmt.Fprint(buf, "| :----: | :----: | :----: | :----: | :----: |  \n")
-			fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.createlog.version, "创建", apiinfo.createlog.date, apiinfo.createlog.auth, apiinfo.createlog.log)
-			if len(apiinfo.changelog) != 0 || apiinfo.deprecated != nil {
-				for _, clog := range apiinfo.changelog {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.version, "变更", clog.date, clog.auth, clog.log)
+			fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.Createlog.Version, "创建", apiinfo.Createlog.Date, apiinfo.Createlog.Auth, apiinfo.Createlog.Log)
+			if len(apiinfo.Changelog) != 0 || apiinfo.Deprecated != nil {
+				for _, clog := range apiinfo.Changelog {
+					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.Version, "变更", clog.Date, clog.Auth, clog.Log)
 				}
-				if apiinfo.deprecated != nil {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.deprecated.version, "删除", apiinfo.deprecated.date, apiinfo.deprecated.auth, apiinfo.deprecated.log)
+				if apiinfo.Deprecated != nil {
+					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.Deprecated.Version, "删除", apiinfo.Deprecated.Date, apiinfo.Deprecated.Auth, apiinfo.Deprecated.Log)
 				}
 			}
 

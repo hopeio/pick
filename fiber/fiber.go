@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/context/fiberctx"
 	"github.com/hopeio/pick"
+	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/net/http/apidoc"
 	"github.com/hopeio/utils/net/http/fasthttp/fiber/binding"
@@ -27,7 +28,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("service must be a pointer")
 		}
-		var infos []*pick.ApiDocInfo
+		var infos []*apidoc2.ApiDocInfo
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
@@ -42,7 +43,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			methodType := method.Type
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
-			methodInfoExport := methodInfo.GetApiInfo()
+			methodInfoExport := methodInfo.Export()
 			group.Add([]string{methodInfoExport.Method}, methodInfoExport.Path[len(preUrl):], func(ctx fiber.Ctx) error {
 				ctxi := fiberctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
@@ -62,9 +63,9 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				return ResWriterReflect(ctx, ctxi.TraceID(), result)
 			})
 			methodInfo.Log()
-			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfo, Method: method.Type})
+			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}
-		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
+		apidoc2.RegisterApiInfo(&apidoc2.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 
 	pick.Registered()

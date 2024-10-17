@@ -1,4 +1,4 @@
-package pick
+package apidoc
 
 import (
 	"encoding/json"

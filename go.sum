@@ -57,6 +57,7 @@ github.com/go-playground/universal-translator v0.18.1 h1:Bcnm0ZwsGyWbCzImXv+pAJn
 github.com/go-playground/universal-translator v0.18.1/go.mod h1:xekY+UJKNuX9WP91TpwSH2VMlDf28Uj24BCp08ZFTUY=
 github.com/go-playground/validator/v10 v10.20.0 h1:K9ISHbSaI0lyB2eWMPJo+kOS/FBExVwjEviJTixqxL8=
 github.com/go-playground/validator/v10 v10.20.0/go.mod h1:dbuPbCMFw/DrkbEynArYaCwl3amGuJotoKCe95atGMM=
+github.com/go-playground/validator/v10 v10.22.1/go.mod h1:dbuPbCMFw/DrkbEynArYaCwl3amGuJotoKCe95atGMM=
 github.com/goccy/go-json v0.10.3 h1:KZ5WoDbxAIgm2HNbYckL0se1fHD6rz5j4ywS6ebzDqA=
 github.com/goccy/go-json v0.10.3/go.mod h1:oq7eo15ShAhp70Anwd5lgX2pLfOS3QCiwU/PULtXL6M=
 github.com/gofiber/fiber/v3 v3.0.0-beta.2 h1:mVVgt8PTaHGup3NGl/+7U7nEoZaXJ5OComV4E+HpAao=
@@ -100,6 +101,8 @@ github.com/hopeio/context v0.0.44 h1:dlsTQu7lAl64mTGAiCavyOCzSwRhhtn5fZ0Cf6271jU
 github.com/hopeio/context v0.0.44/go.mod h1:ukRayMkzMF7wzbYYTxsHdnxn201jP2GaMjjfStUm3xE=
 github.com/hopeio/context v0.0.45 h1:q7wL8clnd2QD3zr3g9rrBSQc3Jvh0xcqB9HrlS362hg=
 github.com/hopeio/context v0.0.45/go.mod h1:fB8Fa3hFkndrYZ7ioE+uKuxxHStvfdU5GA5CnPPBUZ0=
+github.com/hopeio/context v0.1.0 h1:0V01OdKu8e7NnQuVJlU+gNEcQylzRLkuMibRLG99TNI=
+github.com/hopeio/context v0.1.0/go.mod h1:WW0Cp+2+IWuT68D+xryKrzhTbK1pBr+euieIKymP9vs=
 github.com/hopeio/utils v0.0.28 h1:DSkNT1X5abKzUGyrdtbDEVhcBQ0tdt8wKYjoGSeXSHw=
 github.com/hopeio/utils v0.0.28/go.mod h1:7LSPl8an/46iJdbJyU+UUE8M4nvuCpYlW9XER72n9tg=
 github.com/hopeio/utils v0.0.30 h1:iLRlcdv0zg3SMGOX68kgwGbgsiFNb8oQALvFu1RH1dI=
@@ -132,6 +135,8 @@ github.com/hopeio/utils v0.1.13 h1:50n0LDKmbQ93MBIlh5Qj+CaWTzbotJATIZArXKlORDI=
 github.com/hopeio/utils v0.1.13/go.mod h1:5DJ6FmPd3aSRNYnUrUBjpt0fn/6slD2QUUEicNHOM0k=
 github.com/hopeio/utils v0.2.0 h1:0W7az5WVjMH7ZhpvFXLsnJSu/5ubJk3HoiY5eAcXIbg=
 github.com/hopeio/utils v0.2.0/go.mod h1:5DJ6FmPd3aSRNYnUrUBjpt0fn/6slD2QUUEicNHOM0k=
+github.com/hopeio/utils v0.3.2 h1:lEfYit/ddyRxvgTtwGYBH5Um31NBqTL4XFXR0Q9Ph/o=
+github.com/hopeio/utils v0.3.2/go.mod h1:rLOo6KASzkt8ZFkmCRDNO9kMLmEqPtTX+jGIyrE58xw=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
@@ -225,6 +230,7 @@ golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 h1:vr/HnozRka3pE4EsMEg1lgkXJ
 golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842/go.mod h1:XtvwrStGgqGPLc4cjQfWqZHG1YFdYs6swckp8vpsjnc=
 golang.org/x/net v0.25.0 h1:d/OCCoBEUq33pjydKrGQhw7IlUPI2Oylr+8qLx49kac=
 golang.org/x/net v0.25.0/go.mod h1:JkAGAh7GEvH74S6FOH42FLoXpXbE/aqXSrIQjXgsiwM=
+golang.org/x/net v0.26.0/go.mod h1:5YKkiSynbBIh3p6iOc/vibscux0x38BZDkn8sCUPxHE=
 golang.org/x/sync v0.7.0 h1:YsImfSBoP9QPYL0xyKJPq0gcaJdG3rInoqxTWbfQu9M=
 golang.org/x/sync v0.7.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
@@ -238,6 +244,7 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20240513163218-0867130af1f8 h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240513163218-0867130af1f8/go.mod h1:I7Y+G38R2bu5j1aLzfFmQfTcU/WnFuqDwLZAbvKTKpM=
 google.golang.org/grpc v1.64.0 h1:KH3VH9y/MgNQg1dE7b3XfVK0GsPSIzJwdF617gUSbvY=
 google.golang.org/grpc v1.64.0/go.mod h1:oxjF8E3FBnjp+/gVFYdWacaLDx9na1aqy9oovLpxQYg=
+google.golang.org/grpc v1.64.1/go.mod h1:hiQF4LFZelK2WKaP6W0L92zGHtiQdZxk8CrSdvyjeP0=
 google.golang.org/protobuf v1.34.1 h1:9ddQBjfCyZPOHPUiPxpYESBLc+T8P3E+Vo4IbKZgFWg=
 google.golang.org/protobuf v1.34.1/go.mod h1:c6P6GXX6sHbq/GpV6MGZEdwhWPcYBgnhAHhKbcUYpos=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

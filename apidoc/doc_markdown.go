@@ -128,7 +128,7 @@ func getParamTable(param reflect.Type, pre string) []*ParamTable {
 	param = reflecti.DerefType(param)
 	newParam := reflect.New(param).Interface()
 	var res []*ParamTable
-	for i := 0; i < param.NumField(); i++ {
+	for i := range param.NumField() {
 		/*		if param.AssignableTo(reflect.TypeOf(response.File{})) {
 				return "下载文件"
 			}*/

@@ -134,7 +134,7 @@ func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude [
 	body := reflect.TypeOf(v).Elem()
 	var typ, subFieldName string
 	var arraySubType string
-	for i := 0; i < body.NumField(); i++ {
+	for i := range body.NumField() {
 		json := strings.Split(body.Field(i).Tag.Get("json"), ",")[0]
 		if json == "" || json == "-" {
 			continue

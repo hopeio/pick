@@ -13,12 +13,12 @@ import (
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/net/http/apidoc"
+	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber/apidoc"
 	"github.com/hopeio/utils/net/http/fasthttp/fiber/binding"
 	"net/http"
 	"reflect"
 
 	"github.com/hopeio/utils/log"
-	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber"
 )
 
 var (

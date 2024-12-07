@@ -11,7 +11,7 @@ import (
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
-	gin2 "github.com/hopeio/utils/net/http/gin"
+	gin2 "github.com/hopeio/utils/net/http/gin/apidoc"
 
 	"github.com/hopeio/utils/net/http/apidoc"
 	binding "github.com/hopeio/utils/net/http/gin/binding"

@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/pick"
 	"github.com/hopeio/utils/net/http/apidoc"
-	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber"
+	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber/apidoc"
 )
 
 func DocList(ctx fiber.Ctx) error {

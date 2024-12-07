@@ -2,14 +2,14 @@ package pick
 
 import (
 	"errors"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/hopeio/utils/net/http/apidoc"
 	"net/http"
 	"reflect"
 	"strings"
 	"unsafe"
 
-	"github.com/go-openapi/spec"
 	"github.com/hopeio/utils/log"
-	reflecti "github.com/hopeio/utils/reflect"
 )
 
 const Template = `
@@ -206,33 +206,33 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	return nil
 }
 
-func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec string) {
-	if doc.Definitions == nil {
-		doc.Definitions = make(map[string]spec.Schema)
+func (api *apiInfo) Swagger(doc *openapi3.T, methodType reflect.Type, tag, dec string) {
+	if doc.Components.Schemas == nil {
+		doc.Components.Schemas = make(map[string]*openapi3.SchemaRef)
 	}
 
-	var pathItem *spec.PathItem
-	if doc.Paths != nil && doc.Paths.Paths != nil {
-		if path, ok := doc.Paths.Paths[api.path]; ok {
-			pathItem = &path
+	var pathItem *openapi3.PathItem
+	if doc.Paths != nil {
+		if path := doc.Paths.Value(api.path); path != nil {
+			pathItem = path
 		} else {
-			pathItem = new(spec.PathItem)
+			pathItem = new(openapi3.PathItem)
 		}
 	} else {
-		doc.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
-		pathItem = new(spec.PathItem)
+		doc.Paths = openapi3.NewPaths()
+		pathItem = new(openapi3.PathItem)
 	}
 
 	//我觉得路径参数并没有那么值得非用不可
-	parameters := make([]spec.Parameter, 0)
+	parameters := make([]*openapi3.ParameterRef, 0)
 	numIn := methodType.NumIn()
 
 	if numIn == 3 {
 		if api.method == http.MethodGet {
 			InType := methodType.In(2).Elem()
 			for j := 0; j < InType.NumField(); j++ {
-				param := spec.Parameter{
-					ParamProps: spec.ParamProps{
+				param := &openapi3.ParameterRef{
+					Value: &openapi3.Parameter{
 						Name: InType.Field(j).Name,
 						In:   "query",
 					},
@@ -241,35 +241,32 @@ func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec
 			}
 		} else {
 			reqName := methodType.In(2).Elem().Name()
-			param := spec.Parameter{
-				ParamProps: spec.ParamProps{
+			param := &openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
 					Name: reqName,
 					In:   "body",
 				},
 			}
 
-			param.Schema = new(spec.Schema)
-			param.Schema.Ref = spec.MustCreateRef("#/definitions/" + reqName)
+			param.Value.Schema = new(openapi3.SchemaRef)
+			param.Value.Schema.Ref = "#/definitions/" + reqName
 			parameters = append(parameters, param)
-			DefinitionsApi(doc.Definitions, reflect.New(methodType.In(2)).Elem().Interface(), nil)
+			apidoc.DefinitionsApi(param.Value.Schema.Value, reflect.New(methodType.In(2)).Elem().Interface())
 		}
 	}
 
 	if !methodType.Out(0).Implements(ErrorType) {
-		var responses spec.Responses
-		responses.StatusCodeResponses = make(map[int]spec.Response)
-		response := spec.Response{ResponseProps: spec.ResponseProps{Schema: new(spec.Schema)}}
-		response.Schema.Ref = spec.MustCreateRef("#/definitions/" + methodType.Out(0).Elem().Name())
-		response.Description = "一个成功的返回"
-		DefinitionsApi(doc.Definitions, reflect.New(methodType.Out(0)).Elem().Interface(), nil)
-		responses.StatusCodeResponses[200] = response
-		op := spec.Operation{
-			OperationProps: spec.OperationProps{
-				Summary:    api.title,
-				ID:         api.path + api.method,
-				Parameters: parameters,
-				Responses:  &responses,
-			},
+		responses := openapi3.NewResponses()
+		response := responses.Default()
+		response.Ref = "#/definitions/" + methodType.Out(0).Elem().Name()
+		var schema openapi3.Schema
+		response.Value.Content = openapi3.NewContentWithJSONSchema(&schema)
+		apidoc.DefinitionsApi(&schema, reflect.New(methodType.Out(0)).Elem().Interface())
+		op := openapi3.Operation{
+			Summary:     api.title,
+			OperationID: api.path + api.method,
+			Parameters:  parameters,
+			Responses:   responses,
 		}
 
 		var tags, desc []string
@@ -300,83 +297,5 @@ func (api *apiInfo) Swagger(doc *spec.Swagger, methodType reflect.Type, tag, dec
 		}
 	}
 
-	doc.Paths.Paths[api.path] = *pathItem
-}
-
-func DefinitionsApi(definitions map[string]spec.Schema, v interface{}, exclude []string) {
-	schema := spec.Schema{
-		SchemaProps: spec.SchemaProps{
-			Type:       []string{"object"},
-			Properties: make(map[string]spec.Schema),
-		},
-	}
-
-	body := reflect.TypeOf(v).Elem()
-	var typ, subFieldName string
-	var arraySubType string
-	for i := 0; i < body.NumField(); i++ {
-		json := strings.Split(body.Field(i).Tag.Get("json"), ",")[0]
-		if json == "" || json == "-" {
-			continue
-		}
-		fieldType := body.Field(i).Type
-		switch fieldType.Kind() {
-		case reflect.Struct:
-			typ = "object"
-			v = reflect.New(fieldType).Interface()
-			subFieldName = fieldType.Name()
-		case reflect.Ptr:
-			typ = "object"
-			v = reflect.New(fieldType.Elem()).Interface()
-			subFieldName = fieldType.Elem().Name()
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			typ = "integer"
-		case reflect.Array, reflect.Slice:
-			typ = "array"
-			subType := reflecti.DerefType(fieldType)
-			subFieldName = subType.Name()
-			switch subType.Kind() {
-			case reflect.Struct, reflect.Ptr, reflect.Array, reflect.Slice:
-				v = reflect.New(subType).Interface()
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				arraySubType = "integer"
-			case reflect.Float32, reflect.Float64:
-				arraySubType = "number"
-			case reflect.String:
-				arraySubType = "string"
-			case reflect.Bool:
-				arraySubType = "boolean"
-			}
-		case reflect.Float32, reflect.Float64:
-			typ = "number"
-		case reflect.String:
-			typ = "string"
-		case reflect.Bool:
-			typ = "boolean"
-		}
-		subSchema := spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{typ},
-			},
-		}
-		if typ == "object" {
-			subSchema.Ref = spec.MustCreateRef("#/definitions/" + subFieldName)
-			DefinitionsApi(definitions, v, nil)
-		}
-		if typ == "array" {
-			subSchema.Items = new(spec.SchemaOrArray)
-			subSchema.Items.Schema = &spec.Schema{}
-			if arraySubType == "" {
-				subSchema.Items.Schema.Ref = spec.MustCreateRef("#/definitions/" + subFieldName)
-				DefinitionsApi(definitions, v, nil)
-			} else {
-				subSchema.Items.Schema.Type = []string{arraySubType}
-			}
-
-		}
-		schema.Properties[json] = subSchema
-	}
-	definitions[body.Name()] = schema
+	doc.Paths.Set(api.path, pathItem)
 }

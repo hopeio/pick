@@ -19,6 +19,6 @@ func DocList(ctx fiber.Ctx) error {
 		modName = "api"
 	}
 	apidoc2.Markdown(apidoc.Dir, modName)
-	apidoc2.Swagger(apidoc.Dir, modName)
+	apidoc2.Openapi(apidoc.Dir, modName)
 	return fiberi.DocList(ctx)
 }

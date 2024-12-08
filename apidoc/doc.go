@@ -19,7 +19,7 @@ func DocList(w http.ResponseWriter, r *http.Request) {
 		modName = "api"
 	}
 	Markdown(apidoc.Dir, modName)
-	Swagger(apidoc.Dir, modName)
+	Openapi(apidoc.Dir, modName)
 	apidoc.DocList(w, r)
 }
 

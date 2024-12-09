@@ -2,8 +2,6 @@ module github.com/hopeio/pick
 
 go 1.23
 
-toolchain go1.23.0
-
 require (
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/gin-gonic/gin v1.10.0

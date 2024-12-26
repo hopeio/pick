@@ -43,7 +43,6 @@ type apiInfo struct {
 	changelog           []changelog
 	createlog           changelog
 	deprecated          *changelog
-	middleware          []http.HandlerFunc
 }
 
 type changelog struct {
@@ -116,11 +115,6 @@ func (api *apiInfo) Deprecated(v, auth, date, log string) *apiInfo {
 	return api
 }
 
-func (api *apiInfo) Middleware(m ...http.HandlerFunc) *apiInfo {
-	api.middleware = m
-	return api
-}
-
 func (api *apiInfo) End() {
 	panic(api)
 }
@@ -142,7 +136,6 @@ type ApiInfo struct {
 	Changelog           []changelog
 	Createlog           changelog
 	Deprecated          *changelog
-	Middleware          []http.HandlerFunc
 }
 
 func (api *apiInfo) Export() *ApiInfo {

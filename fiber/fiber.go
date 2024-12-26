@@ -13,8 +13,8 @@ import (
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/net/http/apidoc"
-	fiberi "github.com/hopeio/utils/net/http/fasthttp/fiber/apidoc"
-	"github.com/hopeio/utils/net/http/fasthttp/fiber/binding"
+	fiberi "github.com/hopeio/utils/net/http/fiber/apidoc"
+	"github.com/hopeio/utils/net/http/fiber/binding"
 	"net/http"
 	"reflect"
 

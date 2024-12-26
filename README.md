@@ -70,7 +70,6 @@ func (*UserService) Add(ctx *ginctx.Context, req *model.SignupReq) (*model.User,
 	pick.Api(func() {
 		return pick.Post("").//定义请求的方法及路由
 			Title("用户注册").//接口描述
-            Middleware(nil).//中间件
             //接口迭代信息
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").//创建，唯一
 			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").//变更，可有多个

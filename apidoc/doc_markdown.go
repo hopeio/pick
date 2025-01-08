@@ -39,61 +39,67 @@ func Markdown(filePath, modName string) {
 		fmt.Fprintln(buf, "----------")
 		for _, methodInfo := range groupApiInfo.Infos {
 			//title
-			apiinfo := methodInfo.ApiInfo
-			if apiinfo.Deprecated != nil {
-				fmt.Fprintf(buf, "## ~~%s-v%d(废弃)(`%s`)~~  \n", apiinfo.Title, apiinfo.Version, apiinfo.Path)
-			} else {
-				fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", apiinfo.Title, apiinfo.Version, apiinfo.Path)
-			}
-			//api
-			fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", apiinfo.Method, apiinfo.Path, apiinfo.GetPrincipal())
-
-			fmt.Fprint(buf, "### 接口记录  \n")
-			fmt.Fprint(buf, "|版本|操作|时间|负责人|日志|  \n")
-			fmt.Fprint(buf, "| :----: | :----: | :----: | :----: | :----: |  \n")
-			fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.Createlog.Version, "创建", apiinfo.Createlog.Date, apiinfo.Createlog.Auth, apiinfo.Createlog.Log)
-			if len(apiinfo.Changelog) != 0 || apiinfo.Deprecated != nil {
-				for _, clog := range apiinfo.Changelog {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.Version, "变更", clog.Date, clog.Auth, clog.Log)
+			apiInfo := methodInfo.ApiInfo
+			for _, url := range apiInfo.Urls {
+				title := apiInfo.Title
+				if url.Remark != "" {
+					title = title + "(" + url.Remark + ")"
 				}
-				if apiinfo.Deprecated != nil {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiinfo.Deprecated.Version, "删除", apiinfo.Deprecated.Date, apiinfo.Deprecated.Auth, apiinfo.Deprecated.Log)
+				if apiInfo.Deprecated != nil {
+					fmt.Fprintf(buf, "## ~~%s-v%d(废弃)(`%s`)~~  \n", title, apiInfo.Version, url.Path)
+				} else {
+					fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", title, apiInfo.Version, url.Path)
 				}
-			}
+				//api
+				fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", url.Method, url.Path, apiInfo.GetPrincipal())
 
-			fmt.Fprint(buf, "### 参数信息  \n")
-			if methodInfo.Method.NumIn() == 3 {
-				fmt.Fprint(buf, "|字段名称|字段类型|字段描述|校验要求|  \n")
-				fmt.Fprint(buf, "| :----  | :----: | :----: | :----: |  \n")
-				params := getParamTable(methodInfo.Method.In(2).Elem(), "")
+				fmt.Fprint(buf, "### 接口记录  \n")
+				fmt.Fprint(buf, "|版本|操作|时间|负责人|日志|  \n")
+				fmt.Fprint(buf, "| :----: | :----: | :----: | :----: | :----: |  \n")
+				fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Createlog.Version, "创建", apiInfo.Createlog.Date, apiInfo.Createlog.Auth, apiInfo.Createlog.Log)
+				if len(apiInfo.Changelog) != 0 || apiInfo.Deprecated != nil {
+					for _, clog := range apiInfo.Changelog {
+						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.Version, "变更", clog.Date, clog.Auth, clog.Log)
+					}
+					if apiInfo.Deprecated != nil {
+						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Deprecated.Version, "删除", apiInfo.Deprecated.Date, apiInfo.Deprecated.Auth, apiInfo.Deprecated.Log)
+					}
+				}
+
+				fmt.Fprint(buf, "### 参数信息  \n")
+				if methodInfo.Method.NumIn() == 3 {
+					fmt.Fprint(buf, "|字段名称|字段类型|字段描述|校验要求|  \n")
+					fmt.Fprint(buf, "| :----  | :----: | :----: | :----: |  \n")
+					params := getParamTable(methodInfo.Method.In(2).Elem(), "")
+					for i := range params {
+						fmt.Fprintf(buf, "|%s|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment, params[i].validator)
+					}
+
+				} else {
+					fmt.Fprint(buf, "无需参数")
+				}
+				fmt.Fprint(buf, "__请求示例__  \n")
+				fmt.Fprint(buf, "```json  \n")
+				newParam := reflect.New(methodInfo.Method.In(2).Elem()).Interface()
+				mock.Mock(newParam)
+				data, _ := json.MarshalIndent(newParam, "", "\t")
+				fmt.Fprint(buf, string(data), "  \n")
+				fmt.Fprint(buf, "```  \n")
+				fmt.Fprint(buf, "### 返回信息  \n")
+				fmt.Fprint(buf, "|字段名称|字段类型|字段描述|  \n")
+				fmt.Fprint(buf, "| :----  | :----: | :----: | \n")
+				params := getParamTable(methodInfo.Method.Out(0).Elem(), "")
 				for i := range params {
-					fmt.Fprintf(buf, "|%s|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment, params[i].validator)
+					fmt.Fprintf(buf, "|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment)
 				}
-
-			} else {
-				fmt.Fprint(buf, "无需参数")
+				fmt.Fprint(buf, "__返回示例__  \n")
+				fmt.Fprint(buf, "```json  \n")
+				newRes := reflect.New(methodInfo.Method.Out(0).Elem()).Interface()
+				mock.Mock(newRes)
+				data, _ = json.MarshalIndent(newRes, "", "\t")
+				fmt.Fprint(buf, string(data), "  \n")
+				fmt.Fprint(buf, "```  \n")
 			}
-			fmt.Fprint(buf, "__请求示例__  \n")
-			fmt.Fprint(buf, "```json  \n")
-			newParam := reflect.New(methodInfo.Method.In(2).Elem()).Interface()
-			mock.Mock(newParam)
-			data, _ := json.MarshalIndent(newParam, "", "\t")
-			fmt.Fprint(buf, string(data), "  \n")
-			fmt.Fprint(buf, "```  \n")
-			fmt.Fprint(buf, "### 返回信息  \n")
-			fmt.Fprint(buf, "|字段名称|字段类型|字段描述|  \n")
-			fmt.Fprint(buf, "| :----  | :----: | :----: | \n")
-			params := getParamTable(methodInfo.Method.Out(0).Elem(), "")
-			for i := range params {
-				fmt.Fprintf(buf, "|%s|%s|%s|  \n", params[i].json, params[i].typ, params[i].comment)
-			}
-			fmt.Fprint(buf, "__返回示例__  \n")
-			fmt.Fprint(buf, "```json  \n")
-			newRes := reflect.New(methodInfo.Method.Out(0).Elem()).Interface()
-			mock.Mock(newRes)
-			data, _ = json.MarshalIndent(newRes, "", "\t")
-			fmt.Fprint(buf, string(data), "  \n")
-			fmt.Fprint(buf, "```  \n")
 		}
 	}
 }

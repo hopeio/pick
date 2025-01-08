@@ -9,12 +9,11 @@ package pick
 import (
 	"context"
 	"errors"
+	"github.com/hopeio/utils/log"
 	"net/http"
 	"reflect"
 	"strings"
 	"unsafe"
-
-	"github.com/hopeio/utils/log"
 )
 
 const Template = `
@@ -37,44 +36,63 @@ var (
 	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
 )
 
+type url struct {
+	Path, Method, Remark string
+}
+
 type apiInfo struct {
-	path, method, title string
-	version             int
-	changelog           []changelog
-	createlog           changelog
-	deprecated          *changelog
+	urls       []url
+	title      string
+	version    int
+	changelog  []changelog
+	createlog  changelog
+	deprecated *changelog
 }
 
 type changelog struct {
 	Version, Auth, Date, Log string
 }
 
-func Get(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodGet}
+func (api *apiInfo) New(method, path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: method}}}
 }
-func Post(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodPost}
+
+func (api *apiInfo) Url(method, path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: method})
+	return api
 }
-func Put(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodPut}
+
+func (api *apiInfo) UrlRemark(method, path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: method, Remark: remark})
+	return api
 }
-func Delete(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodDelete}
+
+func Get(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodGet}}}
 }
-func Patch(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodPatch}
+func Post(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPost}}}
 }
-func Trace(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodTrace}
+func Put(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPut}}}
 }
-func Head(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodHead}
+func Delete(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodDelete}}}
 }
-func Options(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodOptions}
+func Patch(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPatch}}}
 }
-func Connect(p string) *apiInfo {
-	return &apiInfo{path: p, method: http.MethodConnect}
+func Trace(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodTrace}}}
+}
+func Head(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodHead}}}
+}
+func Options(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodOptions}}}
+}
+func Connect(path string) *apiInfo {
+	return &apiInfo{urls: []url{{Path: path, Method: http.MethodConnect}}}
 }
 
 func (api *apiInfo) ChangeLog(v, auth, date, log string) *apiInfo {
@@ -120,26 +138,29 @@ func (api *apiInfo) End() {
 }
 
 func (api *apiInfo) Check() error {
-	if api.path == "" || api.method == "" || api.title == "" || api.createlog.Version == "" {
+	if len(api.urls) == 0 || api.urls[0].Path == "" || api.urls[0].Method == "" || api.title == "" || api.createlog.Version == "" {
 		return errors.New("接口路径,方法,描述,创建日志均为必填")
 	}
 	return nil
 }
 
 func (api *apiInfo) Log() {
-	Log(api.method, api.path, api.title)
-}
-
-type ApiInfo struct {
-	Path, Method, Title string
-	Version             int
-	Changelog           []changelog
-	Createlog           changelog
-	Deprecated          *changelog
+	for _, url := range api.urls {
+		Log(url.Method, url.Path, api.title)
+	}
 }
 
 func (api *apiInfo) Export() *ApiInfo {
 	return (*ApiInfo)(unsafe.Pointer(api))
+}
+
+type ApiInfo struct {
+	Urls       []url
+	Title      string
+	Version    int
+	Changelog  []changelog
+	Createlog  changelog
+	Deprecated *changelog
 }
 
 // 获取负责人
@@ -164,11 +185,14 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	defer func() {
 		if err := recover(); err != nil {
 			if v, ok := err.(*apiInfo); ok {
-				//_,_, info.Version = ParseMethodName(method.Name)
+				//_,_, info.Version = ParseMethodName(Method.Name)
 				if v.version == 0 {
 					v.version = 1
 				}
-				v.path = preUrl + v.path
+				for i := range v.urls {
+					v.urls[i].Path = preUrl + v.urls[i].Path
+				}
+
 				info = v
 			} else {
 				log.Error(err)

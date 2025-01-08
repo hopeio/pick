@@ -50,7 +50,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			group.Handle(methodInfoExport.Method, methodInfoExport.Path[len(preUrl):], func(ctx *gin.Context) {
+			handler := func(ctx *gin.Context) {
 				ctxi := ginctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
@@ -69,7 +69,10 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				params[2] = in2
 				result := methodValue.Call(params)
 				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID(), result)
-			})
+			}
+			for _, url := range methodInfoExport.Urls {
+				group.Handle(url.Method, url.Path[len(preUrl):], handler)
+			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}

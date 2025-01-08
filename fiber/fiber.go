@@ -50,7 +50,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			group.Add([]string{methodInfoExport.Method}, methodInfoExport.Path[len(preUrl):], func(ctx fiber.Ctx) error {
+			handler := func(ctx fiber.Ctx) error {
 				ctxi := fiberctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
@@ -67,7 +67,10 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				params[2] = in2
 				result := methodValue.Call(params)
 				return ResWriterReflect(ctx, ctxi.TraceID(), result)
-			})
+			}
+			for _, url := range methodInfoExport.Urls {
+				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
+			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}

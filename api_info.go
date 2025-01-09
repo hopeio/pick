@@ -40,33 +40,6 @@ type url struct {
 	Path, Method, Remark string
 }
 
-type apiInfo struct {
-	urls       []url
-	title      string
-	version    int
-	changelog  []changelog
-	createlog  changelog
-	deprecated *changelog
-}
-
-type changelog struct {
-	Version, Auth, Date, Log string
-}
-
-func (api *apiInfo) New(method, path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: method}}}
-}
-
-func (api *apiInfo) Url(method, path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: method})
-	return api
-}
-
-func (api *apiInfo) UrlRemark(method, path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: method, Remark: remark})
-	return api
-}
-
 func Get(path string) *apiInfo {
 	return &apiInfo{urls: []url{{Path: path, Method: http.MethodGet}}}
 }
@@ -93,6 +66,106 @@ func Options(path string) *apiInfo {
 }
 func Connect(path string) *apiInfo {
 	return &apiInfo{urls: []url{{Path: path, Method: http.MethodConnect}}}
+}
+
+type apiInfo struct {
+	urls       []url
+	title      string
+	version    int
+	changelog  []changelog
+	createlog  changelog
+	deprecated *changelog
+}
+
+type changelog struct {
+	Version, Auth, Date, Log string
+}
+
+func (api *apiInfo) Get(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodGet})
+	return api
+}
+
+func (api *apiInfo) GetRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodGet, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Post(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPost})
+	return api
+}
+
+func (api *apiInfo) PostRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPost, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Put(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPut})
+	return api
+}
+
+func (api *apiInfo) PutRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPut, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Delete(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodDelete})
+	return api
+}
+
+func (api *apiInfo) DeleteRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodDelete, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Patch(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPatch})
+	return api
+}
+
+func (api *apiInfo) PatchRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodPatch, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Trace(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodTrace})
+	return api
+}
+
+func (api *apiInfo) TraceRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodTrace, Remark: remark})
+	return api
+}
+
+func (api *apiInfo) Head(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodHead})
+	return api
+}
+func (api *apiInfo) HeadRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodHead, Remark: remark})
+	return api
+}
+func (api *apiInfo) Options(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodOptions})
+	return api
+}
+
+func (api *apiInfo) OptionsRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodOptions, Remark: remark})
+	return api
+}
+func (api *apiInfo) Connect(path string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodConnect})
+	return api
+}
+
+func (api *apiInfo) ConnectRemark(path, remark string) *apiInfo {
+	api.urls = append(api.urls, url{Path: path, Method: http.MethodConnect, Remark: remark})
+	return api
 }
 
 func (api *apiInfo) ChangeLog(v, auth, date, log string) *apiInfo {

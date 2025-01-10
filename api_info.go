@@ -211,8 +211,8 @@ func (api *apiInfo) End() {
 }
 
 func (api *apiInfo) Check() error {
-	if len(api.urls) == 0 || api.urls[0].Path == "" || api.urls[0].Method == "" || api.title == "" || api.createlog.Version == "" {
-		return errors.New("接口路径,方法,描述,创建日志均为必填")
+	if len(api.urls) == 0 || api.urls[0].Path == "" || api.urls[0].Method == "" || api.title == "" {
+		return errors.New("接口路径,方法,描述均为必填")
 	}
 	return nil
 }

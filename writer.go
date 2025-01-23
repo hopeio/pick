@@ -15,30 +15,30 @@ import (
 	http_fs "github.com/hopeio/utils/net/http/fs"
 	"go.uber.org/zap"
 	"io"
-	"net/http"
 	"reflect"
 )
 
-func ResWriteReflect(w http.ResponseWriter, traceId string, result []reflect.Value) {
+func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
 		err := errcode.ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
-		json.NewEncoder(w).Encode(err)
-		return
+		return json.NewEncoder(w).Encode(err)
+
 	}
-	if info, ok := result[0].Interface().(*http_fs.File); ok {
-		header := w.Header()
-		header.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
-		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
-		io.Copy(w, info.File)
-		if flusher, canFlush := w.(http.Flusher); canFlush {
-			flusher.Flush()
-		}
-		info.File.Close()
-		return
+	data := result[0].Interface()
+	if info, ok := data.(*http_fs.File); ok {
+		w.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
+		w.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
+		defer info.File.Close()
+		_, err := io.Copy(w, info.File)
+		return err
 	}
-	json.NewEncoder(w).Encode(httpi.ResAnyData{
-		Msg:  "OK",
-		Data: result[0].Interface(),
+	if info, ok := data.(httpi.IHttpResponse); ok {
+		_, err := httpi.CommonResponseWrite(w, info)
+		return err
+	}
+	w.Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+	return json.NewEncoder(w).Encode(httpi.ResAnyData{
+		Data: data,
 	})
 }

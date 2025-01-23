@@ -68,7 +68,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.ResWriteReflect(ctx.Writer, ctxi.TraceID(), result)
+				pick.ResWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Urls {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

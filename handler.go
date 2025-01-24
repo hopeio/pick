@@ -12,8 +12,8 @@ import (
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/log"
 	httpi "github.com/hopeio/utils/net/http"
+	"github.com/hopeio/utils/net/http/binding"
 	http_fs "github.com/hopeio/utils/net/http/fs"
-	"github.com/hopeio/utils/reflect/mtos"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -24,18 +24,7 @@ var (
 	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
 )
 
-// Param is a single URL parameter, consisting of a key and a value.
-type Param struct {
-	Key   string
-	Value string
-}
-
-// Params is a Param-slice, as returned by the router.
-// The slice is ordered, the first URL parameter is also the first slice value.
-// It is therefore safe to read values by the index.
-type Params []Param
-
-func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Value, ps *Params) {
+func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Value) {
 	handleTyp := handle.Type()
 	handleNumIn := handleTyp.NumIn()
 	if handleNumIn != 0 {
@@ -50,21 +39,7 @@ func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 				params[i] = reflect.ValueOf(ctxi)
 			} else {
 				params[i] = reflect.New(handleTyp.In(i).Elem())
-				if ps != nil || req.URL.RawQuery != "" {
-					src := req.URL.Query()
-					if ps != nil {
-						pathParam := *ps
-						if len(pathParam) > 0 {
-							for i := range pathParam {
-								src.Set(pathParam[i].Key, pathParam[i].Value)
-							}
-						}
-					}
-					mtos.Decode(params[i], src)
-				}
-				if req.Method != http.MethodGet {
-					json.NewDecoder(req.Body).Decode(params[i].Interface())
-				}
+				binding.Bind(req, params[i].Interface())
 			}
 		}
 		result := handle.Call(params)

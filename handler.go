@@ -9,7 +9,13 @@ package pick
 import (
 	"encoding/json"
 	"github.com/hopeio/context/httpctx"
+	"github.com/hopeio/utils/errors/errcode"
+	"github.com/hopeio/utils/log"
+	httpi "github.com/hopeio/utils/net/http"
+	http_fs "github.com/hopeio/utils/net/http/fs"
 	"github.com/hopeio/utils/reflect/mtos"
+	"go.uber.org/zap"
+	"io"
 	"net/http"
 	"reflect"
 )
@@ -62,6 +68,38 @@ func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 			}
 		}
 		result := handle.Call(params)
-		ResWriteReflect(w, ctxi.TraceID(), result)
+		ResWriteReflect(Writer{w}, ctxi.TraceID(), result)
 	}
+}
+
+func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+	if !result[1].IsNil() {
+		err := errcode.ErrHandle(result[1].Interface())
+		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
+		w.Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+		return json.NewEncoder(w).Encode(err)
+	}
+	data := result[0].Interface()
+	if info, ok := data.(*http_fs.File); ok {
+		w.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
+		w.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
+		defer info.File.Close()
+		_, err := io.Copy(w, info.File)
+		return err
+	}
+	if info, ok := data.(httpi.IHttpResponse); ok {
+		_, err := httpi.CommonResponseWrite(w, info)
+		return err
+	}
+	if info, ok := data.(httpi.IHttpResponseTo); ok {
+		if rw, ok := w.(http.ResponseWriter); ok {
+			_, err := info.Response(rw)
+			return err
+		}
+	}
+
+	w.Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+	return json.NewEncoder(w).Encode(httpi.ResAnyData{
+		Data: data,
+	})
 }

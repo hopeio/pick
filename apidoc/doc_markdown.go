@@ -46,9 +46,13 @@ func Markdown(filePath, modName string) {
 					title = title + "(" + url.Remark + ")"
 				}
 				if apiInfo.Deprecated != nil {
-					fmt.Fprintf(buf, "## ~~%s-v%d(废弃)(`%s`)~~  \n", title, apiInfo.Version, url.Path)
+					fmt.Fprintf(buf, "## ~~%s-v%s(废弃)(`%s`)~~  \n", title, apiInfo.Deprecated.Version, url.Path)
 				} else {
-					fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", title, apiInfo.Version, url.Path)
+					log := apiInfo.Createlog
+					if len(apiInfo.Changelog) > 0 {
+						log = apiInfo.Changelog[len(apiInfo.Changelog)-1]
+					}
+					fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", title, log.Version, url.Path)
 				}
 				//api
 				fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", url.Method, url.Path, apiInfo.GetPrincipal())

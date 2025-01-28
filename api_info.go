@@ -17,11 +17,10 @@ import (
 )
 
 const Template = `
-func (*UserService) Add(ctx *model.Context, req *model.SignupReq) (*response.TinyRep, error) {
+func (*UserService) Add(ctx *httpreq.Context, req *model.SignupReq) (*response.TinyRep, error) {
 	pick.Api(func() {
 		pick.Post("").
 			Title("用户注册").
-			Version(2).
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
 			ChangeLog("2.0.1", "jyb", "2019/12/16", "修改测试").End()
 	})
@@ -71,7 +70,6 @@ func Connect(path string) *apiInfo {
 type apiInfo struct {
 	urls       []url
 	title      string
-	version    int
 	changelog  []changelog
 	createlog  changelog
 	deprecated *changelog
@@ -195,11 +193,6 @@ func (api *apiInfo) Title(d string) *apiInfo {
 	return api
 }
 
-func (api *apiInfo) Version(v int) *apiInfo {
-	api.version = v
-	return api
-}
-
 func (api *apiInfo) Deprecated(v, auth, date, log string) *apiInfo {
 	v = version(v)
 	api.deprecated = &changelog{v, auth, date, log}
@@ -230,7 +223,6 @@ func (api *apiInfo) Export() *ApiInfo {
 type ApiInfo struct {
 	Urls       []url
 	Title      string
-	Version    int
 	Changelog  []changelog
 	Createlog  changelog
 	Deprecated *changelog
@@ -258,10 +250,6 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	defer func() {
 		if err := recover(); err != nil {
 			if v, ok := err.(*apiInfo); ok {
-				//_,_, info.Version = ParseMethodName(Method.Name)
-				if v.version == 0 {
-					v.version = 1
-				}
 				for i := range v.urls {
 					v.urls[i].Path = preUrl + v.urls[i].Path
 				}

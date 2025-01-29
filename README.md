@@ -36,7 +36,7 @@ return "用户相关", "/api/v1/user", []http.HandlerFunc{middleware.Log}
 func (*UserService) Add(ctx *httpctx.Context, req *model.SignupReq) (*model.User, error) {
 //对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
   pick.Api(func() {
-  return pick.Post("").
+    pick.Post("").
     Title("用户注册").
     CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
     ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
@@ -45,22 +45,10 @@ func (*UserService) Add(ctx *httpctx.Context, req *model.SignupReq) (*model.User
   return &model.User{Name: "测试"}, nil
 }
 
-func (*UserService) Edit(ctx *httpctx.Context, req *model.User) (*model.User, error) {
-  pick.Api(func() {
-    return pick.Put("/:id").
-      Title("用户编辑").
-      CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-      Deprecated("1.0.0", "jyb", "2019/12/16", "删除").
-      End()
-  })
-  return nil, nil
-}
-
 ```  
 这会生成如下的Api
 ```shell
  API:	 POST   /api/v1/user   用户注册
- API:	 PUT    /api/v1/user/:id   用户编辑(废弃)
 ```
 
 ## api完整示例
@@ -68,7 +56,7 @@ func (*UserService) Edit(ctx *httpctx.Context, req *model.User) (*model.User, er
 func (*UserService) Add(ctx *ginctx.Context, req *model.SignupReq) (*model.User, error) {
 	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
 	pick.Api(func() {
-		return pick.Post("").//定义请求的方法及路由
+		 pick.Post("").//定义请求的方法及路由
 			Title("用户注册").//接口描述
             //接口迭代信息
 			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").//创建，唯一

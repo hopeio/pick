@@ -40,19 +40,19 @@ func Markdown(filePath, modName string) {
 		for _, methodInfo := range groupApiInfo.Infos {
 			//title
 			apiInfo := methodInfo.ApiInfo
-			for _, url := range apiInfo.Urls {
+			for _, url := range apiInfo.Routes {
 				title := apiInfo.Title
 				if url.Remark != "" {
 					title = title + "(" + url.Remark + ")"
 				}
 				if apiInfo.Deprecated != nil {
-					fmt.Fprintf(buf, "## ~~%s-v%s(废弃)(`%s`)~~  \n", title, apiInfo.Deprecated.Version, url.Path)
+					fmt.Fprintf(buf, "## ~~%s-%s(废弃)(`%s`)~~  \n", title, apiInfo.Deprecated.Version, url.Path)
 				} else {
 					log := apiInfo.Createlog
 					if len(apiInfo.Changelog) > 0 {
 						log = apiInfo.Changelog[len(apiInfo.Changelog)-1]
 					}
-					fmt.Fprintf(buf, "## %s-v%d(`%s`)  \n", title, log.Version, url.Path)
+					fmt.Fprintf(buf, "## %s-%s(`%s`)  \n", title, log.Version, url.Path)
 				}
 				//api
 				fmt.Fprintf(buf, "**%s** `%s` _(Principal %s)_  \n", url.Method, url.Path, apiInfo.GetPrincipal())
@@ -60,13 +60,13 @@ func Markdown(filePath, modName string) {
 				fmt.Fprint(buf, "### 接口记录  \n")
 				fmt.Fprint(buf, "|版本|操作|时间|负责人|日志|  \n")
 				fmt.Fprint(buf, "| :----: | :----: | :----: | :----: | :----: |  \n")
-				fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Createlog.Version, "创建", apiInfo.Createlog.Date, apiInfo.Createlog.Auth, apiInfo.Createlog.Log)
+				fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Createlog.Version, "创建", apiInfo.Createlog.Date, apiInfo.Createlog.Auth, apiInfo.Createlog.Desc)
 				if len(apiInfo.Changelog) != 0 || apiInfo.Deprecated != nil {
 					for _, clog := range apiInfo.Changelog {
-						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.Version, "变更", clog.Date, clog.Auth, clog.Log)
+						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", clog.Version, "变更", clog.Date, clog.Auth, clog.Desc)
 					}
 					if apiInfo.Deprecated != nil {
-						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Deprecated.Version, "删除", apiInfo.Deprecated.Date, apiInfo.Deprecated.Auth, apiInfo.Deprecated.Log)
+						fmt.Fprintf(buf, "|%s|%s|%s|%s|%s|  \n", apiInfo.Deprecated.Version, "删除", apiInfo.Deprecated.Date, apiInfo.Deprecated.Auth, apiInfo.Deprecated.Desc)
 					}
 				}
 

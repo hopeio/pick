@@ -68,7 +68,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				result := methodValue.Call(params)
 				return pick.ResWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
 			}
-			for _, url := range methodInfoExport.Urls {
+			for _, url := range methodInfoExport.Routes {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
 			}
 			methodInfo.Log()
@@ -81,10 +81,10 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 }
 
 func openApi(mux *fiber.App) {
-	pick.Log(http.MethodGet, apidoc.UriPrefix, "api文档列表")
+	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
 	mux.Get(apidoc.UriPrefix, DocList)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi文档")
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
 	mux.Get(apidoc.UriPrefix+"/openapi/*file", fiberi.Swagger)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown文档")
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown")
 	mux.Get(apidoc.UriPrefix+"/markdown", fiberi.Markdown)
 }

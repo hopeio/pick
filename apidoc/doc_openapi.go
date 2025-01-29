@@ -26,7 +26,7 @@ func Openapi(filePath, modName string) {
 }
 
 func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag, dec string) {
-	for _, url := range api.Urls {
+	for _, url := range api.Routes {
 		var pathItem *openapi3.PathItem
 		if doc.Paths != nil {
 			if path := doc.Paths.Value(url.Path); path != nil {
@@ -95,10 +95,10 @@ func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag
 
 			var tags, desc []string
 			tags = append(tags, tag, api.Createlog.Version)
-			desc = append(desc, dec, api.Createlog.Log)
+			desc = append(desc, dec, api.Createlog.Desc)
 			for i := range api.Changelog {
 				tags = append(tags, api.Changelog[i].Version)
-				desc = append(desc, api.Changelog[i].Log)
+				desc = append(desc, api.Changelog[i].Desc)
 			}
 			op.Tags = tags
 			op.Description = strings.Join(desc, "\n")

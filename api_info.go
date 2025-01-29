@@ -35,140 +35,140 @@ var (
 	ErrorType    = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-type url struct {
+type Route struct {
 	Path, Method, Remark string
 }
 
 func Get(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodGet}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodGet}}}
 }
 func Post(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPost}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodPost}}}
 }
 func Put(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPut}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodPut}}}
 }
 func Delete(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodDelete}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodDelete}}}
 }
 func Patch(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodPatch}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodPatch}}}
 }
 func Trace(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodTrace}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodTrace}}}
 }
 func Head(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodHead}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodHead}}}
 }
 func Options(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodOptions}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodOptions}}}
 }
 func Connect(path string) *apiInfo {
-	return &apiInfo{urls: []url{{Path: path, Method: http.MethodConnect}}}
+	return &apiInfo{routes: []Route{{Path: path, Method: http.MethodConnect}}}
 }
 
 type apiInfo struct {
-	urls       []url
+	routes     []Route
 	title      string
-	changelog  []changelog
-	createlog  changelog
-	deprecated *changelog
+	createlog  Changelog
+	changelog  []Changelog
+	deprecated *Changelog
 }
 
-type changelog struct {
-	Version, Auth, Date, Log string
+type Changelog struct {
+	Version, Auth, Date, Desc string
 }
 
 func (api *apiInfo) Get(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodGet})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodGet})
 	return api
 }
 
 func (api *apiInfo) GetRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodGet, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodGet, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Post(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPost})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPost})
 	return api
 }
 
 func (api *apiInfo) PostRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPost, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPost, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Put(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPut})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPut})
 	return api
 }
 
 func (api *apiInfo) PutRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPut, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPut, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Delete(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodDelete})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodDelete})
 	return api
 }
 
 func (api *apiInfo) DeleteRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodDelete, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodDelete, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Patch(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPatch})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPatch})
 	return api
 }
 
 func (api *apiInfo) PatchRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodPatch, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodPatch, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Trace(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodTrace})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodTrace})
 	return api
 }
 
 func (api *apiInfo) TraceRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodTrace, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodTrace, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) Head(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodHead})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodHead})
 	return api
 }
 func (api *apiInfo) HeadRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodHead, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodHead, Remark: remark})
 	return api
 }
 func (api *apiInfo) Options(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodOptions})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodOptions})
 	return api
 }
 
 func (api *apiInfo) OptionsRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodOptions, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodOptions, Remark: remark})
 	return api
 }
 func (api *apiInfo) Connect(path string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodConnect})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodConnect})
 	return api
 }
 
 func (api *apiInfo) ConnectRemark(path, remark string) *apiInfo {
-	api.urls = append(api.urls, url{Path: path, Method: http.MethodConnect, Remark: remark})
+	api.routes = append(api.routes, Route{Path: path, Method: http.MethodConnect, Remark: remark})
 	return api
 }
 
 func (api *apiInfo) ChangeLog(v, auth, date, log string) *apiInfo {
 	v = version(v)
-	api.changelog = append(api.changelog, changelog{v, auth, date, log})
+	api.changelog = append(api.changelog, Changelog{v, auth, date, log})
 	return api
 }
 
@@ -181,10 +181,10 @@ func version(v string) string {
 
 func (api *apiInfo) CreateLog(v, auth, date, log string) *apiInfo {
 	if api.createlog.Version != "" {
-		panic("创建记录只允许一条")
+		panic("only one createlog is allowed")
 	}
 	v = version(v)
-	api.createlog = changelog{v, auth, date, log}
+	api.createlog = Changelog{v, auth, date, log}
 	return api
 }
 
@@ -195,7 +195,7 @@ func (api *apiInfo) Title(d string) *apiInfo {
 
 func (api *apiInfo) Deprecated(v, auth, date, log string) *apiInfo {
 	v = version(v)
-	api.deprecated = &changelog{v, auth, date, log}
+	api.deprecated = &Changelog{v, auth, date, log}
 	return api
 }
 
@@ -204,14 +204,14 @@ func (api *apiInfo) End() {
 }
 
 func (api *apiInfo) Check() error {
-	if len(api.urls) == 0 || api.urls[0].Path == "" || api.urls[0].Method == "" || api.title == "" {
-		return errors.New("接口路径,方法,描述均为必填")
+	if len(api.routes) == 0 || api.routes[0].Path == "" || api.routes[0].Method == "" || api.title == "" {
+		return errors.New("path,method,title is required")
 	}
 	return nil
 }
 
 func (api *apiInfo) Log() {
-	for _, url := range api.urls {
+	for _, url := range api.routes {
 		Log(url.Method, url.Path, api.title)
 	}
 }
@@ -221,11 +221,11 @@ func (api *apiInfo) Export() *ApiInfo {
 }
 
 type ApiInfo struct {
-	Urls       []url
+	Routes     []Route
 	Title      string
-	Changelog  []changelog
-	Createlog  changelog
-	Deprecated *changelog
+	Createlog  Changelog
+	Changelog  []Changelog
+	Deprecated *Changelog
 }
 
 // 获取负责人
@@ -244,14 +244,14 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	if method.Name == "Service" {
 		return nil
 	}
-	if !strings.HasPrefix(method.Name, prefix) {
+	if prefix != "" && !strings.HasPrefix(method.Name, prefix) {
 		return nil
 	}
 	defer func() {
 		if err := recover(); err != nil {
 			if v, ok := err.(*apiInfo); ok {
-				for i := range v.urls {
-					v.urls[i].Path = preUrl + v.urls[i].Path
+				for i := range v.routes {
+					v.routes[i].Path = preUrl + v.routes[i].Path
 				}
 
 				info = v
@@ -267,7 +267,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	var err error
 	defer func() {
 		if err != nil {
-			log.Debugf("未注册: %s 原因:%v", method.Name, err)
+			log.Debugf("unregisted: %s reason:%v", method.Name, err)
 		}
 	}()
 
@@ -281,11 +281,11 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	}
 
 	if !methodType.In(1).ConvertibleTo(httpContext) && !methodType.In(1).Implements(ContextType) {
-		err = errors.New("service第一个参数必须为*httpctx.Context类型或context.Context")
+		err = errors.New("service first argument should be *httpctx.Context type or context.Context")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) {
-		err = errors.New("service第二个返回值必须为error类型")
+		err = errors.New("service second return should be error type")
 		return
 	}
 	params := make([]reflect.Value, numIn)

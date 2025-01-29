@@ -6,7 +6,7 @@ require (
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/hopeio/context v0.1.2
-	github.com/hopeio/utils v0.5.0
+	github.com/hopeio/utils v0.5.1
 )
 
 require (

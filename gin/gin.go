@@ -13,6 +13,7 @@ import (
 	"github.com/hopeio/utils/errors/errcode"
 	gin2 "github.com/hopeio/utils/net/http/gin"
 	"github.com/hopeio/utils/net/http/gin/binding"
+	"github.com/hopeio/utils/unsafe"
 
 	"github.com/hopeio/utils/net/http/apidoc"
 
@@ -27,6 +28,8 @@ var (
 	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
 )
 
+type HandlerFunc = func(*gin.Context)
+
 func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 	openApi(engine)
 	for _, v := range svcs {
@@ -39,7 +42,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo[HandlerFunc](&method, preUrl, GinContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -50,6 +53,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
+			ginContext := methodType.In(1).ConvertibleTo(GinContextType)
 			handler := func(ctx *gin.Context) {
 				ctxi := ginctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
@@ -61,7 +65,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				if methodType.In(1).ConvertibleTo(GinContextType) {
+				if ginContext {
 					params[1] = reflect.ValueOf(ctxi)
 				} else {
 					params[1] = reflect.ValueOf(ctxi.Wrapper())
@@ -71,7 +75,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				pick.ResWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Handle(url.Method, url.Path[len(preUrl):], handler)
+				group.Handle(url.Method, url.Path[len(preUrl):], append(unsafe.CastSlice[gin.HandlerFunc](methodInfoExport.Middlewares), handler)...)
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

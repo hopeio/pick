@@ -78,3 +78,20 @@ func (*UserService) GrpcGateway(ctx context.Context, req *Req) (*User, error) {
 		Gender: 1,
 	}, nil
 }
+
+func (*UserService) Middleware(ctx context.Context, req *Req) (*User, error) {
+	pick.Api(func() {
+		pick.Middleware(func(ctx *gin.Context) {
+			fmt.Println("middleware")
+		}).Get("/middleware").
+			Title("中间件").
+			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
+	})
+	fmt.Println(req.Name)
+	// dao
+	return &User{
+		Id:     req.Id,
+		Name:   "test",
+		Gender: 1,
+	}, nil
+}

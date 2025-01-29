@@ -15,6 +15,7 @@ import (
 	"github.com/hopeio/utils/net/http/apidoc"
 	fiberi "github.com/hopeio/utils/net/http/fiber/apidoc"
 	"github.com/hopeio/utils/net/http/fiber/binding"
+	"github.com/hopeio/utils/unsafe"
 	"net/http"
 	"reflect"
 
@@ -24,6 +25,8 @@ import (
 var (
 	FiberContextType = reflect.TypeOf((*fiberctx.Context)(nil))
 )
+
+type HandlerFunc = func(ctx fiber.Ctx) error
 
 // 复用pick service，不支持单个接口的中间件
 func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
@@ -38,7 +41,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType)
+			methodInfo := pick.GetMethodInfo[HandlerFunc](&method, preUrl, FiberContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -50,6 +53,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
+			fiberContext := methodType.In(1).ConvertibleTo(FiberContextType)
 			handler := func(ctx fiber.Ctx) error {
 				ctxi := fiberctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
@@ -59,7 +63,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				if methodType.In(1).ConvertibleTo(FiberContextType) {
+				if fiberContext {
 					params[1] = reflect.ValueOf(ctxi)
 				} else {
 					params[1] = reflect.ValueOf(ctxi.Wrapper())
@@ -69,7 +73,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				return pick.ResWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
+				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler, unsafe.CastSlice[fiber.Handler](methodInfoExport.Middlewares)...)
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

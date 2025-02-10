@@ -5,8 +5,9 @@ go 1.23
 require (
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hopeio/context v0.1.2
-	github.com/hopeio/utils v0.5.1
+	github.com/hopeio/context v0.1.3
+	github.com/hopeio/protobuf v0.1.5
+	github.com/hopeio/utils v0.6.1
 )
 
 require (
@@ -19,12 +20,14 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.61.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.33.0 // indirect
 	go.opentelemetry.io/otel/metric v1.33.0 // indirect
 	go.opentelemetry.io/otel/trace v1.33.0 // indirect

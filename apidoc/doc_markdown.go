@@ -19,7 +19,7 @@ import (
 	reflecti "github.com/hopeio/utils/reflect"
 	"github.com/hopeio/utils/reflect/mock"
 	stringsi "github.com/hopeio/utils/strings"
-	"github.com/hopeio/utils/validation/validator"
+	"github.com/hopeio/utils/validate/validator"
 )
 
 // 有swagger,有没有必要做
@@ -161,7 +161,7 @@ func getParamTable(param reflect.Type, pre string) []*ParamTable {
 			p.comment = p.json
 		}
 		p.typ = getJsType(field.Type)
-		if valid := validator.Trans(validator.Validator.StructPartial(newParam, field.Name)); valid != "" {
+		if valid := validator.TransError(validator.Validator.StructPartial(newParam, field.Name)); valid != "" {
 			p.validator = valid[len(p.comment):]
 		}
 		if p.typ == "object" || p.typ == "[]object" {

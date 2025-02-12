@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/hopeio/context v0.1.5
 	github.com/hopeio/protobuf v0.1.5
-	github.com/hopeio/utils v0.7.1
+	github.com/hopeio/utils v0.7.3
 )
 
 require (

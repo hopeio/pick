@@ -19,7 +19,7 @@ import (
 	reflecti "github.com/hopeio/utils/reflect"
 	"github.com/hopeio/utils/reflect/mock"
 	stringsi "github.com/hopeio/utils/strings"
-	"github.com/hopeio/utils/validate/validator"
+	"github.com/hopeio/utils/validation/validator"
 )
 
 // 有swagger,有没有必要做

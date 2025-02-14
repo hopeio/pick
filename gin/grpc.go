@@ -5,7 +5,7 @@ import (
 	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/protobuf/errcode"
+	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/log"
 	"github.com/hopeio/utils/net/http/gin/binding"
 	"github.com/hopeio/utils/unsafe"

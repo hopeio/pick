@@ -5,8 +5,8 @@ go 1.23
 require (
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hopeio/context v0.1.5
-	github.com/hopeio/utils v0.7.3
+	github.com/hopeio/context v0.2.3
+	github.com/hopeio/utils v0.8.6
 )
 
 require (
@@ -73,6 +73,6 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241209162323-e6fa225c2576 // indirect
-	google.golang.org/protobuf v1.35.2 // indirect
+	google.golang.org/protobuf v1.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

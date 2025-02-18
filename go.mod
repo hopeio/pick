@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hopeio/context v0.2.4
+	github.com/hopeio/context v0.2.5
 	github.com/hopeio/utils v0.8.6
 )
 

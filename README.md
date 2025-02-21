@@ -1,18 +1,20 @@
 # [pick](https://github.com/actliboy/pick)
-一个基于反射的自动注入api开发框架http api服务器,灵感来自于grpc和springmvc,pick的默认基于gin,如不想使用，pick同时兼容fiber(fasthttp),底层可选择。
-
+一个基于反射的自动注入api开发框架,灵感来自于grpc和springmvc
+pick的底层是灵活的,默认基于gin,同时兼容fiber(fasthttp)。
 
 # feature
 
 - 摆脱路由注册
-    >摆脱零散的各处的路由注册 `xxx.Handle("/"，func(){})`
-- 摆脱w,r,摆脱xxx.Context
-    >不再编写这样`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
-- 专注于业务
+    >❌`xxx.Handle("/"，func(){})`
+- 摆脱w,r,摆脱xxx.Context这种不直观输入输出的handler
+    >❌`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
+- 类grpc的函数签名,专注于业务
+   > ✅`func(ctx *ginctx.Context,r ReqStruct) (RespStruct,error)`
 
 # quick start
 go get github.com/hopeio/pick
-go run _example/gin/main.go
+
+`go run $(go list -m -f {{.Dir}}  github.com/hopeio/pick)/_example/gin/main.go`
 
 # usage
 ## main.go
@@ -20,7 +22,6 @@ go run _example/gin/main.go
 func main() {
   server := gin.New()
   pickgin.Register(server, &UserService{})
-  log.Println("visit http://localhost:8080")
   log.Fatal(server.Run(":8080"))
 }
 ```
@@ -29,49 +30,40 @@ func main() {
 // 首先我们需要定义一个服务
 type UserService struct{}
 //需要实现Service方法，返回该服务的说明，url前缀，以及需要的中间件
-func (*UserService) Service() (string, string, []http.HandlerFunc) {
-return "用户相关", "/api/v1/user", []http.HandlerFunc{middleware.Log}
+func (*UserService) Service() (string, string, []gin.HandlerFunc) {
+return "用户相关", "/api/v1/user", []gin.HandlerFunc{}
+}
+type Req struct{
+  ID int `json:"id"`
+}
+type User struct {
+	ID int `json:"id"`
+	Name string `json:"name"`
 }
 // 然后可以写我们的业务方法
-func (*UserService) Add(ctx *httpctx.Context, req *model.SignupReq) (*model.User, error) {
+func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, error) {
 //对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
   pick.Api(func() {
-    pick.Post("").
-    Title("用户注册").
+    pick.Get(":/id").
+    Title("用户详情").
     CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
     ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
     End()
   })
-  return &model.User{Name: "测试"}, nil
+  return &model.User{ID:req.ID,Name: "测试"}, nil
 }
 
 ```  
 这会生成如下的Api
-```shell
- API:	 POST   /api/v1/user   用户注册
-```
 
-## api完整示例
-```go
-func (*UserService) Add(ctx *ginctx.Context, req *model.SignupReq) (*model.User, error) {
-	//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
-	pick.Api(func() {
-		 pick.Post("").//定义请求的方法及路由
-			Title("用户注册").//接口描述
-            //接口迭代信息
-			CreateLog("1.0.0", "jyb", "2019/12/16", "创建").//创建，唯一
-			ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").//变更，可有多个
-			Deprecated("1.0.0", "jyb", "2019/12/16", "删除").//废弃，唯一
-            End()
-	})
-	return &model.User{Name: "测试"}, nil
-}
+ >API:	 Get   /api/v1/user/:id   用户详情
 
-```
+ >curl http://localhost:8080/api/v1/user/1  
+ > 返回: `{"id":1,"name":"测试"}`  
 
 # 文档生成
 /apidoc
-pick会为我们生成swagger和markdown文档
+pick会为我们生成openapi和markdown文档
 当然，这需要你定义的请求配合，例如
 ```go
 type User struct {
@@ -82,7 +74,7 @@ type User struct {
 	Phone string `json:"phone" comment:"手机" validate:"phone"`
 }
 ```
-## swagger
+## openapi
 ![Image text](_assets/1712546925271.jpg)
 ## markdown
 > [TOC]

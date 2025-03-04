@@ -7,6 +7,7 @@
 package pick
 
 import (
+	httpi "github.com/hopeio/utils/net/http"
 	"net/http"
 )
 
@@ -18,8 +19,8 @@ func (w Writer) Status(code int) {
 	w.ResponseWriter.WriteHeader(code)
 }
 
-func (w Writer) Set(k, v string) {
-	w.ResponseWriter.Header().Set(k, v)
+func (w Writer) Header() httpi.Header {
+	return httpi.HttpHeader(w.ResponseWriter.Header())
 }
 
 func (w Writer) Write(p []byte) (int, error) {

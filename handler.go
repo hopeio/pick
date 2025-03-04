@@ -51,13 +51,14 @@ func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []ref
 	if !result[1].IsNil() {
 		err := errcode.ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
-		w.Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+		w.Header().Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
 		return json.NewEncoder(w).Encode(err)
 	}
 	data := result[0].Interface()
 	if info, ok := data.(*http_fs.File); ok {
-		w.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
-		w.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
+		header := w.Header()
+		header.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
+		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
 		defer info.File.Close()
 		_, err := io.Copy(w, info.File)
 		return err
@@ -66,14 +67,12 @@ func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []ref
 		_, err := httpi.CommonResponseWrite(w, info)
 		return err
 	}
-	if info, ok := data.(httpi.IHttpResponseTo); ok {
-		if rw, ok := w.(http.ResponseWriter); ok {
-			_, err := info.Response(rw)
-			return err
-		}
+	if info, ok := data.(httpi.ICommonResponseTo); ok {
+		_, err := info.Response(w)
+		return err
 	}
 
-	w.Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+	w.Header().Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
 	return json.NewEncoder(w).Encode(httpi.ResAnyData{
 		Data: data,
 	})

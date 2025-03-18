@@ -13,6 +13,7 @@ import (
 	"github.com/hopeio/utils/log"
 	httpi "github.com/hopeio/utils/net/http"
 	"github.com/hopeio/utils/net/http/binding"
+	"github.com/hopeio/utils/net/http/consts"
 	http_fs "github.com/hopeio/utils/net/http/fs"
 	"go.uber.org/zap"
 	"io"
@@ -51,14 +52,14 @@ func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []ref
 	if !result[1].IsNil() {
 		err := errcode.ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
-		w.Header().Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+		w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
 		return json.NewEncoder(w).Encode(err)
 	}
 	data := result[0].Interface()
 	if info, ok := data.(*http_fs.File); ok {
 		header := w.Header()
-		header.Set(httpi.HeaderContentType, httpi.ContentTypeOctetStream)
-		header.Set(httpi.HeaderContentDisposition, "attachment;filename="+info.Name)
+		header.Set(consts.HeaderContentType, consts.ContentTypeOctetStream)
+		header.Set(consts.HeaderContentDisposition, "attachment;filename="+info.Name)
 		defer info.File.Close()
 		_, err := io.Copy(w, info.File)
 		return err
@@ -72,7 +73,7 @@ func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []ref
 		return err
 	}
 
-	w.Header().Set(httpi.HeaderContentType, httpi.ContentTypeJsonUtf8)
+	w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
 	return json.NewEncoder(w).Encode(httpi.ResAnyData{
 		Data: data,
 	})

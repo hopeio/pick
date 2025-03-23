@@ -5,8 +5,8 @@ go 1.23
 require (
 	github.com/getkin/kin-openapi v0.129.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hopeio/context v0.2.7
-	github.com/hopeio/utils v0.12.1
+	github.com/hopeio/context v0.2.8
+	github.com/hopeio/utils v0.12.8
 )
 
 require (
@@ -63,7 +63,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.59.0
+	github.com/valyala/fasthttp v1.59.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0
 	golang.org/x/arch v0.14.0 // indirect

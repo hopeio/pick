@@ -70,7 +70,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				return pick.ResWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
+				return pick.RespWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler, unsafe.CastSlice[fiber.Handler](methodInfoExport.Middlewares)...)

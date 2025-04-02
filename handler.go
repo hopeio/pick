@@ -44,13 +44,13 @@ func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Val
 			}
 		}
 		result := handle.Call(params)
-		ResWriteReflect(Writer{w}, ctxi.TraceID(), result)
+		RespWriteReflect(Writer{w}, ctxi.TraceID(), result)
 	}
 }
 
-func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+func RespWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
-		err := errcode.ErrHandle(result[1].Interface())
+		err := ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
 		w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
 		return json.NewEncoder(w).Encode(err)
@@ -74,7 +74,26 @@ func ResWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []ref
 	}
 
 	w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
-	return json.NewEncoder(w).Encode(httpi.ResAnyData{
+	return json.NewEncoder(w).Encode(httpi.RespAnyData{
 		Data: data,
 	})
+}
+
+func ErrHandle(err any) error {
+	if err == nil {
+		return nil
+	}
+	switch e := err.(type) {
+	case httpi.ErrRep:
+
+	case errcode.IErrRep:
+		return e.ErrRep()
+	case *errcode.ErrRep:
+		return e
+	case errcode.ErrCode:
+		return e.ErrRep()
+	case error:
+		return errcode.Unknown.Msg(e.Error())
+	}
+	return errcode.Unknown.ErrRep()
 }

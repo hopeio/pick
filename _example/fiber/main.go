@@ -17,7 +17,6 @@ import (
 func main() {
 	app := fiber.New()
 	fiberi.Register(app, &service.UserService{}, &service.TestService{})
-	app.Static("/static", "E:/")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(app.Listen(":8080"))
 }

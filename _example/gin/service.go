@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
-	errorsi "github.com/hopeio/utils/errors/errcode"
 )
 
 type UserService struct{}
@@ -50,15 +49,15 @@ type Req struct {
 	Name string `json:"name"`
 }
 
-func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, error) {
+func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) {
 	pick.Api(func() {
-		pick.Post("/err/:id").
+		pick.Get("/err/:id").
 			Title("用户详情返回错误").
 			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
 	})
 	fmt.Println(req.Name)
 	// dao
-	return nil, &errorsi.ErrRep{
+	return nil, &pick.ErrRep{
 		Code: 1,
 		Msg:  "error",
 	}
@@ -67,7 +66,7 @@ func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, error) {
 func (*UserService) GrpcGateway(ctx context.Context, req *Req) (*User, error) {
 	pick.Api(func() {
 		pick.Get("/grpcGateway").
-			Title("用户详情返回错误").
+			Title("grpcGateway").
 			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
 	})
 	fmt.Println(req.Name)
@@ -79,7 +78,7 @@ func (*UserService) GrpcGateway(ctx context.Context, req *Req) (*User, error) {
 	}, nil
 }
 
-func (*UserService) Middleware(ctx context.Context, req *Req) (*User, error) {
+func (*UserService) Middleware(ctx context.Context, req *Req) (*User, *pick.ErrRep) {
 	pick.Api(func() {
 		pick.Middleware(func(ctx *gin.Context) {
 			fmt.Println("middleware")

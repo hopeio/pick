@@ -297,7 +297,7 @@ func GetMethodInfo[T any](method *reflect.Method, preUrl string, httpContext ref
 		err = errors.New("service first argument should be *httpctx.Context type or context.Context")
 		return
 	}
-	if !methodType.Out(1).Implements(ErrorType) {
+	if !methodType.Out(1).Implements(ErrorType) && methodType.Out(1) != ErrRepType {
 		err = errors.New("service second return should be error type")
 		return
 	}

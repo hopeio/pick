@@ -9,7 +9,7 @@ pick的底层是灵活的,默认基于gin,同时兼容fiber(fasthttp)。
 - 摆脱w,r,摆脱xxx.Context这种不直观输入输出的handler
     >❌`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
 - 类grpc的函数签名,专注于业务
-   > ✅`func(ctx *ginctx.Context,r ReqStruct) (RespStruct,error)`
+   > ✅`func(ctx *ginctx.Context,r ReqStruct) (RespStruct,*pick.ErrRep)`
 
 # quick start
 go get github.com/hopeio/pick
@@ -41,7 +41,7 @@ type User struct {
 	Name string `json:"name"`
 }
 // 然后可以写我们的业务方法
-func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, error) {
+func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) {
 //对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
   pick.Api(func() {
     pick.Get(":/id").
@@ -126,7 +126,20 @@ type User struct {
 
 是的，示例并不那么好看，并非不能支持简体字和英文字母，我计划单独写一个mock模块
 
-
+## 兼容grpc
+```go
+func (*UserService) Get(ctx context.Context, req *Req) (*User, error) {
+//对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
+  pick.Api(func() {
+    pick.Get(":/id").
+    Title("用户详情").
+    CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
+    ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
+    End()
+  })
+  return &model.User{ID:req.ID,Name: "测试"}, nil
+}
+```
 
 # changelog
 1. 移除httprouter,默认gin路由

@@ -23,7 +23,10 @@ import (
 
 var (
 	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
+	ErrRepType      = reflect.TypeOf((*ErrRep)(nil))
 )
+
+type ErrRep errcode.ErrRep
 
 func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Value) {
 	handleTyp := handle.Type()
@@ -79,13 +82,15 @@ func RespWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []re
 	})
 }
 
-func ErrHandle(err any) error {
+func ErrHandle(err any) *errcode.ErrRep {
 	if err == nil {
 		return nil
 	}
 	switch e := err.(type) {
-	case httpi.ErrRep:
-
+	case *ErrRep:
+		return (*errcode.ErrRep)(e)
+	case *httpi.ErrRep:
+		return (*errcode.ErrRep)(e)
 	case errcode.IErrRep:
 		return e.ErrRep()
 	case *errcode.ErrRep:

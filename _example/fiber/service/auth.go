@@ -18,15 +18,11 @@ type AuthInfo struct {
 }
 
 func ParseAuthInfo(ctx *fiberctx.Context) (*AuthInfo, error) {
-	tokens := ctx.RequestCtx.GetReqHeaders()["Authorization"]
-	if len(tokens) == 0 {
-		return nil, errors.New("未登录")
-	}
-	authInfo := &AuthInfo{}
-	token := tokens[0]
+	token := ctx.ReqCtx.RequestHeader().Get("Authorization")
 	if token == "" {
 		return nil, errors.New("未登录")
 	}
+	authInfo := &AuthInfo{}
 	tokenClaims, _ := (&jwt.Parser{}).ParseWithClaims(token, authInfo, func(token *jwt.Token) (interface{}, error) {
 		return "TokenSecret", nil
 	})

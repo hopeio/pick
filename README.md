@@ -27,6 +27,11 @@ func main() {
 ```
 ## service.go
 ```go
+import (
+    "github.com/hopeio/context/ginctx"
+    "github.com/hopeio/pick"
+    "github.com/gin-gonic/gin"
+)
 // 首先我们需要定义一个服务
 type UserService struct{}
 //需要实现Service方法，返回该服务的说明，url前缀，以及需要的中间件

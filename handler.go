@@ -67,12 +67,8 @@ func RespWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []re
 		_, err := io.Copy(w, info.File)
 		return err
 	}
-	if info, ok := data.(httpi.IHttpResponse); ok {
-		_, err := httpi.CommonResponseWrite(w, info)
-		return err
-	}
 	if info, ok := data.(httpi.ICommonResponseTo); ok {
-		_, err := info.Response(w)
+		_, err := info.CommonResponse(w)
 		return err
 	}
 

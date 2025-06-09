@@ -1,34 +1,25 @@
-/*
- * Copyright 2024 hopeio. All rights reserved.
- * Licensed under the MIT License that can be found in the LICENSE file.
- * @Created by jyb
- */
-
-package pickgin
+package std
 
 import (
-	"github.com/hopeio/context/ginctx"
+	"encoding/json"
+	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
-	gin2 "github.com/hopeio/utils/net/http/gin"
-	"github.com/hopeio/utils/net/http/gin/binding"
-	"github.com/hopeio/utils/unsafe"
-
+	"github.com/hopeio/utils/log"
 	"github.com/hopeio/utils/net/http/apidoc"
-
-	"log"
+	"github.com/hopeio/utils/net/http/binding"
+	"github.com/hopeio/utils/net/http/consts"
+	"github.com/hopeio/utils/unsafe"
 	"net/http"
 	"reflect"
-
-	"github.com/gin-gonic/gin"
 )
 
 var (
-	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
+	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
 )
 
-func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
+func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
@@ -37,10 +28,10 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			log.Fatal("service must be a pointer")
 		}
 		var infos []*apidoc2.ApiDocInfo
-		group := engine.Group(preUrl, middleware...)
+
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[gin.HandlerFunc](&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo[Middleware](&method, preUrl, HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -51,29 +42,31 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			ginContext := methodType.In(1).ConvertibleTo(GinContextType)
-			handler := func(ctx *gin.Context) {
-				ctxi := ginctx.FromRequest(ctx)
+			httpContext := methodType.In(1).ConvertibleTo(HttpContextType)
+			handler := func(w http.ResponseWriter, r *http.Request) {
+				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, Response: w})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
-				err := binding.Bind(ctx, in2.Interface())
+				err := binding.Bind(r, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
+					w.WriteHeader(http.StatusBadRequest)
+					w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
+					json.NewEncoder(w).Encode(errcode.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				if ginContext {
+				if httpContext {
 					params[1] = reflect.ValueOf(ctxi)
 				} else {
 					params[1] = reflect.ValueOf(ctxi.Wrapper())
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Response(Writer{ctx}, ctxi.TraceID(), result)
+				pick.Response(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Handle(url.Method, url.Path[len(preUrl):], append(unsafe.CastSlice[gin.HandlerFunc](methodInfoExport.Middlewares), handler)...)
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, append(middleware, unsafe.CastSlice[Middleware](methodInfoExport.Middlewares)...)...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
@@ -83,11 +76,11 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 	pick.Registered()
 }
 
-func openApi(mux *gin.Engine) {
-	mux.GET(apidoc.UriPrefix, gin2.Wrap(apidoc2.DocList))
+func openApi(mux *http.ServeMux) {
+	mux.HandleFunc(apidoc.UriPrefix, apidoc2.DocList)
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.GET(apidoc.UriPrefix+"/openapi/*file", gin2.Wrap(apidoc.Swagger))
+	mux.HandleFunc(apidoc.UriPrefix+"/openapi/*file", apidoc.Swagger)
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
-	mux.GET(apidoc.UriPrefix+"/markdown", gin2.Wrap(apidoc.Markdown))
+	mux.HandleFunc(apidoc.UriPrefix+"/markdown", apidoc.Markdown)
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown")
 }

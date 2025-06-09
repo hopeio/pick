@@ -8,50 +8,23 @@ package pick
 
 import (
 	"encoding/json"
-	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/log"
 	httpi "github.com/hopeio/utils/net/http"
-	"github.com/hopeio/utils/net/http/binding"
 	"github.com/hopeio/utils/net/http/consts"
 	http_fs "github.com/hopeio/utils/net/http/fs"
 	"go.uber.org/zap"
 	"io"
-	"net/http"
 	"reflect"
 )
 
 var (
-	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
-	ErrRepType      = reflect.TypeOf((*ErrRep)(nil))
+	ErrRepType = reflect.TypeOf((*ErrRep)(nil))
 )
 
 type ErrRep errcode.ErrRep
 
-func CommonHandler(w http.ResponseWriter, req *http.Request, handle *reflect.Value) {
-	handleTyp := handle.Type()
-	handleNumIn := handleTyp.NumIn()
-	if handleNumIn != 0 {
-		params := make([]reflect.Value, handleNumIn)
-		ctxi := httpctx.FromRequest(httpctx.RequestCtx{
-			Request:  req,
-			Response: w,
-		})
-		defer ctxi.RootSpan().End()
-		for i := 0; i < handleNumIn; i++ {
-			if handleTyp.In(i).ConvertibleTo(HttpContextType) {
-				params[i] = reflect.ValueOf(ctxi)
-			} else {
-				params[i] = reflect.New(handleTyp.In(i).Elem())
-				binding.Bind(req, params[i].Interface())
-			}
-		}
-		result := handle.Call(params)
-		RespWriteReflect(Writer{w}, ctxi.TraceID(), result)
-	}
-}
-
-func RespWriteReflect(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+func Response(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
 		err := ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))

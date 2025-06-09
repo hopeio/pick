@@ -1,19 +1,20 @@
-package pickgin
+package std
 
 import (
-	"github.com/gin-gonic/gin"
+	"encoding/json"
 	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/utils/errors/errcode"
 	"github.com/hopeio/utils/log"
-	"github.com/hopeio/utils/net/http/gin/binding"
+	"github.com/hopeio/utils/net/http/binding"
+	"github.com/hopeio/utils/net/http/consts"
 	"github.com/hopeio/utils/unsafe"
 	"net/http"
 	"reflect"
 )
 
-func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
+func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
@@ -22,10 +23,10 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 			log.Fatal("service must be a pointer")
 		}
 		var infos []*apidoc2.ApiDocInfo
-		group := engine.Group(preUrl, middleware...)
+
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[gin.HandlerFunc](&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo[Middleware](&method, preUrl, HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -39,13 +40,15 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			handler := func(ctx *gin.Context) {
-				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: ctx.Request, Response: ctx.Writer})
+			handler := func(w http.ResponseWriter, r *http.Request) {
+				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, Response: w})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
-				err := binding.Bind(ctx, in2.Interface())
+				err := binding.Bind(r, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
+					w.WriteHeader(http.StatusBadRequest)
+					w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
+					json.NewEncoder(w).Encode(errcode.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
@@ -53,10 +56,10 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 				params[1] = reflect.ValueOf(ctxi.Wrapper())
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Response(Writer{ctx}, ctxi.TraceID(), result)
+				pick.Response(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Handle(url.Method, url.Path[len(preUrl):], append(unsafe.CastSlice[gin.HandlerFunc](methodInfoExport.Middlewares), handler)...)
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, append(middleware, unsafe.CastSlice[Middleware](methodInfoExport.Middlewares)...)...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

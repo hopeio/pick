@@ -4,7 +4,7 @@
  * @Created by jyb
  */
 
-package pick
+package std
 
 import (
 	httpi "github.com/hopeio/utils/net/http"

@@ -26,8 +26,6 @@ var (
 	FiberContextType = reflect.TypeOf((*fiberctx.Context)(nil))
 )
 
-type HandlerFunc = func(ctx fiber.Ctx) error
-
 // 复用pick service，不支持单个接口的中间件
 func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 	openApi(engine)
@@ -41,7 +39,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[HandlerFunc](&method, preUrl, FiberContextType)
+			methodInfo := pick.GetMethodInfo[fiber.Handler](&method, preUrl, FiberContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -59,7 +57,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.ErrRep())
+					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.Msg(err.Error()))
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
@@ -70,7 +68,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				return pick.RespWriteReflect(Writer{ctx}, ctxi.TraceID(), result)
+				return pick.Response(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler, unsafe.CastSlice[fiber.Handler](methodInfoExport.Middlewares)...)

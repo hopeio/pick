@@ -46,7 +46,8 @@ type User struct {
 	Name string `json:"name"`
 }
 // 然后可以写我们的业务方法
-func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) {
+func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, *pick.Er
+rRep) {
 //对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
   pick.Api(func() {
     pick.Get(":/id").

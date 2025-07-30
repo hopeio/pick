@@ -11,15 +11,15 @@ import (
 	"github.com/hopeio/context/fiberctx"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/utils/errors/errcode"
-	"github.com/hopeio/utils/net/http/apidoc"
-	fiberi "github.com/hopeio/utils/net/http/fiber/apidoc"
-	"github.com/hopeio/utils/net/http/fiber/binding"
-	"github.com/hopeio/utils/unsafe"
+	"github.com/hopeio/gox/errors/errcode"
+	"github.com/hopeio/gox/net/http/apidoc"
+	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
+	"github.com/hopeio/gox/net/http/fiber/binding"
+	"github.com/hopeio/gox/unsafe"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/utils/log"
+	"github.com/hopeio/gox/log"
 )
 
 var (

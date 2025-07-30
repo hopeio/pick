@@ -9,7 +9,7 @@ package apidoc
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/utils/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/apidoc"
 	"net/http"
 	"reflect"
 	"strings"

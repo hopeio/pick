@@ -7,10 +7,10 @@
 package pick
 
 import (
-	"github.com/hopeio/utils/terminal/style"
+	"github.com/hopeio/gox/terminal/style"
 	"log"
 
-	stringsi "github.com/hopeio/utils/strings"
+	stringsi "github.com/hopeio/gox/strings"
 )
 
 func Log(method, path, title string) {

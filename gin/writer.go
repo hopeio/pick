@@ -2,7 +2,7 @@ package pickgin
 
 import (
 	"github.com/gin-gonic/gin"
-	httpi "github.com/hopeio/utils/net/http"
+	httpi "github.com/hopeio/gox/net/http"
 )
 
 type Writer struct {

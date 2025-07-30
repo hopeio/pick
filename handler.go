@@ -8,11 +8,11 @@ package pick
 
 import (
 	"encoding/json"
-	"github.com/hopeio/utils/errors/errcode"
-	"github.com/hopeio/utils/log"
-	httpi "github.com/hopeio/utils/net/http"
-	"github.com/hopeio/utils/net/http/consts"
-	http_fs "github.com/hopeio/utils/net/http/fs"
+	"github.com/hopeio/gox/errors/errcode"
+	"github.com/hopeio/gox/log"
+	httpi "github.com/hopeio/gox/net/http"
+	"github.com/hopeio/gox/net/http/consts"
+	http_fs "github.com/hopeio/gox/net/http/fs"
 	"go.uber.org/zap"
 	"io"
 	"reflect"

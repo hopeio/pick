@@ -8,8 +8,8 @@ package pickfiber
 
 import (
 	"github.com/gofiber/fiber/v3"
-	httpi "github.com/hopeio/utils/net/http"
-	fiberi "github.com/hopeio/utils/net/http/fiber"
+	httpi "github.com/hopeio/gox/net/http"
+	fiberi "github.com/hopeio/gox/net/http/fiber"
 )
 
 type Writer struct {

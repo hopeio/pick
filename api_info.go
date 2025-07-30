@@ -9,8 +9,8 @@ package pick
 import (
 	"context"
 	"errors"
-	"github.com/hopeio/utils/log"
-	unsafei "github.com/hopeio/utils/unsafe"
+	"github.com/hopeio/gox/log"
+	unsafei "github.com/hopeio/gox/unsafe"
 	"net/http"
 	"reflect"
 	"strings"

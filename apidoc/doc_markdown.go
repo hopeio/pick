@@ -16,10 +16,10 @@ import (
 	"strings"
 	"time"
 
-	reflecti "github.com/hopeio/utils/reflect"
-	"github.com/hopeio/utils/reflect/mock"
-	stringsi "github.com/hopeio/utils/strings"
-	"github.com/hopeio/utils/validation/validator"
+	reflecti "github.com/hopeio/gox/reflect"
+	"github.com/hopeio/gox/reflect/mock"
+	stringsi "github.com/hopeio/gox/strings"
+	"github.com/hopeio/gox/validation/validator"
 )
 
 // 有swagger,有没有必要做

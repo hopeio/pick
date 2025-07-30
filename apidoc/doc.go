@@ -8,7 +8,7 @@ package apidoc
 
 import (
 	"github.com/hopeio/pick"
-	"github.com/hopeio/utils/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/apidoc"
 	"net/http"
 	"reflect"
 )

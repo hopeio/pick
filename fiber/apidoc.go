@@ -9,8 +9,8 @@ package pickfiber
 import (
 	"github.com/gofiber/fiber/v3"
 	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/utils/net/http/apidoc"
-	fiberi "github.com/hopeio/utils/net/http/fiber/apidoc"
+	"github.com/hopeio/gox/net/http/apidoc"
+	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
 )
 
 func DocList(ctx fiber.Ctx) error {

@@ -10,12 +10,12 @@ import (
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/utils/errors/errcode"
-	gin2 "github.com/hopeio/utils/net/http/gin"
-	"github.com/hopeio/utils/net/http/gin/binding"
-	"github.com/hopeio/utils/unsafe"
+	"github.com/hopeio/gox/errors/errcode"
+	gin2 "github.com/hopeio/gox/net/http/gin"
+	"github.com/hopeio/gox/net/http/gin/binding"
+	"github.com/hopeio/gox/unsafe"
 
-	"github.com/hopeio/utils/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/apidoc"
 
 	"log"
 	"net/http"

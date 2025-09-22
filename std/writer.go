@@ -7,7 +7,7 @@
 package std
 
 import (
-	httpi "github.com/hopeio/gox/net/http"
+	httpx "github.com/hopeio/gox/net/http"
 	"net/http"
 )
 
@@ -19,8 +19,8 @@ func (w Writer) Status(code int) {
 	w.ResponseWriter.WriteHeader(code)
 }
 
-func (w Writer) Header() httpi.Header {
-	return httpi.HttpHeader(w.ResponseWriter.Header())
+func (w Writer) Header() httpx.Header {
+	return httpx.HttpHeader(w.ResponseWriter.Header())
 }
 
 func (w Writer) Write(p []byte) (int, error) {

@@ -8,7 +8,7 @@ package pickfiber
 
 import (
 	"github.com/gofiber/fiber/v3"
-	httpi "github.com/hopeio/gox/net/http"
+	httpx "github.com/hopeio/gox/net/http"
 	fiberi "github.com/hopeio/gox/net/http/fiber"
 )
 
@@ -20,7 +20,7 @@ func (w Writer) Status(code int) {
 	w.Ctx.Status(code)
 }
 
-func (w Writer) Header() httpi.Header {
+func (w Writer) Header() httpx.Header {
 	return fiberi.ResponseHeader{ResponseHeader: &w.Response().Header}
 }
 

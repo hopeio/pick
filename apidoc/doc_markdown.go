@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	reflecti "github.com/hopeio/gox/reflect"
+	reflectx "github.com/hopeio/gox/reflect"
 	"github.com/hopeio/gox/reflect/mock"
-	stringsi "github.com/hopeio/gox/strings"
+	stringsx "github.com/hopeio/gox/strings"
 	"github.com/hopeio/gox/validation/validator"
 )
 
@@ -135,7 +135,7 @@ type ParamTable struct {
 }
 
 func getParamTable(param reflect.Type, pre string) []*ParamTable {
-	param = reflecti.DerefType(param)
+	param = reflectx.DerefType(param)
 	newParam := reflect.New(param).Interface()
 	var res []*ParamTable
 	for i := range param.NumField() {
@@ -152,7 +152,7 @@ func getParamTable(param reflect.Type, pre string) []*ParamTable {
 			continue
 		}
 		if json == "" {
-			p.json = pre + stringsi.SnakeToCamel(json)
+			p.json = pre + stringsx.SnakeToCamel(json)
 		} else {
 			p.json = pre + json
 		}

@@ -8,14 +8,15 @@ package pick
 
 import (
 	"encoding/json"
+	"io"
+	"reflect"
+
 	"github.com/hopeio/gox/errors/errcode"
 	"github.com/hopeio/gox/log"
-	httpi "github.com/hopeio/gox/net/http"
+	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/consts"
 	http_fs "github.com/hopeio/gox/net/http/fs"
 	"go.uber.org/zap"
-	"io"
-	"reflect"
 )
 
 var (
@@ -24,7 +25,7 @@ var (
 
 type ErrRep errcode.ErrRep
 
-func Response(w httpi.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
 		err := ErrHandle(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
@@ -40,13 +41,13 @@ func Response(w httpi.ICommonResponseWriter, traceId string, result []reflect.Va
 		_, err := io.Copy(w, info.File)
 		return err
 	}
-	if info, ok := data.(httpi.ICommonResponseTo); ok {
+	if info, ok := data.(httpx.ICommonResponseTo); ok {
 		_, err := info.CommonResponse(w)
 		return err
 	}
 
 	w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
-	return json.NewEncoder(w).Encode(httpi.RespAnyData{
+	return json.NewEncoder(w).Encode(httpx.RespAnyData{
 		Data: data,
 	})
 }
@@ -58,7 +59,7 @@ func ErrHandle(err any) *errcode.ErrRep {
 	switch e := err.(type) {
 	case *ErrRep:
 		return (*errcode.ErrRep)(e)
-	case *httpi.ErrRep:
+	case *httpx.ErrRep:
 		return (*errcode.ErrRep)(e)
 	case errcode.IErrRep:
 		return e.ErrRep()

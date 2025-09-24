@@ -8,7 +8,7 @@ require (
 	github.com/getkin/kin-openapi v0.132.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/hopeio/context v0.3.12
-	github.com/hopeio/gox v1.2.0
+	github.com/hopeio/gox v1.3.0
 )
 
 require (

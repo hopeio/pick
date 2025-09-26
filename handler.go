@@ -11,10 +11,9 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/hopeio/gox/errors/errcode"
+	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/consts"
 	http_fs "github.com/hopeio/gox/net/http/fs"
 	"go.uber.org/zap"
 )
@@ -23,20 +22,20 @@ var (
 	ErrRepType = reflect.TypeOf((*ErrRep)(nil))
 )
 
-type ErrRep errcode.ErrRep
+type ErrRep errors.ErrRep
 
 func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
-		err := ErrHandle(result[1].Interface())
+		err := ErrRepFrom(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
-		w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
+		w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
 		return json.NewEncoder(w).Encode(err)
 	}
 	data := result[0].Interface()
 	if info, ok := data.(*http_fs.File); ok {
 		header := w.Header()
-		header.Set(consts.HeaderContentType, consts.ContentTypeOctetStream)
-		header.Set(consts.HeaderContentDisposition, "attachment;filename="+info.Name)
+		header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
+		header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
 		defer info.File.Close()
 		_, err := io.Copy(w, info.File)
 		return err
@@ -46,29 +45,31 @@ func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Va
 		return err
 	}
 
-	w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
+	w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
 	return json.NewEncoder(w).Encode(httpx.RespAnyData{
 		Data: data,
 	})
 }
 
-func ErrHandle(err any) *errcode.ErrRep {
+func ErrRepFrom(err any) *errors.ErrRep {
 	if err == nil {
 		return nil
 	}
 	switch e := err.(type) {
 	case *ErrRep:
-		return (*errcode.ErrRep)(e)
+		return (*errors.ErrRep)(e)
 	case *httpx.ErrRep:
-		return (*errcode.ErrRep)(e)
-	case errcode.IErrRep:
+		return (*errors.ErrRep)(e)
+	case errors.IErrRep:
 		return e.ErrRep()
-	case *errcode.ErrRep:
+	case *errors.ErrRep:
 		return e
-	case errcode.ErrCode:
+	case errors.ErrCode:
 		return e.ErrRep()
 	case error:
-		return errcode.Unknown.Msg(e.Error())
+		return errors.ErrRepFrom(e)
+	case string:
+		return errors.NewErrRep(errors.Unknown, e)
 	}
-	return errcode.Unknown.ErrRep()
+	return errors.Unknown.ErrRep()
 }

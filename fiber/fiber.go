@@ -7,17 +7,18 @@
 package pickfiber
 
 import (
+	"net/http"
+	"reflect"
+
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/context/fiberctx"
-	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/gox/errors/errcode"
+	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/net/http/apidoc"
 	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
 	"github.com/hopeio/gox/net/http/fiber/binding"
 	"github.com/hopeio/gox/unsafe"
-	"net/http"
-	"reflect"
+	"github.com/hopeio/pick"
+	apidoc2 "github.com/hopeio/pick/apidoc"
 
 	"github.com/hopeio/gox/log"
 )
@@ -57,7 +58,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					return ctx.Status(http.StatusBadRequest).JSON(errcode.InvalidArgument.Msg(err.Error()))
+					return ctx.Status(http.StatusBadRequest).JSON(errors.InvalidArgument.Msg(err.Error()))
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value

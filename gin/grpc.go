@@ -1,16 +1,17 @@
 package pickgin
 
 import (
+	"net/http"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/context/httpctx"
-	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/gox/errors/errcode"
+	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/gox/unsafe"
-	"net/http"
-	"reflect"
+	"github.com/hopeio/pick"
+	apidoc2 "github.com/hopeio/pick/apidoc"
 )
 
 func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
@@ -40,12 +41,12 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
 			handler := func(ctx *gin.Context) {
-				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: ctx.Request, Response: ctx.Writer})
+				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: ctx.Request, ResponseWriter: ctx.Writer})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errcode.InvalidArgument.Msg(err.Error()))
+					ctx.JSON(http.StatusBadRequest, errors.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)

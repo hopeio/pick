@@ -2,17 +2,18 @@ package std
 
 import (
 	"encoding/json"
-	"github.com/hopeio/context/httpctx"
-	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
-	"github.com/hopeio/gox/errors/errcode"
-	"github.com/hopeio/gox/log"
-	"github.com/hopeio/gox/net/http/apidoc"
-	"github.com/hopeio/gox/net/http/binding"
-	"github.com/hopeio/gox/net/http/consts"
-	"github.com/hopeio/gox/unsafe"
 	"net/http"
 	"reflect"
+
+	"github.com/hopeio/context/httpctx"
+	"github.com/hopeio/gox/errors"
+	"github.com/hopeio/gox/log"
+	http2 "github.com/hopeio/gox/net/http"
+	"github.com/hopeio/gox/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/binding"
+	"github.com/hopeio/gox/unsafe"
+	"github.com/hopeio/pick"
+	apidoc2 "github.com/hopeio/pick/apidoc"
 )
 
 var (
@@ -44,14 +45,14 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 			methodInfoExport := methodInfo.Export()
 			httpContext := methodType.In(1).ConvertibleTo(HttpContextType)
 			handler := func(w http.ResponseWriter, r *http.Request) {
-				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, Response: w})
+				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, ResponseWriter: w})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(r, in2.Interface())
 				if err != nil {
 					w.WriteHeader(http.StatusBadRequest)
-					w.Header().Set(consts.HeaderContentType, consts.ContentTypeJsonUtf8)
-					json.NewEncoder(w).Encode(errcode.InvalidArgument.Msg(err.Error()))
+					w.Header().Set(http2.HeaderContentType, http2.ContentTypeJsonUtf8)
+					json.NewEncoder(w).Encode(errors.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)

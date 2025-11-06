@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/pick"
@@ -31,11 +32,7 @@ type User struct {
 }
 
 func (*UserService) Get(ctx *ginctx.Context, req *Object) (*User, error) {
-	pick.Api(func() {
-		pick.Get("/:id").
-			Title("用户详情").
-			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
-	})
+	pick.Api(func() { pick.Get("/:id").Title("用户详情").End() })
 	// dao
 	return &User{
 		Id:     req.Id,
@@ -50,11 +47,7 @@ type Req struct {
 }
 
 func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) {
-	pick.Api(func() {
-		pick.Get("/err/:id").
-			Title("用户详情返回错误").
-			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
-	})
+	pick.Api(func() { pick.Get("/err/:id").Title("用户详情返回错误").End() })
 	fmt.Println(req.Name)
 	// dao
 	return nil, &pick.ErrRep{
@@ -64,28 +57,7 @@ func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) 
 }
 
 func (*UserService) GrpcGateway(ctx context.Context, req *Req) (*User, error) {
-	pick.Api(func() {
-		pick.Get("/grpcGateway").
-			Title("grpcGateway").
-			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
-	})
-	fmt.Println(req.Name)
-	// dao
-	return &User{
-		Id:     req.Id,
-		Name:   "test",
-		Gender: 1,
-	}, nil
-}
-
-func (*UserService) Middleware(ctx context.Context, req *Req) (*User, *pick.ErrRep) {
-	pick.Api(func() {
-		pick.Middleware(func(ctx *gin.Context) {
-			fmt.Println("middleware")
-		}).Get("/middleware").
-			Title("中间件").
-			CreateLog("1.0.0", "jyb", "2024/04/16", "创建").End()
-	})
+	pick.Api(func() { pick.Get("/grpcGateway").Title("grpcGateway").End() })
 	fmt.Println(req.Name)
 	// dao
 	return &User{

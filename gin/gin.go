@@ -11,7 +11,6 @@ import (
 	"github.com/hopeio/gox/errors"
 	gin2 "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/gox/net/http/gin/binding"
-	"github.com/hopeio/gox/unsafe"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 
@@ -73,7 +72,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				pick.Response(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Handle(url.Method, url.Path[len(preUrl):], append(unsafe.CastSlice[gin.HandlerFunc](methodInfoExport.Middlewares), handler)...)
+				group.Handle(url.Method, url.Path[len(preUrl):], handler)
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
@@ -86,8 +85,6 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 func openApi(mux *gin.Engine) {
 	mux.GET(apidoc.UriPrefix, gin2.Wrap(apidoc2.DocList))
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.GET(apidoc.UriPrefix+"/openapi/*file", gin2.Wrap(apidoc.Swagger))
+	mux.GET(apidoc.UriPrefix+"/openapi/*file", gin2.Wrap(apidoc.OpenApi))
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
-	mux.GET(apidoc.UriPrefix+"/markdown", gin2.Wrap(apidoc.Markdown))
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown")
 }

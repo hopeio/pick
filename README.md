@@ -49,13 +49,7 @@ type User struct {
 func (*UserService) Get(ctx *ginctx.Context, req *Req) (*User, *pick.Er
 rRep) {
 //对于一个性能强迫症来说，我宁愿它不优雅一些也不能接受每次都调用
-  pick.Api(func() {
-    pick.Get(":/id").
-    Title("用户详情").
-    CreateLog("1.0.0", "jyb", "2019/12/16", "创建").
-    ChangeLog("1.0.1", "jyb", "2019/12/16", "修改测试").
-    End()
-  })
+  pick.Api(func() {pick.Get(":/id").Title("用户详情").End()})
   return &model.User{ID:req.ID,Name: "测试"}, nil
 }
 
@@ -82,55 +76,6 @@ type User struct {
 ```
 ## openapi
 ![Image text](_assets/1712546925271.jpg)
-## markdown
-> [TOC]
-> 
-> # 用户相关  
-> ----------
-> ## 用户注册-v1(`/api/v1/user`)  
-> **POST** `/api/v1/user` _(Principal jyb)_  
-> ### 接口记录  
-> |版本|操作|时间|负责人|日志|  
-> | :----: | :----: | :----: | :----: | :----: |  
-> |1.0.0|创建|2019/12/16|jyb|创建|  
-> |1.0.1|变更|2019/12/16|jyb|修改测试|  
-> ### 参数信息  
-> | 字段名称     |字段类型| 字段描述 |     校验要求     |  
-> |:---------| :----: |:----:|:------------:|  
-> | name     |string|  名字  | 长度必须至少为3个字符  |  
-> | password |string|  密码  | 长度必须至少为8个字符  |  
-> | mail     |string|  邮箱  | 必须是一个有效的邮箱!  |  
-> | phone    |string|  手机  | 必须是一个有效的手机号! |  
-> __请求示例__  
-> ```json  
-> {
-> 	"name": "耰塧囎飿段",
-> 	"password": "虱鷅磷黽楑",
-> 	"mail": "盬艦潦昊譙"
-> }  
-> ```  
-> ### 返回信息  
-> |字段名称|字段类型|字段描述|  
-> | :----  | :----: | :----: | 
-> |id|number||  
-> |name|string|名字|  
-> |password|string|密码|  
-> |mail|string|邮箱|  
-> |mail|string|手机|  
-> __返回示例__  
-> ```json  
-> {
-> 	"id": 1357,
-> 	"name": "鐷嚅凮珘緻",
-> 	"password": "梊朖迍髽栳"
-> }  
-> ```  
-> ## ~~用户编辑-v1(废弃)(`/api/v1/user/:id`)~~  
-> **PUT** `/api/v1/user/:id` _(Principal jyb)_  
-> ### 接口记录  
-> ...
-
-是的，示例并不那么好看，并非不能支持简体字和英文字母，我计划单独写一个mock模块
 
 ## 兼容grpc
 ```go

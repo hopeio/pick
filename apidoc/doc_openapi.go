@@ -7,22 +7,22 @@
 package apidoc
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/hopeio/pick"
-	"github.com/hopeio/gox/net/http/apidoc"
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/hopeio/pick"
 )
 
 func Openapi(filePath, modName string) {
-	doc := apidoc.GetDoc(filePath, modName)
+	doc := GetDoc(filePath, modName)
 	for _, groupApiInfo := range groupApiInfos {
 		for _, methodInfo := range groupApiInfo.Infos {
 			GenOpenapi(methodInfo.ApiInfo, doc, methodInfo.Method, groupApiInfo.Describe, methodInfo.Method.Name())
 		}
 	}
-	apidoc.WriteToFile(filePath, modName)
+	WriteToFile(filePath, modName)
 }
 
 func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag, dec string) {
@@ -68,7 +68,7 @@ func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag
 
 				requestBody := &openapi3.RequestBody{Content: map[string]*openapi3.MediaType{"application/json": {Schema: openapi3.NewSchemaRef("#/components/schemas/"+reqName, nil)}}}
 				requestBodyRef = &openapi3.RequestBodyRef{Value: requestBody}
-				apidoc.AddComponent(reqName, reflect.New(methodType.In(2)).Elem().Interface())
+				AddComponent(reqName, reflect.New(methodType.In(2)).Elem().Interface())
 			}
 		}
 
@@ -80,7 +80,7 @@ func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag
 			response.Value.Content["application/json"] = mediaType
 
 			mediaType.Schema = openapi3.NewSchemaRef("#/components/schemas/"+methodType.Out(0).Elem().Name(), nil)
-			apidoc.AddComponent(methodType.Out(0).Elem().Name(), reflect.New(methodType.Out(0)).Elem().Interface())
+			AddComponent(methodType.Out(0).Elem().Name(), reflect.New(methodType.Out(0)).Elem().Interface())
 			title := api.Title
 			if url.Remark != "" {
 				title = title + "(" + url.Remark + ")"
@@ -93,15 +93,8 @@ func GenOpenapi(api *pick.ApiInfo, doc *openapi3.T, methodType reflect.Type, tag
 				Responses:   responses,
 			}
 
-			var tags, desc []string
-			tags = append(tags, tag, api.Createlog.Version)
-			desc = append(desc, dec, api.Createlog.Desc)
-			for i := range api.Changelog {
-				tags = append(tags, api.Changelog[i].Version)
-				desc = append(desc, api.Changelog[i].Desc)
-			}
-			op.Tags = tags
-			op.Description = strings.Join(desc, "\n")
+			op.Tags = []string{tag}
+			op.Description = dec
 
 			switch url.Method {
 			case http.MethodGet:

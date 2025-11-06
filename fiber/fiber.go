@@ -16,7 +16,6 @@ import (
 	"github.com/hopeio/gox/net/http/apidoc"
 	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
 	"github.com/hopeio/gox/net/http/fiber/binding"
-	"github.com/hopeio/gox/unsafe"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 
@@ -72,7 +71,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				return pick.Response(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler, unsafe.CastSlice[fiber.Handler](methodInfoExport.Middlewares)...)
+				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
@@ -87,7 +86,5 @@ func openApi(mux *fiber.App) {
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
 	mux.Get(apidoc.UriPrefix, DocList)
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
-	mux.Get(apidoc.UriPrefix+"/openapi/*file", fiberi.Swagger)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/markdown/*file", "markdown")
-	mux.Get(apidoc.UriPrefix+"/markdown", fiberi.Markdown)
+	mux.Get(apidoc.UriPrefix+"/openapi/*file", fiberi.Openapi)
 }

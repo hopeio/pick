@@ -8,9 +8,9 @@ package pickfiber
 
 import (
 	"github.com/gofiber/fiber/v3"
-	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/gox/net/http/apidoc"
 	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
+	apidoc2 "github.com/hopeio/pick/apidoc"
 )
 
 func DocList(ctx fiber.Ctx) error {
@@ -18,7 +18,6 @@ func DocList(ctx fiber.Ctx) error {
 	if modName == "" {
 		modName = "api"
 	}
-	apidoc2.Markdown(apidoc.Dir, modName)
 	apidoc2.Openapi(apidoc.Dir, modName)
 	return fiberi.DocList(ctx)
 }

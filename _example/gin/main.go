@@ -7,8 +7,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 
 	pickgin "github.com/hopeio/pick/gin"
 )

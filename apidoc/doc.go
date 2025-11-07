@@ -68,7 +68,8 @@ func GetDoc(realPath, modName string) *openapi3.T {
 	apiType := filepath.Ext(realPath)
 
 	if _, err := os.Stat(realPath); os.IsNotExist(err) {
-		return generate()
+		Doc = newSpec(modName)
+		return Doc
 	} else {
 		file, err := os.Open(realPath)
 		if err != nil {
@@ -98,36 +99,6 @@ func GetDoc(realPath, modName string) *openapi3.T {
 			}
 		}
 	}
-	return Doc
-}
-
-func generate() *openapi3.T {
-	Doc = &openapi3.T{}
-	info := new(openapi3.Info)
-	Doc.Info = info
-
-	Doc.OpenAPI = "3.1.0"
-	Doc.Paths = openapi3.NewPaths()
-
-	info.Title = "Title"
-	info.Description = "Description"
-	info.Version = "0.01"
-	info.TermsOfService = "TermsOfService"
-
-	var contact openapi3.Contact
-	contact.Name = "Contact Name"
-	contact.Email = "Contact Mail"
-	contact.URL = "Contact URL"
-	info.Contact = &contact
-
-	var license openapi3.License
-	license.Name = "License Name"
-	license.URL = "License URL"
-	info.License = &license
-
-	Doc.Servers = []*openapi3.Server{{
-		URL: "localhost:80",
-	}}
 	return Doc
 }
 

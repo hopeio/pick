@@ -105,7 +105,32 @@ const (
 	PrimitiveTypeBool    PrimitiveType = "boolean"
 	PrimitiveTypeInteger PrimitiveType = "integer"
 	PrimitiveTypeFloat64 PrimitiveType = "number"
+	PrimitiveTypeArray   PrimitiveType = "array"
+	PrimitiveTypeObject  PrimitiveType = "object"
 )
+
+func Type(fieldType reflect.Type) PrimitiveType {
+	var typ PrimitiveType
+	switch fieldType.Kind() {
+	case reflect.Struct:
+		typ = PrimitiveTypeObject
+	case reflect.Ptr:
+		typ = PrimitiveTypeObject
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		typ = PrimitiveTypeInteger
+	case reflect.Array, reflect.Slice:
+		typ = PrimitiveTypeArray
+	case reflect.Float32, reflect.Float64:
+		typ = PrimitiveTypeFloat64
+	case reflect.String:
+		typ = PrimitiveTypeString
+	case reflect.Bool:
+		typ = PrimitiveTypeBool
+
+	}
+	return typ
+}
 
 // MethodToRoute maps from a HTTP method to a Route.
 type MethodToRoute map[Method]*Route

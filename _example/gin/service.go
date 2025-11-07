@@ -22,11 +22,11 @@ func (*UserService) Service() (string, string, []gin.HandlerFunc) {
 }
 
 type Object struct {
-	Id int `json:"id,omitempty"`
+	Id int `uri:"id" json:"id,omitempty"`
 }
 
 type User struct {
-	Id     int    `json:"id,omitempty"`
+	Id     int    `uri:"id" json:"id,omitempty"`
 	Name   string `json:"name,omitempty"`
 	Gender int    `json:"gender,omitempty"`
 }
@@ -42,7 +42,7 @@ func (*UserService) Get(ctx *ginctx.Context, req *Object) (*User, error) {
 }
 
 type Req struct {
-	Id   int    `json:"id,omitempty"`
+	Id   int    `uri:"id" json:"id,omitempty"`
 	Name string `json:"name"`
 }
 

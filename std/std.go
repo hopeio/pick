@@ -11,7 +11,6 @@ import (
 	http2 "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/apidoc"
 	"github.com/hopeio/gox/net/http/binding"
-	"github.com/hopeio/gox/unsafe"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 )
@@ -67,7 +66,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				pick.Response(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, append(middleware, unsafe.CastSlice[Middleware](methodInfoExport.Middlewares)...)...))
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, middleware...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

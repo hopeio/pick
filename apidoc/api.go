@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/hopeio/gox/reflect/structtag"
 )
 
 type APIOpts func(*API)
@@ -307,6 +308,46 @@ func (rm *Route) HasPathParameter(name string, p PathParam) *Route {
 // HasQueryParameter configures a query parameter for the route.
 func (rm *Route) HasQueryParameter(name string, q QueryParam) *Route {
 	rm.Params.Query[name] = q
+	return rm
+}
+
+func (rm *Route) HasRequest(request Model) *Route {
+	var hasJson bool
+	for j := 0; j < request.Type.NumField(); j++ {
+		tags, err := structtag.Parse(string(request.Type.Field(j).Tag))
+		if err != nil {
+			rm.HasRequestModel(Model{Type: request.Type})
+			return rm
+		}
+		if uri, ok := tags.Get("uri"); ok && uri.Value != "" && uri.Value != "-" {
+			rm.HasPathParameter(uri.Value, PathParam{
+				Description:       tags.TryGet("comment").Value,
+				Regexp:            "",
+				Type:              Type(request.Type.Field(j).Type),
+				ApplyCustomSchema: nil,
+			})
+		}
+		if uri, ok := tags.Get("path"); ok && uri.Value != "" && uri.Value != "-" {
+			rm.HasPathParameter(uri.Value, PathParam{
+				Description:       tags.TryGet("comment").Value,
+				Regexp:            "",
+				Type:              Type(request.Type.Field(j).Type),
+				ApplyCustomSchema: nil,
+			})
+		}
+		if query, ok := tags.Get("query"); ok && query.Value != "" && query.Value != "-" {
+			rm.HasQueryParameter(query.Value, QueryParam{
+				Description:       tags.TryGet("comment").Value,
+				Regexp:            "",
+				Type:              Type(request.Type.Field(j).Type),
+				ApplyCustomSchema: nil,
+			})
+		}
+		if js := tags.MustGet("json"); !hasJson && js.Value != "" && js.Value != "-" {
+			hasJson = true
+			rm.HasRequestModel(Model{Type: request.Type})
+		}
+	}
 	return rm
 }
 

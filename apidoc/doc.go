@@ -142,12 +142,20 @@ func GenOpenapi(methodInfo *ApiDocInfo, api *API, dec string) {
 						ApplyCustomSchema: nil,
 					})
 				}
+				if query := tags.MustGet("query"); query.Value != "" && query.Value != "-" {
+					r.HasQueryParameter(query.Value, QueryParam{
+						Description:       tags.MustGet("comment").Value,
+						Regexp:            "",
+						Type:              Type(InType.Field(j).Type),
+						ApplyCustomSchema: nil,
+					})
+				}
 				if uri := tags.MustGet("json"); uri.Value != "" && uri.Value != "-" {
 					r.HasRequestModel(Model{Type: InType})
 				}
 			}
 		}
-
+		r.HasTags([]string{dec, methodInfo.ApiInfo.Title + route.Remark})
 		if methodInfo.Method.Out(0).Implements(pick.ErrorType) {
 			r.HasResponseModel(http.StatusOK, Model{Type: pick.ErrRepType})
 		} else {

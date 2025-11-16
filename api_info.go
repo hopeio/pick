@@ -19,7 +19,7 @@ import (
 )
 
 const Template = `
-func (*UserService) Add(ctx *httpreq.Context, req *model.SignupReq) (*response.TinyRep, error) {
+func (*UserService) Add(ctx *httpreq.Context, req *model.SignupReq) (*response.TinyResp, error) {
 	pick.Api(func() {
 		pick.Post("").
 			Title("用户注册").
@@ -27,7 +27,7 @@ func (*UserService) Add(ctx *httpreq.Context, req *model.SignupReq) (*response.T
 			ChangeLog("2.0.1", "jyb", "2019/12/16", "修改测试").End()
 	})
 
-	return &response.TinyRep{Msg: req.Name}, nil
+	return &response.TinyResp{Msg: req.Name}, nil
 }
 `
 
@@ -252,7 +252,7 @@ func GetMethodInfo[T any](method *reflect.Method, preUrl string, httpContext ref
 		err = errors.New("service first argument should be *httpctx.Context type or context.Context")
 		return
 	}
-	if !methodType.Out(1).Implements(ErrorType) && methodType.Out(1) != ErrRepType {
+	if !methodType.Out(1).Implements(ErrorType) && methodType.Out(1) != ErrRespType {
 		err = errors.New("service second return should be error type")
 		return
 	}

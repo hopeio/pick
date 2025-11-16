@@ -1,14 +1,12 @@
 module github.com/hopeio/pick
 
-go 1.23.0
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
-	github.com/getkin/kin-openapi v0.132.0
+	github.com/getkin/kin-openapi v0.133.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/hopeio/context v0.5.2
-	github.com/hopeio/gox v1.3.6
+	github.com/hopeio/context v0.5.3
+	github.com/hopeio/gox v1.3.9
 )
 
 require (

@@ -46,11 +46,11 @@ type Req struct {
 	Name string `json:"name"`
 }
 
-func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrRep) {
+func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrResp) {
 	pick.Api(func() { pick.Get("/err/:id").Title("用户详情返回错误").End() })
 	fmt.Println(req.Name)
 	// dao
-	return nil, &pick.ErrRep{
+	return nil, &pick.ErrResp{
 		Code: 1,
 		Msg:  "error",
 	}

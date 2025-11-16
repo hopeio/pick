@@ -9,7 +9,6 @@ package pickfiber
 import (
 	"github.com/gofiber/fiber/v3"
 	httpx "github.com/hopeio/gox/net/http"
-	fiberi "github.com/hopeio/gox/net/http/fiber"
 )
 
 type Writer struct {
@@ -21,7 +20,7 @@ func (w Writer) Status(code int) {
 }
 
 func (w Writer) Header() httpx.Header {
-	return fiberi.ResponseHeader{ResponseHeader: &w.Response().Header}
+	return ResponseHeader{ResponseHeader: &w.Response().Header}
 }
 
 func (w Writer) Write(p []byte) (int, error) {

@@ -11,19 +11,17 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/context/fiberctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/net/http/apidoc"
-	fiberi "github.com/hopeio/gox/net/http/fiber/apidoc"
-	"github.com/hopeio/gox/net/http/fiber/binding"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
+	"github.com/hopeio/pick/fiber/binding"
 
 	"github.com/hopeio/gox/log"
 )
 
 var (
-	FiberContextType = reflect.TypeOf((*fiberctx.Context)(nil))
+	FiberContextType = reflect.TypeOf((*Context)(nil))
 )
 
 // 复用pick service，不支持单个接口的中间件
@@ -53,7 +51,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			methodInfoExport := methodInfo.Export()
 			fiberContext := methodType.In(1).ConvertibleTo(FiberContextType)
 			handler := func(ctx fiber.Ctx) error {
-				ctxi := fiberctx.FromRequest(ctx)
+				ctxi := FromRequest(ctx)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
@@ -68,7 +66,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				return pick.Response(Writer{ctx}, ctxi.TraceID(), result)
+				return pick.Respond(Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
@@ -86,5 +84,5 @@ func openApi(mux *fiber.App) {
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
 	mux.Get(apidoc.UriPrefix, DocList)
 	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
-	mux.Get(apidoc.UriPrefix+"/openapi/*file", fiberi.Openapi)
+	mux.Get(apidoc.UriPrefix+"/openapi/*file", Openapi)
 }

@@ -19,14 +19,14 @@ import (
 )
 
 var (
-	ErrRepType = reflect.TypeOf((*ErrRep)(nil))
+	ErrRespType = reflect.TypeOf((*ErrResp)(nil))
 )
 
-type ErrRep errors.ErrRep
+type ErrResp errors.ErrResp
 
-func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+func Respond(w httpx.ICommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
-		err := ErrRepFrom(result[1].Interface())
+		err := ErrRespFrom(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
 		w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
 		return json.NewEncoder(w).Encode(err)
@@ -40,8 +40,8 @@ func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Va
 		_, err := io.Copy(w, info.File)
 		return err
 	}
-	if info, ok := data.(httpx.ICommonResponseTo); ok {
-		_, err := info.CommonResponse(w)
+	if info, ok := data.(httpx.ICommonRespond); ok {
+		_, err := info.CommonRespond(w)
 		return err
 	}
 
@@ -51,25 +51,25 @@ func Response(w httpx.ICommonResponseWriter, traceId string, result []reflect.Va
 	})
 }
 
-func ErrRepFrom(err any) *errors.ErrRep {
+func ErrRespFrom(err any) *errors.ErrResp {
 	if err == nil {
 		return nil
 	}
 	switch e := err.(type) {
-	case *ErrRep:
-		return (*errors.ErrRep)(e)
-	case *httpx.ErrRep:
-		return (*errors.ErrRep)(e)
-	case errors.IErrRep:
-		return e.ErrRep()
-	case *errors.ErrRep:
+	case *ErrResp:
+		return (*errors.ErrResp)(e)
+	case *httpx.ErrResp:
+		return (*errors.ErrResp)(e)
+	case errors.IErrResp:
+		return e.ErrResp()
+	case *errors.ErrResp:
 		return e
 	case errors.ErrCode:
-		return e.ErrRep()
+		return e.ErrResp()
 	case error:
-		return errors.ErrRepFrom(e)
+		return errors.ErrRespFrom(e)
 	case string:
-		return errors.NewErrRep(errors.Unknown, e)
+		return errors.NewErrResp(errors.Unknown, e)
 	}
-	return errors.Unknown.ErrRep()
+	return errors.Unknown.ErrResp()
 }

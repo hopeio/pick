@@ -76,11 +76,11 @@ func GenOpenapi(methodInfo *ApiDocInfo, api *apidoc.API, dec string) {
 		}
 		r.HasTags([]string{dec, methodInfo.ApiInfo.Title + route.Remark})
 		if methodInfo.Method.Out(0).Implements(pick.ErrorType) {
-			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: pick.ErrRepType})
+			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: pick.ErrRespType})
 		} else {
 			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: methodInfo.Method.Out(0)})
 		}
-		r.HasResponseModel(http.StatusBadRequest, apidoc.Model{Type: pick.ErrRepType})
+		r.HasResponseModel(http.StatusBadRequest, apidoc.Model{Type: pick.ErrRespType})
 
 	}
 }

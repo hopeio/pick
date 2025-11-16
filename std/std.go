@@ -63,7 +63,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Response(Writer{w}, ctxi.TraceID(), result)
+				pick.Respond(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, middleware...))

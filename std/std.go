@@ -66,7 +66,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				pick.Respond(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, middleware...))
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], UseMiddleware(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

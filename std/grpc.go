@@ -10,7 +10,6 @@ import (
 	"github.com/hopeio/gox/log"
 	http2 "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/binding"
-	"github.com/hopeio/gox/unsafe"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 )
@@ -60,7 +59,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				pick.Respond(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path[len(preUrl):], Chain(handler, append(middleware, unsafe.CastSlice[Middleware](methodInfoExport.Middlewares)...)...))
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], UseMiddleware(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

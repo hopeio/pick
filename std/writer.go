@@ -4,11 +4,12 @@
  * @Created by jyb
  */
 
-package std
+package pickstd
 
 import (
-	httpx "github.com/hopeio/gox/net/http"
 	"net/http"
+
+	httpx "github.com/hopeio/gox/net/http"
 )
 
 type Writer struct {

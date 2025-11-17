@@ -8,15 +8,15 @@ package main
 
 import (
 	"log"
+	"net/http"
 
-	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/pick/_example/fiber/service"
-	fiberi "github.com/hopeio/pick/fiber"
+	"github.com/gin-gonic/gin"
+	pickstd "github.com/hopeio/pick/std"
 )
 
 func main() {
-	app := fiber.New()
-	fiberi.Register(app, &service.UserService{}, &service.TestService{})
+	gin.SetMode(gin.ReleaseMode)
+	pickstd.Register(http.DefaultServeMux, &UserService{})
 	log.Println("visit http://localhost:8080")
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(http.ListenAndServe(":8080", http.DefaultServeMux))
 }

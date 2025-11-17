@@ -35,17 +35,13 @@ func (*TestService) Test1(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, er
 }
 
 func (*TestService) Test2(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
-	pick2.Api(func() {
-		pick2.Post("/a/").Title("测试2").End()
-	})
+	pick2.Api(func() { pick2.Post("/a/").Title("测试2").End() })
 
 	return &TinyResp{Msg: "测试"}, nil
 }
 
 func (*TestService) Test3(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
-	pick2.Api(func() {
-		pick2.Post("/a/:b").Title("测试3").End()
-	})
+	pick2.Api(func() { pick2.Post("/a/:b").Title("测试3").End() })
 
 	return &TinyResp{Msg: "测试"}, nil
 }

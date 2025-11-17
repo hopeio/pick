@@ -1,4 +1,4 @@
-package std
+package pickstd
 
 import (
 	"encoding/json"
@@ -8,10 +8,10 @@ import (
 	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
-	http2 "github.com/hopeio/gox/net/http"
+	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/binding"
 	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
+	apidocx "github.com/hopeio/pick/apidoc"
 )
 
 func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
@@ -22,7 +22,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("service must be a pointer")
 		}
-		var infos []*apidoc2.ApiDocInfo
+		var infos []*apidocx.ApiDocInfo
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
@@ -47,7 +47,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				err := binding.Bind(r, in2.Interface())
 				if err != nil {
 					w.WriteHeader(http.StatusBadRequest)
-					w.Header().Set(http2.HeaderContentType, http2.ContentTypeJsonUtf8)
+					w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
 					json.NewEncoder(w).Encode(errors.InvalidArgument.Msg(err.Error()))
 					return
 				}
@@ -59,12 +59,12 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				pick.Respond(Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path[len(preUrl):], UseMiddleware(http.HandlerFunc(handler), middleware...))
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], httpx.NewMiddlewareContext(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
-			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
+			infos = append(infos, &apidocx.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}
-		apidoc2.RegisterApiInfo(&apidoc2.GroupApiInfo{Describe: describe, Infos: infos})
+		apidocx.RegisterApiInfo(&apidocx.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered()
 }

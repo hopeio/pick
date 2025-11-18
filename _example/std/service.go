@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hopeio/context/httpctx"
 	"github.com/hopeio/pick"
@@ -38,7 +39,7 @@ func (*UserService) Get(ctx *httpctx.Context, req *Object) (*User, error) {
 	// dao
 	return &User{
 		Id:     req.Id,
-		Name:   "test",
+		Name:   time.Now().String(),
 		Gender: 1,
 	}, nil
 }
@@ -64,7 +65,7 @@ func (*UserService) GrpcGateway(ctx context.Context, req *Req) (*User, error) {
 	// dao
 	return &User{
 		Id:     req.Id,
-		Name:   "test",
+		Name:   time.Now().String(),
 		Gender: 1,
 	}, nil
 }

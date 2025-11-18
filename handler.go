@@ -7,6 +7,7 @@
 package pick
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"reflect"
@@ -24,7 +25,7 @@ var (
 
 type ErrResp errors.ErrResp
 
-func Respond(w httpx.ICommonResponseWriter, traceId string, result []reflect.Value) error {
+func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
 		err := ErrRespFrom(result[1].Interface())
 		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
@@ -40,8 +41,8 @@ func Respond(w httpx.ICommonResponseWriter, traceId string, result []reflect.Val
 		_, err := io.Copy(w, info.File)
 		return err
 	}
-	if info, ok := data.(httpx.ICommonRespond); ok {
-		_, err := info.CommonRespond(w)
+	if info, ok := data.(httpx.CommonResponder); ok {
+		_, err := info.CommonRespond(ctx, w)
 		return err
 	}
 

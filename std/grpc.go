@@ -56,7 +56,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				params[1] = reflect.ValueOf(ctxi.Wrapper())
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(Writer{w}, ctxi.TraceID(), result)
+				pick.Respond(ctxi.Base(), Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path[len(preUrl):], httpx.NewMiddlewareContext(http.HandlerFunc(handler), middleware...))

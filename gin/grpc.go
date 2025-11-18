@@ -53,7 +53,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 				params[1] = reflect.ValueOf(ctxi.Wrapper())
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(Writer{ctx}, ctxi.TraceID(), result)
+				pick.Respond(ctx, Writer{ctx}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

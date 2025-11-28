@@ -79,6 +79,6 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 func openApi(mux *http.ServeMux) {
 	mux.HandleFunc(apidoc.UriPrefix, apidocx.DocList)
 	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.HandleFunc(apidoc.UriPrefix+"/openapi/*file", apidoc.OpenApi)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
+	mux.HandleFunc(apidoc.UriPrefix+"/openapi/{file...}", apidoc.OpenApi)
+	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/{file...}", "openapi")
 }

@@ -4,7 +4,7 @@
  * @Created by jyb
  */
 
-package apidoc
+package pick
 
 import (
 	"net/http"
@@ -13,7 +13,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/hopeio/gox/log"
 	"github.com/hopeio/gox/net/http/apidoc"
-	"github.com/hopeio/pick"
 )
 
 func DocList(w http.ResponseWriter, r *http.Request) {
@@ -21,12 +20,12 @@ func DocList(w http.ResponseWriter, r *http.Request) {
 	if modName == "" {
 		modName = "api"
 	}
-	Openapi(apidoc.Dir, modName)
+
 	apidoc.DocList(w, r)
 }
 
 type ApiDocInfo struct {
-	ApiInfo *pick.ApiInfo
+	ApiInfo *ApiInfo
 	Method  reflect.Type
 }
 
@@ -75,12 +74,12 @@ func GenOpenapi(methodInfo *ApiDocInfo, api *apidoc.API, dec string) {
 			r.HasRequest(apidoc.Model{Type: methodInfo.Method.In(2).Elem()})
 		}
 		r.HasTags([]string{dec, methodInfo.ApiInfo.Title + route.Remark})
-		if methodInfo.Method.Out(0).Implements(pick.ErrorType) {
-			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: pick.ErrRespType})
+		if methodInfo.Method.Out(0).Implements(ErrorType) {
+			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: ErrRespType})
 		} else {
 			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: methodInfo.Method.Out(0)})
 		}
-		r.HasResponseModel(http.StatusBadRequest, apidoc.Model{Type: pick.ErrRespType})
+		r.HasResponseModel(http.StatusBadRequest, apidoc.Model{Type: ErrRespType})
 
 	}
 }

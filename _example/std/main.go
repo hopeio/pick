@@ -10,13 +10,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/hopeio/pick"
 	pickstd "github.com/hopeio/pick/std"
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
 	pickstd.Register(http.DefaultServeMux, &UserService{})
+	pick.OpenApi(":8081")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", http.DefaultServeMux))
 }

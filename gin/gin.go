@@ -11,7 +11,6 @@ import (
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
 
 	"log"
 	"net/http"
@@ -31,7 +30,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("service must be a pointer")
 		}
-		var infos []*apidoc2.ApiDocInfo
+		var infos []*pick.ApiDocInfo
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
@@ -71,9 +70,9 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)
 			}
 			methodInfo.Log()
-			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
+			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}
-		apidoc2.RegisterApiInfo(&apidoc2.GroupApiInfo{Describe: describe, Infos: infos})
+		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered()
 }

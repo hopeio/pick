@@ -13,7 +13,6 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/pick"
-	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/pick/fiber/binding"
 
 	"github.com/hopeio/gox/log"
@@ -31,7 +30,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("service must be a pointer")
 		}
-		var infos []*apidoc2.ApiDocInfo
+		var infos []*pick.ApiDocInfo
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
@@ -70,9 +69,9 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)
 			}
 			methodInfo.Log()
-			infos = append(infos, &apidoc2.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
+			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}
-		apidoc2.RegisterApiInfo(&apidoc2.GroupApiInfo{Describe: describe, Infos: infos})
+		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 
 	pick.Registered()

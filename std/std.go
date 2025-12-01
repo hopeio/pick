@@ -11,7 +11,6 @@ import (
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/binding"
 	"github.com/hopeio/pick"
-	apidocx "github.com/hopeio/pick/apidoc"
 )
 
 var (
@@ -25,7 +24,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 		if value.Kind() != reflect.Ptr {
 			log.Fatal("service must be a pointer")
 		}
-		var infos []*apidocx.ApiDocInfo
+		var infos []*pick.ApiDocInfo
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
@@ -67,9 +66,9 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				engine.Handle(url.Method+" "+url.Path, httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
-			infos = append(infos, &apidocx.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
+			infos = append(infos, &pick.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
 		}
-		apidocx.RegisterApiInfo(&apidocx.GroupApiInfo{Describe: describe, Infos: infos})
+		pick.RegisterApiInfo(&pick.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered()
 }

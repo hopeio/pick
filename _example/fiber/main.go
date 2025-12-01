@@ -10,6 +10,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/hopeio/pick"
 	"github.com/hopeio/pick/_example/fiber/service"
 	fiberi "github.com/hopeio/pick/fiber"
 )
@@ -17,6 +18,7 @@ import (
 func main() {
 	app := fiber.New()
 	fiberi.Register(app, &service.UserService{}, &service.TestService{})
+	pick.OpenApi(":8081")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(app.Listen(":8080"))
 }

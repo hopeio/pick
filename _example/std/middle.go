@@ -8,24 +8,29 @@ package main
 
 import (
 	"log"
-
-	pickstd "github.com/hopeio/pick/std"
+	"net/http"
 )
 
-func Log(ctx *pickstd.MiddlewareContext) {
-	log.Println("Log", ctx.Request.Method, ctx.Request.RequestURI)
-	ctx.Next()
-	log.Println("Log End", ctx.Request.Method, ctx.Request.RequestURI)
+func Log(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Log", r.Method, r.RequestURI)
+		handler.ServeHTTP(w, r)
+		log.Println("Log End", r.Method, r.RequestURI)
+	})
 }
 
-func Log2(ctx *pickstd.MiddlewareContext) {
-	log.Println("Log2", ctx.Request.Method, ctx.Request.RequestURI)
-	ctx.Next()
-	log.Println("Log2 End", ctx.Request.Method, ctx.Request.RequestURI)
+func Log2(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Log", r.Method, r.RequestURI)
+		handler.ServeHTTP(w, r)
+		log.Println("Log End", r.Method, r.RequestURI)
+	})
 }
 
-func Log3(ctx *pickstd.MiddlewareContext) {
-	log.Println("Log3", ctx.Request.Method, ctx.Request.RequestURI)
-	ctx.Next()
-	log.Println("Log3 End", ctx.Request.Method, ctx.Request.RequestURI)
+func Log3(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Log", r.Method, r.RequestURI)
+		handler.ServeHTTP(w, r)
+		log.Println("Log End", r.Method, r.RequestURI)
+	})
 }

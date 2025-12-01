@@ -80,5 +80,10 @@ func ErrRespFrom(err any) *errors.ErrResp {
 func OpenApi(addr string) {
 	Log(http.MethodGet, addr+apidoc.UriPrefix, "apidoc list")
 	Log(http.MethodGet, addr+apidoc.UriPrefix+"/openapi/*file", "openapi")
-	go http.ListenAndServe(addr, nil)
+	go func() {
+		err := http.ListenAndServe(addr, http.DefaultServeMux)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 }

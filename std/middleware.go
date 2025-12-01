@@ -5,4 +5,3 @@ import (
 )
 
 type Middleware = httpx.Middleware
-type MiddlewareContext = httpx.MiddlewareContext

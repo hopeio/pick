@@ -6,9 +6,11 @@
 
 package pick
 
-type ParseToHttpResponse interface {
-	Parse() ([]byte, error)
-}
+import (
+	"net/http"
+
+	"github.com/hopeio/gox/net/http/apidoc"
+)
 
 var (
 	isRegistered = false
@@ -21,6 +23,7 @@ type Service[T any] interface {
 
 func Registered() {
 	isRegistered = true
+	apidoc.ApiDoc(http.DefaultServeMux, apidoc.UriPrefix, apidoc.Dir)
 }
 
 func Api(f func()) {

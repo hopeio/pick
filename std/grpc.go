@@ -15,7 +15,6 @@ import (
 )
 
 func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
-	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -26,7 +25,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[Middleware](&method, preUrl, HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -59,7 +58,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				pick.Respond(ctxi.Base(), Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path[len(preUrl):], httpx.NewMiddlewareContext(http.HandlerFunc(handler), middleware...))
+				engine.Handle(url.Method+" "+url.Path[len(preUrl):], httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidocx.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})

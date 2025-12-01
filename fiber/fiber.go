@@ -12,7 +12,6 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/errors"
-	"github.com/hopeio/gox/net/http/apidoc"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
 	"github.com/hopeio/pick/fiber/binding"
@@ -26,7 +25,6 @@ var (
 
 // 复用pick service，不支持单个接口的中间件
 func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
-	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -37,7 +35,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[fiber.Handler](&method, preUrl, FiberContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -78,11 +76,4 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 	}
 
 	pick.Registered()
-}
-
-func openApi(mux *fiber.App) {
-	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.Get(apidoc.UriPrefix, DocList)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
-	mux.Get(apidoc.UriPrefix+"/openapi/*file", Openapi)
 }

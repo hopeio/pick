@@ -204,7 +204,7 @@ type ApiInfo struct {
 }
 
 // recover捕捉panic info
-func GetMethodInfo[T any](method *reflect.Method, preUrl string, httpContext reflect.Type) (info *apiInfo) {
+func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Type) (info *apiInfo) {
 	if method.Name == "Service" {
 		return nil
 	}

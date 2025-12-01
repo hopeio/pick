@@ -10,6 +10,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hopeio/pick"
 
 	pickgin "github.com/hopeio/pick/gin"
 )
@@ -18,6 +19,7 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	server := gin.New()
 	pickgin.Register(server, &UserService{})
+	pick.OpenApi(":8081")
 	log.Println("visit http://localhost:8080")
 	log.Fatal(server.Run(":8080"))
 }

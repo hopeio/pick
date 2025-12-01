@@ -10,11 +10,13 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"net/http"
 	"reflect"
 
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
+	"github.com/hopeio/gox/net/http/apidoc"
 	http_fs "github.com/hopeio/gox/net/http/fs"
 	"go.uber.org/zap"
 )
@@ -73,4 +75,10 @@ func ErrRespFrom(err any) *errors.ErrResp {
 		return errors.NewErrResp(errors.Unknown, e)
 	}
 	return errors.Unknown.ErrResp()
+}
+
+func OpenApi(addr string) {
+	Log(http.MethodGet, addr+apidoc.UriPrefix, "apidoc list")
+	Log(http.MethodGet, addr+apidoc.UriPrefix+"/openapi/*file", "openapi")
+	go http.ListenAndServe(addr, nil)
 }

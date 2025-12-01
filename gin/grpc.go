@@ -14,7 +14,6 @@ import (
 )
 
 func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
-	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -25,7 +24,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[gin.HandlerFunc](&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
 			if methodInfo == nil {
 				continue
 			}

@@ -9,12 +9,9 @@ package pickgin
 import (
 	"github.com/hopeio/context/ginctx"
 	"github.com/hopeio/gox/errors"
-	gin2 "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
 	apidoc2 "github.com/hopeio/pick/apidoc"
-
-	"github.com/hopeio/gox/net/http/apidoc"
 
 	"log"
 	"net/http"
@@ -28,7 +25,6 @@ var (
 )
 
 func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
-	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -39,7 +35,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[gin.HandlerFunc](&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -80,11 +76,4 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 		apidoc2.RegisterApiInfo(&apidoc2.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered()
-}
-
-func openApi(mux *gin.Engine) {
-	mux.GET(apidoc.UriPrefix, gin2.Wrap(apidoc2.DocList))
-	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.GET(apidoc.UriPrefix+"/openapi/*file", gin2.Wrap(apidoc.OpenApi))
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/*file", "openapi")
 }

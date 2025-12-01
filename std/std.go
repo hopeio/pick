@@ -9,7 +9,6 @@ import (
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/apidoc"
 	"github.com/hopeio/gox/net/http/binding"
 	"github.com/hopeio/pick"
 	apidocx "github.com/hopeio/pick/apidoc"
@@ -20,7 +19,6 @@ var (
 )
 
 func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
-	openApi(engine)
 	for _, v := range svcs {
 		describe, preUrl, middleware := v.Service()
 		value := reflect.ValueOf(v)
@@ -31,7 +29,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo[Middleware](&method, preUrl, HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType)
 			if methodInfo == nil {
 				continue
 			}
@@ -66,7 +64,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				pick.Respond(ctxi.Base(), Writer{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
-				engine.Handle(url.Method+" "+url.Path, httpx.NewMiddlewareContext(http.HandlerFunc(handler), middleware...))
+				engine.Handle(url.Method+" "+url.Path, httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))
 			}
 			methodInfo.Log()
 			infos = append(infos, &apidocx.ApiDocInfo{ApiInfo: methodInfoExport, Method: method.Type})
@@ -74,11 +72,4 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 		apidocx.RegisterApiInfo(&apidocx.GroupApiInfo{Describe: describe, Infos: infos})
 	}
 	pick.Registered()
-}
-
-func openApi(mux *http.ServeMux) {
-	mux.HandleFunc(apidoc.UriPrefix, apidocx.DocList)
-	pick.Log(http.MethodGet, apidoc.UriPrefix, "apidoc list")
-	mux.HandleFunc(apidoc.UriPrefix+"/openapi/{file...}", apidoc.OpenApi)
-	pick.Log(http.MethodGet, apidoc.UriPrefix+"/openapi/{file...}", "openapi")
 }

@@ -60,7 +60,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctxi.Base(), Writer{w}, ctxi.TraceID(), result)
+				pick.Respond(ctxi.Base(), httpx.ResponseWriterWrapper{w}, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path, httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))

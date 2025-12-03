@@ -7,6 +7,10 @@
 package pickfiber
 
 import (
+	"bufio"
+	"context"
+	"iter"
+
 	"github.com/gofiber/fiber/v3"
 	httpx "github.com/hopeio/gox/net/http"
 )
@@ -25,4 +29,21 @@ func (w Writer) Header() httpx.Header {
 
 func (w Writer) Write(p []byte) (int, error) {
 	return w.Ctx.Write(p)
+}
+
+func (w Writer) RespondStream(ctx context.Context, dataSource iter.Seq[httpx.WriterToCloser]) (int, error) {
+	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
+	var n, write int64
+	var err error
+	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		for data := range dataSource {
+			write, err = data.WriteTo(w)
+			if err != nil {
+				return
+			}
+			n += write
+			w.Flush()
+		}
+	})
+	return int(n), nil
 }

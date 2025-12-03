@@ -1,6 +1,9 @@
 package pickgin
 
 import (
+	"context"
+	"iter"
+
 	"github.com/gin-gonic/gin"
 	httpx "github.com/hopeio/gox/net/http"
 )
@@ -18,4 +21,8 @@ func (w Writer) Header() httpx.Header {
 }
 func (w Writer) Write(p []byte) (int, error) {
 	return w.Context.Writer.Write(p)
+}
+
+func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCloser]) (int, error) {
+	return httpx.RespondStream(ctx, w.Writer, seq)
 }

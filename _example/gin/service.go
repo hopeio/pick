@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/context/ginctx"
+	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/pick"
 )
 

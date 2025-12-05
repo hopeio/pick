@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/context/httpctx"
+	"github.com/hopeio/gox/context/httpctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	"github.com/hopeio/gox/net/http/gin/binding"

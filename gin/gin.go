@@ -7,7 +7,7 @@
 package pickgin
 
 import (
-	"github.com/hopeio/context/ginctx"
+	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"

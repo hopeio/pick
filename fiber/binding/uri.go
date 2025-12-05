@@ -10,7 +10,7 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/gox/reflect/mtos"
+	"github.com/hopeio/gox/mtos"
 )
 
 type uriSource struct {
@@ -18,7 +18,7 @@ type uriSource struct {
 }
 
 // TrySet tries to set a value by request's form source (likes map[string][]string)
-func (s uriSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt mtos.SetOptions) (isSet bool, err error) {
+func (s uriSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mtos.Options) (isSet bool, err error) {
 	return mtos.SetValueByKVsWithStructField(value, field, s, key, opt)
 }
 

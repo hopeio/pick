@@ -10,9 +10,9 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
-	http2 "github.com/hopeio/gox/net/http"
+	"github.com/hopeio/gox/mtos"
+	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/binding"
-	"github.com/hopeio/gox/reflect/mtos"
 	stringsx "github.com/hopeio/gox/strings"
 )
 
@@ -37,11 +37,11 @@ func (s RequestSource) Header() mtos.Setter {
 }
 
 func (s RequestSource) Form() mtos.Setter {
-	contentType := stringsx.FromBytes(s.Request().Header.Peek(http2.HeaderContentType))
-	if contentType == http2.ContentTypeForm {
+	contentType := stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType))
+	if contentType == httpx.ContentTypeForm {
 		return (*ArgsSource)(s.Request().PostArgs())
 	}
-	if contentType == http2.ContentTypeMultipart {
+	if contentType == httpx.ContentTypeMultipart {
 		multipartForm, err := s.MultipartForm()
 		if err != nil {
 			return nil

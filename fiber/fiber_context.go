@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/context/reqctx"
+	"github.com/hopeio/gox/context/reqctx"
 	httpx "github.com/hopeio/gox/net/http"
 )
 

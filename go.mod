@@ -5,8 +5,7 @@ go 1.24.0
 require (
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/gin-gonic/gin v1.11.0
-	github.com/hopeio/context v0.5.15
-	github.com/hopeio/gox v1.3.25
+	github.com/hopeio/gox v1.4.0
 )
 
 require (
@@ -25,7 +24,6 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.57.0 // indirect
-	github.com/spf13/cast v1.10.0 // indirect
 	github.com/woodsbury/decimal128 v1.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect

@@ -9,7 +9,7 @@ package binding
 import (
 	"reflect"
 
-	"github.com/hopeio/gox/mtos"
+	"github.com/hopeio/gox/kvstruct"
 	stringsx "github.com/hopeio/gox/strings"
 	"github.com/valyala/fasthttp"
 )
@@ -17,8 +17,8 @@ import (
 type ArgsSource fasthttp.Args
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *ArgsSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mtos.Options) (isSet bool, err error) {
-	return mtos.SetValueByKVsWithStructField(value, field, form, key, opt)
+func (form *ArgsSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
+	return kvstruct.SetValueByKVsWithStructField(value, field, form, key, opt)
 }
 
 func (form *ArgsSource) Peek(key string) ([]string, bool) {
@@ -34,8 +34,8 @@ func (form *ArgsSource) HasValue(key string) bool {
 type CtxSource fasthttp.RequestCtx
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *CtxSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mtos.Options) (isSet bool, err error) {
-	return mtos.SetValueByKVsWithStructField(value, field, form, key, opt)
+func (form *CtxSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
+	return kvstruct.SetValueByKVsWithStructField(value, field, form, key, opt)
 }
 
 func (form *CtxSource) Peek(key string) ([]string, bool) {
@@ -46,8 +46,8 @@ func (form *CtxSource) Peek(key string) ([]string, bool) {
 type HeaderSource fasthttp.RequestHeader
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *HeaderSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mtos.Options) (isSet bool, err error) {
-	return mtos.SetValueByKVsWithStructField(value, field, form, key, opt)
+func (form *HeaderSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
+	return kvstruct.SetValueByKVsWithStructField(value, field, form, key, opt)
 }
 
 func (form *HeaderSource) Peek(key string) ([]string, bool) {

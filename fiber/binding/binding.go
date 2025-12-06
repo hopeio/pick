@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/gox/mtos"
+	"github.com/hopeio/gox/kvstruct"
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/binding"
 	stringsx "github.com/hopeio/gox/strings"
@@ -24,19 +24,19 @@ type RequestSource struct {
 	fiber.Ctx
 }
 
-func (s RequestSource) Uri() mtos.Setter {
+func (s RequestSource) Uri() kvstruct.Setter {
 	return uriSource{s.Ctx}
 }
 
-func (s RequestSource) Query() mtos.Setter {
+func (s RequestSource) Query() kvstruct.Setter {
 	return (*ArgsSource)(s.Request().URI().QueryArgs())
 }
 
-func (s RequestSource) Header() mtos.Setter {
+func (s RequestSource) Header() kvstruct.Setter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 
-func (s RequestSource) Form() mtos.Setter {
+func (s RequestSource) Form() kvstruct.Setter {
 	contentType := stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType))
 	if contentType == httpx.ContentTypeForm {
 		return (*ArgsSource)(s.Request().PostArgs())

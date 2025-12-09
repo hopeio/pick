@@ -9,11 +9,11 @@ package pickgin
 import (
 	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/gox/errors"
+	ginx "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
 
 	"log"
-	"net/http"
 	"reflect"
 
 	"github.com/gin-gonic/gin"
@@ -52,7 +52,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, errors.InvalidArgument.Msg(err.Error()))
+					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)

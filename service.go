@@ -9,6 +9,7 @@ package pick
 import (
 	"net/http"
 
+	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/apidoc"
 )
 
@@ -37,4 +38,11 @@ var prefix string
 
 func HandlerPrefix(p string) {
 	prefix = p
+}
+
+var DefaultCodec = httpx.DefaultCodec
+
+func Codec(codec httpx.Codec) {
+	DefaultCodec = codec
+	httpx.DefaultCodec = codec
 }

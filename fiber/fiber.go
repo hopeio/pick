@@ -7,7 +7,6 @@
 package pickfiber
 
 import (
-	"net/http"
 	"reflect"
 
 	"github.com/gofiber/fiber/v3"
@@ -52,7 +51,12 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					return ctx.Status(http.StatusBadRequest).JSON(errors.InvalidArgument.Msg(err.Error()))
+					data, err := pick.DefaultCodec.Marshal(errors.InvalidArgument.Msg(err.Error()))
+					if err != nil {
+						data = []byte(err.Error())
+					}
+					_, err = ctx.Write(data)
+					return err
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value

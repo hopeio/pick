@@ -16,7 +16,7 @@ import (
 type UserService struct{}
 
 func (*UserService) Service() (string, string, []fiber.Handler) {
-	return "用户相关", "/api/v1/user", []fiber.Handler{middle.Log}
+	return "用户相关", "/api/user", []fiber.Handler{middle.Log}
 }
 
 func (*UserService) Add(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, *pick.ErrResp) {

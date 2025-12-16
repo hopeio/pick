@@ -20,7 +20,7 @@ import (
 type UserService struct{}
 
 func (*UserService) Service() (string, string, []pickstd.Middleware) {
-	return "用户相关", "/api/v1/user", []pickstd.Middleware{Log, Log2, Log3}
+	return "用户相关", "/api/user", []pickstd.Middleware{Log, Log2, Log3}
 }
 
 type Object struct {

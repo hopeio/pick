@@ -61,7 +61,7 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1/user/:id": {
+    "/api/user/:id": {
       "get": {
         "parameters": [
           {
@@ -113,7 +113,7 @@
         ]
       }
     },
-    "/api/v1/user/err/:id": {
+    "/api/user/err/:id": {
       "get": {
         "parameters": [
           {
@@ -165,7 +165,7 @@
         ]
       }
     },
-    "/api/v1/user/grpcGateway": {
+    "/api/user/grpcGateway": {
       "get": {
         "parameters": [
           {

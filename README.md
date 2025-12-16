@@ -36,7 +36,7 @@ import (
 type UserService struct{}
 //需要实现Service方法，返回该服务的说明，url前缀，以及需要的中间件
 func (*UserService) Service() (string, string, []gin.HandlerFunc) {
-return "用户相关", "/api/v1/user", []gin.HandlerFunc{}
+return "用户相关", "/api/user", []gin.HandlerFunc{}
 }
 type Req struct{
   ID int `json:"id"`
@@ -56,9 +56,9 @@ rRep) {
 ```  
 这会生成如下的Api
 
- >API:	 Get   /api/v1/user/:id   用户详情
+ >API:	 Get   /api/user/:id   用户详情
 
- >curl http://localhost:8080/api/v1/user/1  
+ >curl http://localhost:8080/api/user/1  
  > 返回: `{"id":1,"name":"测试"}`  
 
 # 文档生成

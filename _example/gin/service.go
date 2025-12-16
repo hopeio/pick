@@ -18,7 +18,7 @@ import (
 type UserService struct{}
 
 func (*UserService) Service() (string, string, []gin.HandlerFunc) {
-	return "用户相关", "/api/v1/user", []gin.HandlerFunc{Log}
+	return "用户相关", "/api/user", []gin.HandlerFunc{Log}
 }
 
 type Object struct {

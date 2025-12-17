@@ -1,7 +1,6 @@
 package pickstd
 
 import (
-	"encoding/json"
 	"net/http"
 	"reflect"
 
@@ -46,9 +45,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(r, in2.Interface())
 				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
-					json.NewEncoder(w).Encode(errors.InvalidArgument.Msg(err.Error()))
+					pick.RespondError(ctxi.Base(), httpx.ResponseWriterWrapper{w}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 					return
 				}
 				params := make([]reflect.Value, 3)

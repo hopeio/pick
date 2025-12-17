@@ -7,8 +7,11 @@
 package pickgin
 
 import (
+	"strconv"
+
 	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/gox/errors"
+	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
@@ -52,6 +55,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
+					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errors.InvalidArgument)))
 					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))
 					return
 				}

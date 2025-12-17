@@ -2,11 +2,13 @@ package pickgin
 
 import (
 	"reflect"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hopeio/gox/context/httpctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
+	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
@@ -43,6 +45,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 				in2 := reflect.New(in2Type)
 				err := binding.Bind(ctx, in2.Interface())
 				if err != nil {
+					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errors.InvalidArgument)))
 					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))
 					return
 				}

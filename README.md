@@ -9,7 +9,7 @@ pick的底层是灵活的,默认基于gin,同时兼容fiber(fasthttp)。
 - 摆脱w,r,摆脱xxx.Context这种不直观输入输出的handler
     >❌`func(w http.ResponseWriter, r *http.Request)`或者`func(ctx xxx.Context){ctx.XXX()}`的业务代码
 - 类grpc的函数签名,专注于业务
-   > ✅`func(ctx *ginctx.Context,r ReqStruct) (RespStruct,*pick.ErrRep)`
+   > ✅`func(ctx *ginctx.Context,r ReqStruct) (RespStruct,*pick.ErrResp)`
 
 # quick start
 go get github.com/hopeio/pick

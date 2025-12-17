@@ -8,10 +8,10 @@ package pick
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"net/http"
 	"reflect"
+	"strconv"
 
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
@@ -29,10 +29,7 @@ type ErrResp errors.ErrResp
 
 func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
-		err := ErrRespFrom(result[1].Interface())
-		log.Errorw(err.Error(), zap.String(log.FieldTraceId, traceId))
-		w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
-		return json.NewEncoder(w).Encode(err)
+		return RespondError(ctx, w, result[1].Interface(), traceId)
 	}
 	data := result[0].Interface()
 	if info, ok := data.(*http_fs.File); ok {
@@ -47,13 +44,27 @@ func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, 
 		_, err := info.CommonRespond(ctx, w)
 		return err
 	}
-
-	w.Header().Set(httpx.HeaderContentType, httpx.ContentTypeJsonUtf8)
-	return json.NewEncoder(w).Encode(httpx.RespAnyData{
-		Data: data,
-	})
+	w.Header().Set(httpx.HeaderContentType, DefaultMarshaler.ContentType(data))
+	buf, err := DefaultMarshaler.Marshal(data)
+	if err != nil {
+		buf = []byte(err.Error())
+	}
+	_, err = w.Write(buf)
+	return err
 }
 
+func RespondError(ctx context.Context, w httpx.CommonResponseWriter, err any, traceId string) error {
+	errresp := ErrRespFrom(err)
+	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
+	w.Header().Set(httpx.HeaderContentType, DefaultMarshaler.ContentType(errresp))
+	w.Header().Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
+	buf, err1 := DefaultMarshaler.Marshal(errresp)
+	if err1 != nil {
+		buf = []byte(err1.Error())
+	}
+	_, err1 = w.Write(buf)
+	return err1
+}
 func ErrRespFrom(err any) *errors.ErrResp {
 	if err == nil {
 		return nil

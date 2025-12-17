@@ -40,9 +40,9 @@ func HandlerPrefix(p string) {
 	prefix = p
 }
 
-var DefaultCodec = httpx.DefaultCodec
+var DefaultMarshaler = httpx.DefaultMarshaler
 
-func Codec(codec httpx.Codec) {
-	DefaultCodec = codec
-	httpx.DefaultCodec = codec
+func Marshaler(marshaler httpx.Marshaler) {
+	DefaultMarshaler = marshaler
+	httpx.DefaultMarshaler = marshaler
 }

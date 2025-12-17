@@ -51,12 +51,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					data, err := pick.DefaultCodec.Marshal(errors.InvalidArgument.Msg(err.Error()))
-					if err != nil {
-						data = []byte(err.Error())
-					}
-					_, err = ctx.Write(data)
-					return err
+					return pick.RespondError(ctx.Context(), Writer{ctx}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value

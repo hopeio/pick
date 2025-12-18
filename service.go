@@ -24,7 +24,9 @@ type Service[T any] interface {
 
 func Registered() {
 	isRegistered = true
-	Openapi(apidoc.Dir, "api")
+	go func() {
+		Openapi(apidoc.Dir, "api")
+	}()
 	apidoc.ApiDoc(http.DefaultServeMux, apidoc.UriPrefix, apidoc.Dir)
 }
 

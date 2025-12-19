@@ -44,10 +44,16 @@ func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, 
 		_, err := info.CommonRespond(ctx, w)
 		return err
 	}
-	w.Header().Set(httpx.HeaderContentType, DefaultMarshaler.ContentType(data))
+	contentType := DefaultMarshaler.ContentType(data)
+
 	buf, err := DefaultMarshaler.Marshal(data)
 	if err != nil {
+		contentType = httpx.ContentTypeText
 		buf = []byte(err.Error())
+	}
+	w.Header().Set(httpx.HeaderContentType, contentType)
+	if recorder, ok := w.(httpx.ResponseRecorder); ok {
+		recorder.RecordResponse(contentType, buf, data)
 	}
 	_, err = w.Write(buf)
 	return err
@@ -65,6 +71,7 @@ func RespondError(ctx context.Context, w httpx.CommonResponseWriter, err any, tr
 	_, err1 = w.Write(buf)
 	return err1
 }
+
 func ErrRespFrom(err any) *errors.ErrResp {
 	if err == nil {
 		return nil

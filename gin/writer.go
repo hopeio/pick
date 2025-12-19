@@ -26,3 +26,11 @@ func (w Writer) Write(p []byte) (int, error) {
 func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCloser]) (int, error) {
 	return httpx.RespondStream(ctx, w.Writer, seq)
 }
+
+func (w Writer) RecordResponse(contentType string, raw []byte, res any) {
+	if w, ok := w.Writer.(httpx.Unwrapper); ok {
+		if recorder, ok := w.Unwrap().(httpx.ResponseRecorder); ok {
+			recorder.RecordResponse(contentType, raw, res)
+		}
+	}
+}

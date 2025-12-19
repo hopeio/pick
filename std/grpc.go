@@ -41,7 +41,8 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, ResponseWriter: w})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
-				err := binding.Bind(r, in2.Interface())
+				reqv := in2.Interface()
+				err := binding.Bind(r, reqv)
 				if err != nil {
 					pick.RespondError(ctxi.Base(), httpx.ResponseWriterWrapper{w}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 					return

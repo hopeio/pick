@@ -8,6 +8,7 @@ package binding
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/kvstruct"
@@ -36,13 +37,10 @@ func (s RequestSource) Header() kvstruct.Setter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 
-func (s RequestSource) Form() kvstruct.Setter {
+func (s RequestSource) MultipartForm() kvstruct.Setter {
 	contentType := stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType))
-	if contentType == httpx.ContentTypeForm {
-		return (*ArgsSource)(s.Request().PostArgs())
-	}
-	if contentType == httpx.ContentTypeMultipart {
-		multipartForm, err := s.MultipartForm()
+	if strings.HasPrefix(contentType, httpx.ContentTypeMultipart) {
+		multipartForm, err := s.Ctx.MultipartForm()
 		if err != nil {
 			return nil
 		}
@@ -55,5 +53,8 @@ func (s RequestSource) BodyBind(obj any) error {
 	if s.Method() == http.MethodGet {
 		return nil
 	}
-	return binding.BodyUnmarshaller(s.Body(), obj)
+	if s.Is(httpx.ContentTypeMultipart) {
+		return nil
+	}
+	return binding.BodyUnmarshaller(stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType)), s.Body(), obj)
 }

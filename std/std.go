@@ -8,7 +8,6 @@ import (
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/binding"
 	"github.com/hopeio/pick"
 )
 
@@ -43,7 +42,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, ResponseWriter: w})
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
-				err := binding.Bind(r, in2.Interface())
+				err := httpx.Bind(r, in2.Interface())
 				if err != nil {
 					pick.RespondError(ctxi.Base(), httpx.ResponseWriterWrapper{w}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 					return

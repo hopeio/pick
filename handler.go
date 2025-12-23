@@ -44,31 +44,23 @@ func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, 
 		_, err := info.CommonRespond(ctx, w)
 		return err
 	}
-	contentType := DefaultMarshaler.ContentType(data)
 
-	buf, err := DefaultMarshaler.Marshal(data)
-	if err != nil {
-		contentType = httpx.ContentTypeText
-		buf = []byte(err.Error())
-	}
+	buf, contentType := DefaultMarshaler("", data)
 	w.Header().Set(httpx.HeaderContentType, contentType)
 	if recorder, ok := w.(httpx.ResponseRecorder); ok {
 		recorder.RecordResponse(contentType, buf, data)
 	}
-	_, err = w.Write(buf)
+	_, err := w.Write(buf)
 	return err
 }
 
 func RespondError(ctx context.Context, w httpx.CommonResponseWriter, err any, traceId string) error {
 	errresp := ErrRespFrom(err)
 	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
-	w.Header().Set(httpx.HeaderContentType, DefaultMarshaler.ContentType(errresp))
+	buf, contentType := DefaultMarshaler("", errresp)
+	w.Header().Set(httpx.HeaderContentType, contentType)
 	w.Header().Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
-	buf, err1 := DefaultMarshaler.Marshal(errresp)
-	if err1 != nil {
-		buf = []byte(err1.Error())
-	}
-	_, err1 = w.Write(buf)
+	_, err1 := w.Write(buf)
 	return err1
 }
 

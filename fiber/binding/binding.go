@@ -13,12 +13,11 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/kvstruct"
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/binding"
 	stringsx "github.com/hopeio/gox/strings"
 )
 
 func Bind(c fiber.Ctx, obj interface{}) error {
-	return binding.CommonBind(RequestSource{c}, obj)
+	return httpx.CommonBind(RequestSource{c}, obj)
 }
 
 type RequestSource struct {
@@ -44,7 +43,7 @@ func (s RequestSource) MultipartForm() kvstruct.Setter {
 		if err != nil {
 			return nil
 		}
-		return (*binding.MultipartSource)(multipartForm)
+		return (*httpx.MultipartSource)(multipartForm)
 	}
 	return nil
 }
@@ -56,5 +55,5 @@ func (s RequestSource) BodyBind(obj any) error {
 	if s.Is(httpx.ContentTypeMultipart) {
 		return nil
 	}
-	return binding.BodyUnmarshaller(stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType)), s.Body(), obj)
+	return httpx.DefaultUnmarshal(stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType)), s.Body(), obj)
 }

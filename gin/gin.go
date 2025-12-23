@@ -13,7 +13,6 @@ import (
 	"github.com/hopeio/gox/errors"
 	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
-	"github.com/hopeio/gox/net/http/gin/binding"
 	"github.com/hopeio/pick"
 
 	"log"
@@ -53,7 +52,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				ctxi := ginctx.FromRequest(ctx)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
-				err := binding.Bind(ctx, in2.Interface())
+				err := ginx.Bind(ctx, in2.Interface())
 				if err != nil {
 					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errors.InvalidArgument)))
 					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))

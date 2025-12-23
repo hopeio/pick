@@ -42,9 +42,9 @@ func HandlerPrefix(p string) {
 	prefix = p
 }
 
-var DefaultMarshaler = httpx.DefaultMarshaler
+var DefaultMarshaler = httpx.DefaultMarshal
 
-func Marshaler(marshaler httpx.Marshaler) {
+func Marshaler(marshaler httpx.MarshalFunc) {
 	DefaultMarshaler = marshaler
-	httpx.DefaultMarshaler = marshaler
+	httpx.DefaultMarshal = marshaler
 }

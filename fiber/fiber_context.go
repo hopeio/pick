@@ -87,19 +87,16 @@ func (w RequestCtx) Write(p []byte) (int, error) {
 	return w.Ctx.Write(p)
 }
 
-func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[httpx.WriterToCloser]) (int, error) {
+func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[httpx.WriterToCloser]) {
 	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
-	var n, write int64
-	var err error
 	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		for data := range dataSource {
-			write, err = data.WriteTo(w)
+			_, err := data.WriteTo(w)
 			if err != nil {
 				return
 			}
-			n += write
 			w.Flush()
 		}
 	})
-	return int(n), nil
+
 }

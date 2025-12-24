@@ -23,8 +23,8 @@ func (w Writer) Write(p []byte) (int, error) {
 	return w.Context.Writer.Write(p)
 }
 
-func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCloser]) (int, error) {
-	return httpx.RespondStream(ctx, w.Writer, seq)
+func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCloser]) {
+	httpx.RespondStream(ctx, w.Writer, seq)
 }
 
 func (w Writer) RecordBody(raw []byte, res any) {

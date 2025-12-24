@@ -19,15 +19,15 @@ type uriSource struct {
 
 // TrySet tries to set a value by request's form source (likes map[string][]string)
 func (s uriSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
-	return kvstruct.SetValueByKVsWithStructField(value, field, s, key, opt)
+	return kvstruct.SetValueByKVs(value, field, s, key, opt)
 }
 
-func (s uriSource) Peek(key string) ([]string, bool) {
+func (s uriSource) GetVs(key string) ([]string, bool) {
 	v := s.Params(key)
 	return []string{v}, v != ""
 }
 
-func (s uriSource) HasValue(key string) bool {
+func (s uriSource) Has(key string) bool {
 	v := s.Params(key)
 	return v != ""
 }

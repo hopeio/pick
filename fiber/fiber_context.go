@@ -7,27 +7,46 @@
 package pickfiber
 
 import (
+	"bufio"
 	"context"
+	"iter"
+	"net/http"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/context/reqctx"
 	httpx "github.com/hopeio/gox/net/http"
+	stringsx "github.com/hopeio/gox/strings"
 )
 
 type RequestCtx struct {
 	fiber.Ctx
+	reqHeader   http.Header
+	respHeader  http.Header
+	wroteHeader bool
 }
 
-func (ctx RequestCtx) RequestHeader() httpx.Header {
-	return RequestHeader{RequestHeader: &ctx.Request().Header}
+func (w RequestCtx) RequestHeader() http.Header {
+	if w.reqHeader == nil {
+		w.reqHeader = http.Header{}
+		w.Ctx.Request().Header.VisitAll(func(k, v []byte) {
+			ks := stringsx.FromBytes(k)
+			vs := stringsx.FromBytes(v)
+			if exists, ok := w.reqHeader[ks]; ok {
+				w.reqHeader[ks] = append(exists, vs)
+			} else {
+				w.reqHeader[ks] = []string{vs}
+			}
+		})
+	}
+	return w.reqHeader
 }
 
-func (ctx RequestCtx) RequestContext() context.Context {
-	return ctx.Ctx.Context()
+func (w RequestCtx) RequestContext() context.Context {
+	return w.Ctx.Context()
 }
 
-func (ctx RequestCtx) Origin() fiber.Ctx {
-	return ctx.Ctx
+func (w RequestCtx) Origin() fiber.Ctx {
+	return w.Ctx
 }
 
 type Context = reqctx.Context[RequestCtx]
@@ -37,5 +56,50 @@ func FromContext(ctx context.Context) (*Context, bool) {
 }
 
 func FromRequest(req fiber.Ctx) *Context {
-	return reqctx.New[RequestCtx](RequestCtx{req})
+	return reqctx.New[RequestCtx](RequestCtx{Ctx: req})
+}
+
+func (w RequestCtx) WriteHeader(code int) {
+	w.Ctx.Status(code)
+}
+
+func (w RequestCtx) Header() http.Header {
+	if w.respHeader == nil {
+		w.respHeader = http.Header{}
+	}
+	return w.respHeader
+}
+
+func (w RequestCtx) HeaderX() httpx.Header {
+	return ResponseHeader{ResponseHeader: &w.Response().Header}
+}
+
+func (w RequestCtx) Write(p []byte) (int, error) {
+	if !w.wroteHeader {
+		header := &w.Ctx.Response().Header
+		for k, v := range w.respHeader {
+			for _, vv := range v {
+				header.Add(k, vv)
+			}
+		}
+		w.wroteHeader = true
+	}
+	return w.Ctx.Write(p)
+}
+
+func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[httpx.WriterToCloser]) (int, error) {
+	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
+	var n, write int64
+	var err error
+	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		for data := range dataSource {
+			write, err = data.WriteTo(w)
+			if err != nil {
+				return
+			}
+			n += write
+			w.Flush()
+		}
+	})
+	return int(n), nil
 }

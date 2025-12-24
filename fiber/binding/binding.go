@@ -7,10 +7,13 @@
 package binding
 
 import (
+	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
+	iox "github.com/hopeio/gox/io"
 	"github.com/hopeio/gox/kvstruct"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
@@ -36,8 +39,15 @@ func (s RequestSource) Header() kvstruct.Setter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 
-func (s RequestSource) MultipartForm() kvstruct.Setter {
-	contentType := stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType))
+func (s RequestSource) Form() kvstruct.Setter {
+	contentType := stringsx.FromBytes(s.Request().Header.ContentType())
+	if strings.HasPrefix(contentType, httpx.ContentTypeForm) {
+		vs, err := url.ParseQuery(stringsx.FromBytes(s.Ctx.Body()))
+		if err != nil {
+			return nil
+		}
+		return kvstruct.KVsSource(vs)
+	}
 	if strings.HasPrefix(contentType, httpx.ContentTypeMultipart) {
 		multipartForm, err := s.Ctx.MultipartForm()
 		if err != nil {
@@ -48,12 +58,17 @@ func (s RequestSource) MultipartForm() kvstruct.Setter {
 	return nil
 }
 
-func (s RequestSource) BodyBind(obj any) error {
+func (s RequestSource) Body() (string, io.ReadCloser) {
 	if s.Method() == http.MethodGet {
-		return nil
+		return "", nil
 	}
-	if s.Is(httpx.ContentTypeMultipart) {
-		return nil
+	if s.Is(httpx.ContentTypeMultipart) || s.Is(httpx.ContentTypeForm) {
+		return "", nil
 	}
-	return httpx.DefaultUnmarshal(stringsx.FromBytes(s.Request().Header.Peek(httpx.HeaderContentType)), s.Body(), obj)
+	contentType := stringsx.FromBytes(s.Request().Header.ContentType())
+	req := s.Ctx.Request()
+	if req.IsBodyStream() {
+		return contentType, iox.WrapReader(req.BodyStream(), req.CloseBodyStream)
+	}
+	return contentType, iox.RawBytes(req.Body())
 }

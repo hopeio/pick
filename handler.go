@@ -27,7 +27,7 @@ var (
 
 type ErrResp errors.ErrResp
 
-func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, result []reflect.Value) error {
+func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
 		return RespondError(ctx, w, result[1].Interface(), traceId)
 	}
@@ -40,21 +40,21 @@ func Respond(ctx context.Context, w httpx.CommonResponseWriter, traceId string, 
 		_, err := io.Copy(w, info.File)
 		return err
 	}
-	if info, ok := data.(httpx.CommonResponder); ok {
-		_, err := info.CommonRespond(ctx, w)
-		return err
+	if info, ok := data.(httpx.Responder); ok {
+		info.Respond(ctx, w)
+		return nil
 	}
 
 	buf, contentType := DefaultMarshaler("", data)
 	w.Header().Set(httpx.HeaderContentType, contentType)
-	if recorder, ok := w.(httpx.ResponseRecorder); ok {
-		recorder.RecordResponse(contentType, buf, data)
+	if recorder, ok := w.(httpx.RecordBody); ok {
+		recorder.RecordBody(buf, data)
 	}
 	_, err := w.Write(buf)
 	return err
 }
 
-func RespondError(ctx context.Context, w httpx.CommonResponseWriter, err any, traceId string) error {
+func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId string) error {
 	errresp := ErrRespFrom(err)
 	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
 	buf, contentType := DefaultMarshaler("", errresp)

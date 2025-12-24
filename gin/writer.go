@@ -12,11 +12,11 @@ type Writer struct {
 	*gin.Context
 }
 
-func (w Writer) Status(code int) {
+func (w Writer) WriteHeader(code int) {
 	w.Context.Status(code)
 }
 
-func (w Writer) Header() httpx.Header {
+func (w Writer) HeaderX() httpx.Header {
 	return httpx.HttpHeader(w.Writer.Header())
 }
 func (w Writer) Write(p []byte) (int, error) {
@@ -27,10 +27,10 @@ func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCl
 	return httpx.RespondStream(ctx, w.Writer, seq)
 }
 
-func (w Writer) RecordResponse(contentType string, raw []byte, res any) {
+func (w Writer) RecordBody(raw []byte, res any) {
 	if w, ok := w.Writer.(httpx.Unwrapper); ok {
-		if recorder, ok := w.Unwrap().(httpx.ResponseRecorder); ok {
-			recorder.RecordResponse(contentType, raw, res)
+		if recorder, ok := w.Unwrap().(httpx.RecordBody); ok {
+			recorder.RecordBody(raw, res)
 		}
 	}
 }

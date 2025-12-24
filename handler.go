@@ -33,9 +33,15 @@ func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result 
 	}
 	data := result[0].Interface()
 	if info, ok := data.(*http_fs.File); ok {
-		header := w.Header()
-		header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
-		header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
+		if wx, ok := w.(httpx.ResponseWriter); ok {
+			header := wx.HeaderX()
+			header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
+			header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
+		} else {
+			header := w.Header()
+			header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
+			header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
+		}
 		defer info.File.Close()
 		_, err := io.Copy(w, info.File)
 		return err
@@ -46,7 +52,12 @@ func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result 
 	}
 
 	buf, contentType := DefaultMarshaler("", data)
-	w.Header().Set(httpx.HeaderContentType, contentType)
+	if wx, ok := w.(httpx.ResponseWriter); ok {
+		wx.HeaderX().Set(httpx.HeaderContentType, contentType)
+	} else {
+		w.Header().Set(httpx.HeaderContentType, contentType)
+	}
+
 	if recorder, ok := w.(httpx.RecordBody); ok {
 		recorder.RecordBody(buf, data)
 	}
@@ -58,8 +69,16 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId s
 	errresp := ErrRespFrom(err)
 	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
 	buf, contentType := DefaultMarshaler("", errresp)
-	w.Header().Set(httpx.HeaderContentType, contentType)
-	w.Header().Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
+	if wx, ok := w.(httpx.ResponseWriter); ok {
+		header := wx.HeaderX()
+		header.Set(httpx.HeaderContentType, contentType)
+		header.Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
+	} else {
+		header := w.Header()
+		header.Set(httpx.HeaderContentType, contentType)
+		header.Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
+	}
+
 	_, err1 := w.Write(buf)
 	return err1
 }

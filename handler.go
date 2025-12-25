@@ -8,7 +8,6 @@ package pick
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -17,7 +16,6 @@ import (
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/apidoc"
-	http_fs "github.com/hopeio/gox/net/http/fs"
 	"go.uber.org/zap"
 )
 
@@ -27,48 +25,38 @@ var (
 
 type ErrResp errors.ErrResp
 
-func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result []reflect.Value) error {
+func Respond(ctx context.Context, w http.ResponseWriter, req any, traceId string, result []reflect.Value) error {
 	if !result[1].IsNil() {
-		return RespondError(ctx, w, result[1].Interface(), traceId)
+		return RespondError(ctx, w, req, result[1].Interface(), traceId)
 	}
 	data := result[0].Interface()
-	if info, ok := data.(*http_fs.File); ok {
-		if wx, ok := w.(httpx.ResponseWriter); ok {
-			header := wx.HeaderX()
-			header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
-			header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
-		} else {
-			header := w.Header()
-			header.Set(httpx.HeaderContentType, httpx.ContentTypeOctetStream)
-			header.Set(httpx.HeaderContentDisposition, "attachment;filename="+info.Name)
-		}
-		defer info.File.Close()
-		_, err := io.Copy(w, info.File)
-		return err
-	}
+
 	if info, ok := data.(httpx.Responder); ok {
-		info.Respond(ctx, w)
+		info.Respond(ctx, w, req)
 		return nil
 	}
-
-	buf, contentType := DefaultMarshaler("", data)
+	buf, contentType := DefaultMarshaler(req, data)
 	if wx, ok := w.(httpx.ResponseWriter); ok {
 		wx.HeaderX().Set(httpx.HeaderContentType, contentType)
 	} else {
 		w.Header().Set(httpx.HeaderContentType, contentType)
 	}
-
-	if recorder, ok := w.(httpx.RecordBody); ok {
+	ow := w
+	if uw, ok := w.(httpx.Unwrapper); ok {
+		ow = uw.Unwrap()
+	}
+	if recorder, ok := ow.(httpx.RecordBody); ok {
 		recorder.RecordBody(buf, data)
 	}
 	_, err := w.Write(buf)
 	return err
 }
 
-func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId string) error {
+func RespondError(ctx context.Context, w http.ResponseWriter, req, err any, traceId string) error {
 	errresp := ErrRespFrom(err)
 	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
-	buf, contentType := DefaultMarshaler("", errresp)
+
+	buf, contentType := DefaultMarshaler(req, errresp)
 	if wx, ok := w.(httpx.ResponseWriter); ok {
 		header := wx.HeaderX()
 		header.Set(httpx.HeaderContentType, contentType)
@@ -78,7 +66,13 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId s
 		header.Set(httpx.HeaderContentType, contentType)
 		header.Set(httpx.HeaderErrorCode, strconv.Itoa(int(errresp.Code)))
 	}
-
+	ow := w
+	if uw, ok := w.(httpx.Unwrapper); ok {
+		w = uw.Unwrap()
+	}
+	if recorder, ok := ow.(httpx.RecordBody); ok {
+		recorder.RecordBody(buf, errresp)
+	}
 	_, err1 := w.Write(buf)
 	return err1
 }

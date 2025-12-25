@@ -39,12 +39,12 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 			methodInfoExport := methodInfo.Export()
 			httpContext := methodType.In(1).ConvertibleTo(HttpContextType)
 			handler := func(w http.ResponseWriter, r *http.Request) {
-				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: r, ResponseWriter: w})
+				ctxi := httpctx.FromRequest(w, r)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := httpx.Bind(r, in2.Interface())
 				if err != nil {
-					pick.RespondError(ctxi.Base(), w, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
+					pick.RespondError(ctxi.Base(), w, r, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 					return
 				}
 				params := make([]reflect.Value, 3)
@@ -56,7 +56,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctxi.Base(), w, ctxi.TraceID(), result)
+				pick.Respond(ctxi.Base(), w, r, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path, httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))

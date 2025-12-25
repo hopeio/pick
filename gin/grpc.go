@@ -39,7 +39,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
 			handler := func(ctx *gin.Context) {
-				ctxi := httpctx.FromRequest(httpctx.RequestCtx{Request: ctx.Request, ResponseWriter: ctx.Writer})
+				ctxi := httpctx.FromRequest(ctx.Writer, ctx.Request)
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := ginx.Bind(ctx, in2.Interface())
@@ -53,7 +53,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 				params[1] = reflect.ValueOf(ctxi.Wrapper())
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctx, ctx.Writer, ctxi.TraceID(), result)
+				pick.Respond(ctx, ctx.Writer, ctx, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

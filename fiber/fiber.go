@@ -51,7 +51,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					return pick.RespondError(ctx.Context(), RequestCtx{Ctx: ctx}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
+					return pick.RespondError(ctx.Context(), RequestCtx{Ctx: ctx}, ctx, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
@@ -62,7 +62,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				return pick.Respond(ctx.Context(), RequestCtx{Ctx: ctx}, ctxi.TraceID(), result)
+				return pick.Respond(ctx.Context(), RequestCtx{Ctx: ctx}, ctx, ctxi.TraceID(), result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Add([]string{url.Method}, url.Path[len(preUrl):], handler)

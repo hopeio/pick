@@ -60,7 +60,20 @@ func FromRequest(req fiber.Ctx) *Context {
 }
 
 func (w RequestCtx) WriteHeader(code int) {
+	w.writeHeader()
 	w.Ctx.Status(code)
+}
+
+func (w RequestCtx) writeHeader() {
+	if !w.wroteHeader {
+		header := &w.Ctx.Response().Header
+		for k, v := range w.respHeader {
+			for _, vv := range v {
+				header.Add(k, vv)
+			}
+		}
+		w.wroteHeader = true
+	}
 }
 
 func (w RequestCtx) Header() http.Header {
@@ -75,15 +88,7 @@ func (w RequestCtx) HeaderX() httpx.Header {
 }
 
 func (w RequestCtx) Write(p []byte) (int, error) {
-	if !w.wroteHeader {
-		header := &w.Ctx.Response().Header
-		for k, v := range w.respHeader {
-			for _, vv := range v {
-				header.Add(k, vv)
-			}
-		}
-		w.wroteHeader = true
-	}
+	w.writeHeader()
 	return w.Ctx.Write(p)
 }
 

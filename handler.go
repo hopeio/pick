@@ -25,17 +25,16 @@ var (
 
 type ErrResp errors.ErrResp
 
-func Respond(ctx context.Context, w http.ResponseWriter, req any, traceId string, result []reflect.Value) error {
+func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result []reflect.Value) (int, error) {
 	if !result[1].IsNil() {
-		return RespondError(ctx, w, req, result[1].Interface(), traceId)
+		return RespondError(ctx, w, result[1].Interface(), traceId)
 	}
 	data := result[0].Interface()
 
 	if info, ok := data.(httpx.Responder); ok {
-		info.Respond(ctx, w, req)
-		return nil
+		return info.Respond(ctx, w)
 	}
-	buf, contentType := DefaultMarshaler(req, data)
+	buf, contentType := DefaultMarshaler(ctx, data)
 	if wx, ok := w.(httpx.ResponseWriter); ok {
 		wx.HeaderX().Set(httpx.HeaderContentType, contentType)
 	} else {
@@ -48,15 +47,14 @@ func Respond(ctx context.Context, w http.ResponseWriter, req any, traceId string
 	if recorder, ok := ow.(httpx.RecordBody); ok {
 		recorder.RecordBody(buf, data)
 	}
-	_, err := w.Write(buf)
-	return err
+	return w.Write(buf)
 }
 
-func RespondError(ctx context.Context, w http.ResponseWriter, req, err any, traceId string) error {
+func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId string) (int, error) {
 	errresp := ErrRespFrom(err)
 	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
 
-	buf, contentType := DefaultMarshaler(req, errresp)
+	buf, contentType := DefaultMarshaler(ctx, errresp)
 	if wx, ok := w.(httpx.ResponseWriter); ok {
 		header := wx.HeaderX()
 		header.Set(httpx.HeaderContentType, contentType)
@@ -73,8 +71,7 @@ func RespondError(ctx context.Context, w http.ResponseWriter, req, err any, trac
 	if recorder, ok := ow.(httpx.RecordBody); ok {
 		recorder.RecordBody(buf, errresp)
 	}
-	_, err1 := w.Write(buf)
-	return err1
+	return w.Write(buf)
 }
 
 func ErrRespFrom(err any) *errors.ErrResp {

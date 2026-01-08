@@ -22,12 +22,12 @@ func (form *ArgsSource) TrySet(value reflect.Value, field *reflect.StructField, 
 }
 
 func (form *ArgsSource) GetVs(key string) ([]string, bool) {
-	v := stringsx.BytesToString((*fasthttp.Args)(form).Peek(key))
+	v := stringsx.FromBytes((*fasthttp.Args)(form).Peek(key))
 	return []string{v}, v != ""
 }
 
 func (form *ArgsSource) Has(key string) bool {
-	v := stringsx.BytesToString((*fasthttp.Args)(form).Peek(key))
+	v := stringsx.FromBytes((*fasthttp.Args)(form).Peek(key))
 	return v != ""
 }
 
@@ -51,6 +51,6 @@ func (form *HeaderSource) TrySet(value reflect.Value, field *reflect.StructField
 }
 
 func (form *HeaderSource) GetVs(key string) ([]string, bool) {
-	v := stringsx.BytesToString((*fasthttp.RequestHeader)(form).Peek(key))
+	v := stringsx.FromBytes((*fasthttp.RequestHeader)(form).Peek(key))
 	return []string{v}, v != ""
 }

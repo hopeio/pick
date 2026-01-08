@@ -15,10 +15,10 @@ import (
 )
 
 func GetToken(req *fasthttp.Request) string {
-	if token := stringsx.BytesToString(req.Header.Peek(http.HeaderAuthorization)); token != "" {
+	if token := stringsx.FromBytes(req.Header.Peek(http.HeaderAuthorization)); token != "" {
 		return token
 	}
-	if cookie := stringsx.BytesToString(req.Header.Cookie(http.HeaderCookieValueToken)); len(cookie) > 0 {
+	if cookie := stringsx.FromBytes(req.Header.Cookie(http.HeaderCookieValueToken)); len(cookie) > 0 {
 		token, _ := url.QueryUnescape(cookie)
 		return token
 	}

@@ -5,6 +5,7 @@ import (
 	"iter"
 
 	"github.com/gin-gonic/gin"
+	iox "github.com/hopeio/gox/io"
 	httpx "github.com/hopeio/gox/net/http"
 )
 
@@ -23,7 +24,7 @@ func (w Writer) Write(p []byte) (int, error) {
 	return w.Context.Writer.Write(p)
 }
 
-func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[httpx.WriterToCloser]) {
+func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[iox.WriterToCloser]) {
 	httpx.RespondStream(ctx, w.Writer, seq)
 }
 

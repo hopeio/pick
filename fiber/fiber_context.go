@@ -14,6 +14,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/hopeio/gox/context/reqctx"
+	iox "github.com/hopeio/gox/io"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
 )
@@ -92,7 +93,7 @@ func (w RequestCtx) Write(p []byte) (int, error) {
 	return w.Ctx.Write(p)
 }
 
-func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[httpx.WriterToCloser]) {
+func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[iox.WriterToCloser]) {
 	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
 	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		for data := range dataSource {

@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/gin-gonic/gin v1.11.0
-	github.com/hopeio/gox v1.7.12
+	github.com/hopeio/gox v1.7.13
 )
 
 require (

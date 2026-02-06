@@ -9,7 +9,6 @@ package pickgin
 import (
 	"strconv"
 
-	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/gox/errors"
 	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
@@ -22,7 +21,7 @@ import (
 )
 
 var (
-	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
+	GinContextType = reflect.TypeOf((*gin.Context)(nil))
 )
 
 func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
@@ -47,10 +46,8 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			ginContext := methodType.In(1).ConvertibleTo(GinContextType)
+
 			handler := func(ctx *gin.Context) {
-				ctxi := ginctx.FromRequest(ctx)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := ginx.Bind(ctx, in2.Interface())
 				if err != nil {
@@ -60,14 +57,10 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				if ginContext {
-					params[1] = reflect.ValueOf(ctxi)
-				} else {
-					params[1] = reflect.ValueOf(ctxi.Wrapper())
-				}
+				params[1] = reflect.ValueOf(ctx)
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctx, ctx.Writer, ctxi.TraceID(), result)
+				pick.Respond(ctx, ctx.Writer, result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

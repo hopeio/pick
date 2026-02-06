@@ -16,7 +16,6 @@ import (
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/gox/net/http/apidoc"
-	"go.uber.org/zap"
 )
 
 var (
@@ -25,9 +24,9 @@ var (
 
 type ErrResp errors.ErrResp
 
-func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result []reflect.Value) (int, error) {
+func Respond(ctx context.Context, w http.ResponseWriter, result []reflect.Value) (int, error) {
 	if !result[1].IsNil() {
-		return RespondError(ctx, w, result[1].Interface(), traceId)
+		return RespondError(ctx, w, result[1].Interface())
 	}
 	data := result[0].Interface()
 
@@ -50,9 +49,9 @@ func Respond(ctx context.Context, w http.ResponseWriter, traceId string, result 
 	return w.Write(buf)
 }
 
-func RespondError(ctx context.Context, w http.ResponseWriter, err any, traceId string) (int, error) {
+func RespondError(ctx context.Context, w http.ResponseWriter, err any) (int, error) {
 	errresp := ErrRespFrom(err)
-	log.Errorw(errresp.Error(), zap.String(log.FieldTraceId, traceId))
+	log.Errorw(errresp.Error())
 
 	buf, contentType := DefaultMarshaler(ctx, errresp)
 	if wx, ok := w.(httpx.ResponseWriter); ok {

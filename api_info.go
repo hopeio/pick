@@ -249,7 +249,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	}
 
 	if !methodType.In(1).ConvertibleTo(httpContext) && !methodType.In(1).Implements(ContextType) {
-		err = errors.New("service first argument should be *httpctx.Context type or context.Context")
+		err = errors.New("service first argument should be *pickstd.Context type or context.Context")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) && methodType.Out(1) != ErrRespType {

@@ -13,59 +13,23 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/gox/context/reqctx"
 	iox "github.com/hopeio/gox/io"
 	httpx "github.com/hopeio/gox/net/http"
-	stringsx "github.com/hopeio/gox/strings"
 )
 
-type RequestCtx struct {
+type Context struct {
 	fiber.Ctx
 	reqHeader   http.Header
 	respHeader  http.Header
 	wroteHeader bool
 }
 
-func (w RequestCtx) RequestHeader() http.Header {
-	if w.reqHeader == nil {
-		w.reqHeader = http.Header{}
-		w.Ctx.Request().Header.VisitAll(func(k, v []byte) {
-			ks := stringsx.FromBytes(k)
-			vs := stringsx.FromBytes(v)
-			if exists, ok := w.reqHeader[ks]; ok {
-				w.reqHeader[ks] = append(exists, vs)
-			} else {
-				w.reqHeader[ks] = []string{vs}
-			}
-		})
-	}
-	return w.reqHeader
-}
-
-func (w RequestCtx) RequestContext() context.Context {
-	return w.Ctx.Context()
-}
-
-func (w RequestCtx) Origin() fiber.Ctx {
-	return w.Ctx
-}
-
-type Context = reqctx.Context[RequestCtx]
-
-func FromContext(ctx context.Context) (*Context, bool) {
-	return reqctx.FromContext[RequestCtx](ctx)
-}
-
-func FromRequest(req fiber.Ctx) *Context {
-	return reqctx.New[RequestCtx](RequestCtx{Ctx: req})
-}
-
-func (w RequestCtx) WriteHeader(code int) {
+func (w Context) WriteHeader(code int) {
 	w.writeHeader()
 	w.Ctx.Status(code)
 }
 
-func (w RequestCtx) writeHeader() {
+func (w Context) writeHeader() {
 	if !w.wroteHeader {
 		header := &w.Ctx.Response().Header
 		for k, v := range w.respHeader {
@@ -77,23 +41,23 @@ func (w RequestCtx) writeHeader() {
 	}
 }
 
-func (w RequestCtx) Header() http.Header {
+func (w Context) Header() http.Header {
 	if w.respHeader == nil {
 		w.respHeader = http.Header{}
 	}
 	return w.respHeader
 }
 
-func (w RequestCtx) HeaderX() httpx.Header {
+func (w Context) HeaderX() httpx.Header {
 	return ResponseHeader{ResponseHeader: &w.Response().Header}
 }
 
-func (w RequestCtx) Write(p []byte) (int, error) {
+func (w Context) Write(p []byte) (int, error) {
 	w.writeHeader()
 	return w.Ctx.Write(p)
 }
 
-func (w RequestCtx) RespondStream(ctx context.Context, dataSource iter.Seq[iox.WriterToCloser]) {
+func (w Context) RespondStream(ctx context.Context, dataSource iter.Seq[iox.WriterToCloser]) {
 	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
 	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		for data := range dataSource {

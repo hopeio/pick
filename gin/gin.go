@@ -9,8 +9,7 @@ package pickgin
 import (
 	"strconv"
 
-	"github.com/hopeio/gox/context/ginctx"
-	"github.com/hopeio/gox/errors"
+	errorsx "github.com/hopeio/gox/errors"
 	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/pick"
@@ -22,7 +21,7 @@ import (
 )
 
 var (
-	GinContextType = reflect.TypeOf((*ginctx.Context)(nil))
+	GinContextType = reflect.TypeOf((*gin.Context)(nil))
 )
 
 func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
@@ -36,7 +35,7 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType, reflect.ValueOf(&gin.Context{}))
 			if methodInfo == nil {
 				continue
 			}
@@ -47,27 +46,21 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			ginContext := methodType.In(1).ConvertibleTo(GinContextType)
+
 			handler := func(ctx *gin.Context) {
-				ctxi := ginctx.FromRequest(ctx)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := ginx.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errors.InvalidArgument)))
-					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))
+					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errorsx.InvalidArgument)))
+					ginx.Respond(ctx, errorsx.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				if ginContext {
-					params[1] = reflect.ValueOf(ctxi)
-				} else {
-					params[1] = reflect.ValueOf(ctxi.Wrapper())
-				}
+				params[1] = reflect.ValueOf(ctx)
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctx, ctx.Writer, ctxi.TraceID(), result)
+				pick.Respond(ctx, ctx.Writer, result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

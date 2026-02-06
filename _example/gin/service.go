@@ -11,7 +11,6 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/gox/context/ginctx"
 	"github.com/hopeio/pick"
 )
 
@@ -31,7 +30,7 @@ type User struct {
 	Gender int    `json:"gender,omitempty"`
 }
 
-func (*UserService) Get(ctx *ginctx.Context, req *Object) (*User, error) {
+func (*UserService) Get(ctx *gin.Context, req *Object) (*User, error) {
 	pick.Api(func() { pick.Get("/:id").Title("用户详情").End() })
 	// dao
 	return &User{
@@ -46,7 +45,7 @@ type Req struct {
 	Name string `json:"name"`
 }
 
-func (*UserService) GetErr(ctx *ginctx.Context, req *Req) (*User, *pick.ErrResp) {
+func (*UserService) GetErr(ctx *gin.Context, req *Req) (*User, *pick.ErrResp) {
 	pick.Api(func() { pick.Get("/err/:id").Title("用户详情返回错误").End() })
 	fmt.Println(req.Name)
 	// dao

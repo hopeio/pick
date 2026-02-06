@@ -204,7 +204,7 @@ type ApiInfo struct {
 }
 
 // recover捕捉panic info
-func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Type) (info *apiInfo) {
+func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Type, contextValue reflect.Value) (info *apiInfo) {
 	if method.Name == "Service" {
 		return nil
 	}
@@ -249,7 +249,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	}
 
 	if !methodType.In(1).ConvertibleTo(httpContext) && !methodType.In(1).Implements(ContextType) {
-		err = errors.New("service first argument should be *httpctx.Context type or context.Context")
+		err = errors.New("service first argument should be *pickstd.Context type or context.Context")
 		return
 	}
 	if !methodType.Out(1).Implements(ErrorType) && methodType.Out(1) != ErrRespType {
@@ -259,7 +259,7 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 	params := make([]reflect.Value, numIn)
 	params[0] = reflect.New(methodType.In(0).Elem())
 	if methodType.In(1).ConvertibleTo(httpContext) {
-		params[1] = reflect.New(methodType.In(1).Elem())
+		params[1] = contextValue
 	} else {
 		params[1] = ContextValue
 	}

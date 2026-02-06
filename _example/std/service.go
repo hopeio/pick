@@ -12,7 +12,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/hopeio/gox/context/httpctx"
 	"github.com/hopeio/pick"
 	pickstd "github.com/hopeio/pick/std"
 )
@@ -33,7 +32,7 @@ type User struct {
 	Gender int    `json:"gender,omitempty"`
 }
 
-func (*UserService) Get(ctx *httpctx.Context, req *Object) (*User, error) {
+func (*UserService) Get(ctx *pickstd.Context, req *Object) (*User, error) {
 	pick.Api(func() { pick.Get("/{id}").Title("用户详情").End() })
 	log.Println(req.Id)
 	// dao
@@ -49,7 +48,7 @@ type Req struct {
 	Name string `json:"name"`
 }
 
-func (*UserService) GetErr(ctx *httpctx.Context, req *Req) (*User, *pick.ErrResp) {
+func (*UserService) GetErr(ctx *pickstd.Context, req *Req) (*User, *pick.ErrResp) {
 	pick.Api(func() { pick.Get("/err/{id}").Title("用户详情返回错误").End() })
 	fmt.Println(req.Name)
 	// dao

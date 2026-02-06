@@ -9,8 +9,8 @@ package service
 import (
 	"errors"
 
+	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/hopeio/pick/fiber"
 )
 
 type AuthInfo struct {
@@ -18,8 +18,8 @@ type AuthInfo struct {
 	jwt.RegisteredClaims
 }
 
-func ParseAuthInfo(ctx *pickfiber.Context) (*AuthInfo, error) {
-	token := ctx.ReqCtx.RequestHeader().Get("Authorization")
+func ParseAuthInfo(ctx fiber.Ctx) (*AuthInfo, error) {
+	token := ctx.Get("Authorization")
 	if token == "" {
 		return nil, errors.New("未登录")
 	}

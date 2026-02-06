@@ -1,10 +1,10 @@
 package pickstd
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/gox/context/httpctx"
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
@@ -22,7 +22,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType, pick.ContextValue)
 			if methodInfo == nil {
 				continue
 			}
@@ -37,21 +37,20 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
 			handler := func(w http.ResponseWriter, r *http.Request) {
-				ctxi := httpctx.FromRequest(w, r)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				reqv := in2.Interface()
 				err := httpx.Bind(r, reqv)
 				if err != nil {
-					pick.RespondError(ctxi.Base(), w, r, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
+					pick.RespondError(r.Context(), w, errors.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				params[1] = reflect.ValueOf(ctxi.Wrapper())
+				r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, Context{r, w}))
+				params[1] = reflect.ValueOf(r.Context())
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctxi.Base(), w, r, ctxi.TraceID(), result)
+				pick.Respond(r.Context(), w, result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path[len(preUrl):], httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))

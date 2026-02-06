@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hopeio/gox/context/httpctx"
-	"github.com/hopeio/gox/errors"
+	errorsx "github.com/hopeio/gox/errors"
+
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
 	ginx "github.com/hopeio/gox/net/http/gin"
@@ -24,7 +24,7 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, GinContextType, pick.ContextValue)
 			if methodInfo == nil {
 				continue
 			}
@@ -39,21 +39,19 @@ func RegisterGrpcService(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFun
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
 			handler := func(ctx *gin.Context) {
-				ctxi := httpctx.FromRequest(ctx.Writer, ctx.Request)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := ginx.Bind(ctx, in2.Interface())
 				if err != nil {
-					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errors.InvalidArgument)))
-					ginx.Respond(ctx, errors.InvalidArgument.Msg(err.Error()))
+					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errorsx.InvalidArgument)))
+					ginx.Respond(ctx, errorsx.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				params[1] = reflect.ValueOf(ctxi.Wrapper())
+				params[1] = reflect.ValueOf(ctx)
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctx, ctx.Writer, ctxi.TraceID(), result)
+				pick.Respond(ctx, ctx.Writer, result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				group.Handle(url.Method, url.Path[len(preUrl):], handler)

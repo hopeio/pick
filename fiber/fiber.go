@@ -10,7 +10,9 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/gox/errors"
+	errorsx "github.com/hopeio/gox/errors"
+
+	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/pick"
 	"github.com/hopeio/pick/fiber/binding"
 
@@ -18,7 +20,7 @@ import (
 )
 
 var (
-	FiberContextType = reflect.TypeOf((*Context)(nil))
+	FiberContextType = reflect.TypeOf((*fiber.Ctx)(nil)).Elem()
 )
 
 // 复用pick service，不支持单个接口的中间件
@@ -33,7 +35,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 		group := engine.Group(preUrl, middleware...)
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, FiberContextType, reflect.ValueOf(&Context{}))
 			if methodInfo == nil {
 				continue
 			}
@@ -45,26 +47,25 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			methodValue := method.Func
 			in2Type := methodType.In(2).Elem()
 			methodInfoExport := methodInfo.Export()
-			fiberContext := methodType.In(1).ConvertibleTo(FiberContextType)
+			fiberContext := methodType.In(1).Implements(FiberContextType)
 			handler := func(ctx fiber.Ctx) error {
-				ctxi := FromRequest(ctx)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					_, err = pick.RespondError(ctx.Context(), RequestCtx{Ctx: ctx}, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
+					_, err = pick.RespondError(ctx.Context(), Context{Ctx: ctx}, errorsx.InvalidArgument.Msg(err.Error()))
 
 					return err
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
 				if fiberContext {
-					params[1] = reflect.ValueOf(ctxi)
+					params[1] = reflect.ValueOf(ctx)
 				} else {
-					params[1] = reflect.ValueOf(ctxi.Wrapper())
+					ctx.Context().SetUserValue(httpx.RequestCtxKey, ctx)
+					params[1] = reflect.ValueOf(ctx.Context())
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				_, err := pick.Respond(ctx.Context(), RequestCtx{Ctx: ctx}, ctxi.TraceID(), result)
+				_, err := pick.Respond(ctx.Context(), Context{Ctx: ctx}, result)
 				return err
 			}
 			for _, url := range methodInfoExport.Routes {

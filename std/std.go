@@ -1,18 +1,18 @@
 package pickstd
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 
-	"github.com/hopeio/gox/context/httpctx"
-	"github.com/hopeio/gox/errors"
+	errorsx "github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/pick"
 )
 
 var (
-	HttpContextType = reflect.TypeOf((*httpctx.Context)(nil))
+	HttpContextType = reflect.TypeOf((*Context)(nil))
 )
 
 func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
@@ -26,7 +26,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 
 		for j := 0; j < value.NumMethod(); j++ {
 			method := value.Type().Method(j)
-			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType)
+			methodInfo := pick.GetMethodInfo(&method, preUrl, HttpContextType, reflect.ValueOf(&Context{}))
 			if methodInfo == nil {
 				continue
 			}
@@ -39,24 +39,23 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 			methodInfoExport := methodInfo.Export()
 			httpContext := methodType.In(1).ConvertibleTo(HttpContextType)
 			handler := func(w http.ResponseWriter, r *http.Request) {
-				ctxi := httpctx.FromRequest(w, r)
-				defer ctxi.RootSpan().End()
 				in2 := reflect.New(in2Type)
 				err := httpx.Bind(r, in2.Interface())
 				if err != nil {
-					pick.RespondError(ctxi.Base(), w, errors.InvalidArgument.Msg(err.Error()), ctxi.TraceID())
+					pick.RespondError(r.Context(), w, errorsx.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
 				if httpContext {
-					params[1] = reflect.ValueOf(ctxi)
+					params[1] = reflect.ValueOf(&Context{r, w})
 				} else {
-					params[1] = reflect.ValueOf(ctxi.Wrapper())
+					r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, &Context{r, w}))
+					params[1] = reflect.ValueOf(r.Context())
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				pick.Respond(ctxi.Base(), w, ctxi.TraceID(), result)
+				pick.Respond(r.Context(), w, result)
 			}
 			for _, url := range methodInfoExport.Routes {
 				engine.Handle(url.Method+" "+url.Path, httpx.UseMiddleware(http.HandlerFunc(handler), middleware...))

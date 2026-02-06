@@ -9,7 +9,6 @@ package service
 import (
 	"github.com/gofiber/fiber/v3"
 	pick2 "github.com/hopeio/pick"
-	"github.com/hopeio/pick/fiber"
 )
 
 type TestService struct{}
@@ -22,25 +21,25 @@ type SignupReq struct {
 	Mail string `json:"mail"`
 }
 
-func (*TestService) Test(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
+func (*TestService) Test(ctx fiber.Ctx, req *SignupReq) (*TinyResp, error) {
 	pick2.Api(func() { pick2.Post("").Title("测试").End() })
 
 	return &TinyResp{Msg: "测试"}, nil
 }
 
-func (*TestService) Test1(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
+func (*TestService) Test1(ctx fiber.Ctx, req *SignupReq) (*TinyResp, error) {
 	pick2.Api(func() { pick2.Post("/").Title("测试1").End() })
 
 	return &TinyResp{Msg: "测试"}, nil
 }
 
-func (*TestService) Test2(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
+func (*TestService) Test2(ctx fiber.Ctx, req *SignupReq) (*TinyResp, error) {
 	pick2.Api(func() { pick2.Post("/a/").Title("测试2").End() })
 
 	return &TinyResp{Msg: "测试"}, nil
 }
 
-func (*TestService) Test3(ctx *pickfiber.Context, req *SignupReq) (*TinyResp, error) {
+func (*TestService) Test3(ctx fiber.Ctx, req *SignupReq) (*TinyResp, error) {
 	pick2.Api(func() { pick2.Post("/a/:b").Title("测试3").End() })
 
 	return &TinyResp{Msg: "测试"}, nil

@@ -18,39 +18,34 @@ type ArgsSource fasthttp.Args
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
 func (form *ArgsSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
-	return kvstruct.SetValueByKVs(value, field, form, key, opt)
+	return kvstruct.SetValueByGetter(value, field, form, key, opt)
 }
 
-func (form *ArgsSource) GetVs(key string) ([]string, bool) {
+func (form *ArgsSource) Get(key string) (string, bool) {
 	v := stringsx.FromBytes((*fasthttp.Args)(form).Peek(key))
-	return []string{v}, v != ""
-}
-
-func (form *ArgsSource) Has(key string) bool {
-	v := stringsx.FromBytes((*fasthttp.Args)(form).Peek(key))
-	return v != ""
+	return v, v != ""
 }
 
 type CtxSource fasthttp.RequestCtx
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
 func (form *CtxSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
-	return kvstruct.SetValueByKVs(value, field, form, key, opt)
+	return kvstruct.SetValueByGetter(value, field, form, key, opt)
 }
 
-func (form *CtxSource) GetVs(key string) ([]string, bool) {
+func (form *CtxSource) Get(key string) (string, bool) {
 	v := (*fasthttp.RequestCtx)(form).UserValue(key).(string)
-	return []string{v}, v != ""
+	return v, v != ""
 }
 
 type HeaderSource fasthttp.RequestHeader
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
 func (form *HeaderSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
-	return kvstruct.SetValueByKVs(value, field, form, key, opt)
+	return kvstruct.SetValueByGetter(value, field, form, key, opt)
 }
 
-func (form *HeaderSource) GetVs(key string) ([]string, bool) {
+func (form *HeaderSource) Get(key string) (string, bool) {
 	v := stringsx.FromBytes((*fasthttp.RequestHeader)(form).Peek(key))
-	return []string{v}, v != ""
+	return v, v != ""
 }

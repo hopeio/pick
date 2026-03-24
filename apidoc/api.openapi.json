@@ -16,41 +16,46 @@
         ],
         "type": "object"
       },
-      "main_Object": {
+      "github_com_hopeio_pick__example_fiber_service_EditReq_EditDetail": {
+        "nullable": true,
+        "type": "object"
+      },
+      "github_com_hopeio_pick__example_fiber_service_Object": {
         "properties": {
           "id": {
             "type": "integer"
           }
         },
+        "required": [
+          "id"
+        ],
         "type": "object"
       },
-      "main_Req": {
+      "github_com_hopeio_pick__example_fiber_service_SignupReq": {
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
+          "mail": {
             "type": "string"
           }
         },
         "required": [
-          "name"
+          "mail"
         ],
         "type": "object"
       },
-      "main_User": {
+      "github_com_hopeio_pick__example_fiber_service_TinyResp": {
         "nullable": true,
         "properties": {
-          "gender": {
+          "code": {
             "type": "integer"
           },
-          "id": {
-            "type": "integer"
-          },
-          "name": {
+          "msg": {
             "type": "string"
           }
         },
+        "required": [
+          "code",
+          "msg"
+        ],
         "type": "object"
       }
     }
@@ -61,23 +66,13 @@
   },
   "openapi": "3.0.0",
   "paths": {
-    "/api/user/:id": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
+    "/api/user": {
+      "post": {
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/main_Object"
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_SignupReq"
               }
             }
           }
@@ -87,7 +82,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/main_User"
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick_ErrResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "用户相关",
+          "用户注册"
+        ]
+      }
+    },
+    "/api/user/:id": {
+      "get": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_Object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
                 }
               }
             },
@@ -111,35 +148,14 @@
           "用户相关",
           "用户详情"
         ]
-      }
-    },
-    "/api/user/err/:id": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/main_Req"
-              }
-            }
-          }
-        },
+      },
+      "put": {
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/main_User"
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_EditReq_EditDetail"
                 }
               }
             },
@@ -161,27 +177,17 @@
         },
         "tags": [
           "用户相关",
-          "用户详情返回错误"
+          "用户编辑"
         ]
       }
     },
-    "/api/user/grpcGateway": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
+    "/api/v2/test": {
+      "post": {
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/main_Req"
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_SignupReq"
               }
             }
           }
@@ -191,7 +197,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/main_User"
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
                 }
               }
             },
@@ -212,8 +218,134 @@
           }
         },
         "tags": [
-          "用户相关",
-          "grpcGateway"
+          "测试相关",
+          "测试"
+        ]
+      }
+    },
+    "/api/v2/test/": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_SignupReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick_ErrResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "测试相关",
+          "测试1"
+        ]
+      }
+    },
+    "/api/v2/test/a/": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_SignupReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick_ErrResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "测试相关",
+          "测试2"
+        ]
+      }
+    },
+    "/api/v2/test/a/:b": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_SignupReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick__example_fiber_service_TinyResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github_com_hopeio_pick_ErrResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "测试相关",
+          "测试3"
         ]
       }
     }

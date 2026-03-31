@@ -14,7 +14,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	iox "github.com/hopeio/gox/io"
-	"github.com/hopeio/gox/kvstruct"
+	"github.com/hopeio/gox/mapstruct"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
 )
@@ -27,26 +27,26 @@ type RequestSource struct {
 	fiber.Ctx
 }
 
-func (s RequestSource) Uri() kvstruct.Setter {
+func (s RequestSource) Uri() mapstruct.Setter {
 	return uriSource{s.Ctx}
 }
 
-func (s RequestSource) Query() kvstruct.Setter {
+func (s RequestSource) Query() mapstruct.Setter {
 	return (*ArgsSource)(s.Request().URI().QueryArgs())
 }
 
-func (s RequestSource) Header() kvstruct.Setter {
+func (s RequestSource) Header() mapstruct.Setter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 
-func (s RequestSource) Form() kvstruct.Setter {
+func (s RequestSource) Form() mapstruct.Setter {
 	contentType := stringsx.FromBytes(s.Request().Header.ContentType())
 	if strings.HasPrefix(contentType, httpx.ContentTypeForm) {
 		vs, err := url.ParseQuery(stringsx.FromBytes(s.Ctx.Body()))
 		if err != nil {
 			return nil
 		}
-		return kvstruct.KVsSource(vs)
+		return mapstruct.KVsSource(vs)
 	}
 	if strings.HasPrefix(contentType, httpx.ContentTypeMultipart) {
 		multipartForm, err := s.Ctx.MultipartForm()

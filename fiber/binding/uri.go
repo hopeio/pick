@@ -10,7 +10,7 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/hopeio/gox/kvstruct"
+	"github.com/hopeio/gox/mapstruct"
 )
 
 type uriSource struct {
@@ -18,8 +18,8 @@ type uriSource struct {
 }
 
 // TrySet tries to set a value by request's form source (likes map[string][]string)
-func (s uriSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *kvstruct.Options) (isSet bool, err error) {
-	return kvstruct.SetValueByGetter(value, field, s, key, opt)
+func (s uriSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mapstruct.Options) (isSet bool, err error) {
+	return mapstruct.SetValueByGetter(value, field, s, key, opt)
 }
 
 func (s uriSource) Get(key string) (string, bool) {

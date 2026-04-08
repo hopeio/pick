@@ -27,12 +27,12 @@ type Object struct {
 }
 
 type User struct {
-	Id     int    `uri:"id" json:"id,omitempty"`
-	Name   string `json:"name,omitempty"`
-	Gender int    `json:"gender,omitempty"`
+	Id     int    `uri:"id" json:"id,omitempty" query:"id" header:"id" form:"id"`
+	Name   string `json:"name,omitempty" query:"name" header:"name" form:"name"	`
+	Gender int    `json:"gender,omitempty" query:"gender" header:"gender" form:"gender"`
 }
 
-func (*UserService) Get(ctx *pickstd.Context, req *Object) (*User, error) {
+func (*UserService) Uri(ctx *pickstd.Context, req *Object) (*User, error) {
 	pick.Api(func() { pick.Get("/{id}").Title("用户详情").End() })
 	log.Println(req.Id)
 	// dao
@@ -42,6 +42,29 @@ func (*UserService) Get(ctx *pickstd.Context, req *Object) (*User, error) {
 		Gender: 1,
 	}, nil
 }
+
+func (*UserService) Query(ctx *pickstd.Context, req *User) (*User, error) {
+	pick.Api(func() { pick.Get("").Title("用户详情").End() })
+	log.Println(req.Id)
+	// dao
+	return req, nil
+}
+
+func (*UserService) Body(ctx *pickstd.Context, req *User) (*User, error) {
+	pick.Api(func() { pick.Post("").Title("用户详情").End() })
+	log.Println(req.Id)
+	// dao
+	return req, nil
+}
+
+
+func (*UserService) Header(ctx *pickstd.Context, req *User) (*User, error) {
+	pick.Api(func() { pick.Put("").Title("用户详情").End() })
+	log.Println(req.Id)
+	// dao
+	return req, nil
+}
+
 
 type Req struct {
 	Id   int    `uri:"id" json:"id,omitempty"`

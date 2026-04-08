@@ -7,31 +7,24 @@
 package binding
 
 import (
-	"reflect"
-
-	"github.com/hopeio/gox/mapstruct"
 	stringsx "github.com/hopeio/gox/strings"
 	"github.com/valyala/fasthttp"
 )
 
 type ArgsSource fasthttp.Args
 
-// TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *ArgsSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mapstruct.Options) (isSet bool, err error) {
-	return mapstruct.SetValueByGetter(value, field, form, key, opt)
-}
-
-func (form *ArgsSource) Get(key string) (string, bool) {
-	v := stringsx.FromBytes((*fasthttp.Args)(form).Peek(key))
-	return v, v != ""
+func (form *ArgsSource) Get(key string) ([]string, bool) {
+	var values []string
+	(*fasthttp.Args)(form).VisitAll(func(k, v []byte) {
+		if string(k) == key {
+			values = append(values, stringsx.FromBytes(v))
+		}
+	})
+	return values, len(values) > 0
 }
 
 type CtxSource fasthttp.RequestCtx
 
-// TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *CtxSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mapstruct.Options) (isSet bool, err error) {
-	return mapstruct.SetValueByGetter(value, field, form, key, opt)
-}
 
 func (form *CtxSource) Get(key string) (string, bool) {
 	v := (*fasthttp.RequestCtx)(form).UserValue(key).(string)
@@ -40,12 +33,12 @@ func (form *CtxSource) Get(key string) (string, bool) {
 
 type HeaderSource fasthttp.RequestHeader
 
-// TrySet tries to set a value by request's form source (like map[string][]string)
-func (form *HeaderSource) TrySet(value reflect.Value, field *reflect.StructField, key string, opt *mapstruct.Options) (isSet bool, err error) {
-	return mapstruct.SetValueByGetter(value, field, form, key, opt)
-}
-
-func (form *HeaderSource) Get(key string) (string, bool) {
-	v := stringsx.FromBytes((*fasthttp.RequestHeader)(form).Peek(key))
-	return v, v != ""
+func (form *HeaderSource) Get(key string) ([]string, bool) {
+	var values []string
+	(*fasthttp.RequestHeader)(form).VisitAll(func(k, v []byte) {
+		if string(k) == key {
+			values = append(values, stringsx.FromBytes(v))
+		}
+	})
+	return values, len(values) > 0
 }

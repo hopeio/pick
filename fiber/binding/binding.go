@@ -7,10 +7,9 @@
 package binding
 
 import (
+	"context"
 	"io"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/gofiber/fiber/v3"
 	iox "github.com/hopeio/gox/io"
@@ -27,48 +26,26 @@ type RequestSource struct {
 	fiber.Ctx
 }
 
-func (s RequestSource) Uri() mapstruct.Setter {
+func (s RequestSource) Uri() mapstruct.Getter {
 	return uriSource{s.Ctx}
 }
 
-func (s RequestSource) Query() mapstruct.Setter {
+func (s RequestSource) Query() mapstruct.ValuesGetter {
 	return (*ArgsSource)(s.Request().URI().QueryArgs())
 }
 
-func (s RequestSource) Header() mapstruct.Setter {
+func (s RequestSource) Header() mapstruct.ValuesGetter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 
-func (s RequestSource) Form() mapstruct.Setter {
-	contentType := stringsx.FromBytes(s.Request().Header.ContentType())
-	if strings.HasPrefix(contentType, httpx.ContentTypeForm) {
-		vs, err := url.ParseQuery(stringsx.FromBytes(s.Ctx.Body()))
-		if err != nil {
-			return nil
-		}
-		return mapstruct.KVsSource(vs)
-	}
-	if strings.HasPrefix(contentType, httpx.ContentTypeMultipart) {
-		multipartForm, err := s.Ctx.MultipartForm()
-		if err != nil {
-			return nil
-		}
-		return (*httpx.MultipartSource)(multipartForm)
-	}
-	return nil
-}
-
-func (s RequestSource) Body() (string, io.ReadCloser) {
+func (s RequestSource) Body() (context.Context, string, io.ReadCloser) {
 	if s.Method() == http.MethodGet {
-		return "", nil
-	}
-	if s.Is(httpx.ContentTypeMultipart) || s.Is(httpx.ContentTypeForm) {
-		return "", nil
+		return s.Context(), "", nil
 	}
 	contentType := stringsx.FromBytes(s.Request().Header.ContentType())
 	req := s.Ctx.Request()
 	if req.IsBodyStream() {
-		return contentType, iox.WrapReader(req.BodyStream(), req.CloseBodyStream)
+		return s.Context(), contentType, iox.WrapReader(req.BodyStream(), req.CloseBodyStream)
 	}
-	return contentType, iox.RawBytes(req.Body())
+	return s.Context(), contentType, iox.RawBytes(req.Body())
 }

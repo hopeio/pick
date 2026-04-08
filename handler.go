@@ -43,7 +43,7 @@ func Respond(ctx context.Context, w http.ResponseWriter, result []reflect.Value)
 	if uw, ok := w.(httpx.Unwrapper); ok {
 		ow = uw.Unwrap()
 	}
-	if recorder, ok := ow.(httpx.RecordBody); ok {
+	if recorder, ok := ow.(httpx.RecordBodyer); ok {
 		recorder.RecordBody(buf, data)
 	}
 	return w.Write(buf)
@@ -67,7 +67,7 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err any) (int, err
 	if uw, ok := w.(httpx.Unwrapper); ok {
 		w = uw.Unwrap()
 	}
-	if recorder, ok := ow.(httpx.RecordBody); ok {
+	if recorder, ok := ow.(httpx.RecordBodyer); ok {
 		recorder.RecordBody(buf, errresp)
 	}
 	return w.Write(buf)

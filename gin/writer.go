@@ -30,7 +30,7 @@ func (w Writer) RespondStream(ctx context.Context, seq iter.Seq[iox.WriterToClos
 
 func (w Writer) RecordBody(raw []byte, res any) {
 	if w, ok := w.Writer.(httpx.Unwrapper); ok {
-		if recorder, ok := w.Unwrap().(httpx.RecordBody); ok {
+		if recorder, ok := w.Unwrap().(httpx.RecordBodyer); ok {
 			recorder.RecordBody(raw, res)
 		}
 	}

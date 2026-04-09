@@ -15,7 +15,7 @@ import (
 	"github.com/hopeio/gox/errors"
 	"github.com/hopeio/gox/log"
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/openapi"
 )
 
 var (
@@ -97,8 +97,8 @@ func ErrRespFrom(err any) *errors.ErrResp {
 }
 
 func OpenApi(addr string) {
-	Log(http.MethodGet, addr+apidoc.UriPrefix, "apidoc list")
-	Log(http.MethodGet, addr+apidoc.UriPrefix+"/openapi/*file", "openapi")
+	Log(http.MethodGet, addr+openapi.UriPrefix, "apidoc list")
+	Log(http.MethodGet, addr+openapi.UriPrefix+"/*file", "openapi")
 	go func() {
 		err := http.ListenAndServe(addr, http.DefaultServeMux)
 		if err != nil {

@@ -13,7 +13,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	iox "github.com/hopeio/gox/io"
-	"github.com/hopeio/gox/mapstruct"
+	"github.com/hopeio/gox/strstruct"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
 )
@@ -26,15 +26,15 @@ type RequestSource struct {
 	fiber.Ctx
 }
 
-func (s RequestSource) Uri() mapstruct.Getter {
+func (s RequestSource) Uri() strstruct.Getter {
 	return uriSource{s.Ctx}
 }
 
-func (s RequestSource) Query() mapstruct.ValuesGetter {
+func (s RequestSource) Query() strstruct.ValuesGetter {
 	return (*ArgsSource)(s.Request().URI().QueryArgs())
 }
 
-func (s RequestSource) Header() mapstruct.ValuesGetter {
+func (s RequestSource) Header() strstruct.ValuesGetter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 

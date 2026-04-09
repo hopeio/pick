@@ -7,6 +7,8 @@
 package binding
 
 import (
+	"net/url"
+
 	stringsx "github.com/hopeio/gox/strings"
 	"github.com/valyala/fasthttp"
 )
@@ -37,7 +39,8 @@ func (form *HeaderSource) Get(key string) ([]string, bool) {
 	var values []string
 	(*fasthttp.RequestHeader)(form).VisitAll(func(k, v []byte) {
 		if string(k) == key {
-			values = append(values, stringsx.FromBytes(v))
+			v, _ := url.QueryUnescape(stringsx.FromBytes(v))
+			values = append(values, v)
 		}
 	})
 	return values, len(values) > 0

@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	httpx "github.com/hopeio/gox/net/http"
-	"github.com/hopeio/gox/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/openapi"
 )
 
 var (
@@ -25,9 +25,9 @@ type Service[T any] interface {
 func Registered() {
 	isRegistered = true
 	go func() {
-		Openapi(apidoc.Dir, "api")
+		Openapi(openapi.DocDir, "api")
 	}()
-	apidoc.ApiDoc(http.DefaultServeMux, apidoc.UriPrefix, apidoc.Dir)
+	openapi.Openapi(http.DefaultServeMux, openapi.UriPrefix, openapi.DocDir)
 }
 
 func Api(f func()) {

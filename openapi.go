@@ -12,7 +12,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/hopeio/gox/log"
-	"github.com/hopeio/gox/net/http/apidoc"
+	"github.com/hopeio/gox/net/http/openapi"
 )
 
 func DocList(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func DocList(w http.ResponseWriter, r *http.Request) {
 		modName = "api"
 	}
 
-	apidoc.DocList(w, r)
+	openapi.DocList(w, r)
 }
 
 type ApiDocInfo struct {
@@ -40,9 +40,9 @@ func RegisterApiInfo(apiInfo *GroupApiInfo) {
 	groupApiInfos = append(groupApiInfos, apiInfo)
 }
 
-func Openapi(filePath, modName string) {
+func Openapi(docDir, modName string) {
 	doc := GetDoc(modName)
-	apidoc.WriteToFile(filePath, modName, doc)
+	openapi.WriteToFile(docDir, modName, doc)
 }
 
 var Doc *openapi3.T
@@ -52,7 +52,7 @@ func GetDoc(modName string) *openapi3.T {
 	if Doc != nil {
 		return Doc
 	}
-	api := apidoc.NewAPI(modName)
+	api := openapi.NewAPI(modName)
 	for _, groupApiInfo := range groupApiInfos {
 		for _, methodInfo := range groupApiInfo.Infos {
 			GenOpenapi(methodInfo, api, groupApiInfo.Describe)
@@ -66,20 +66,20 @@ func GetDoc(modName string) *openapi3.T {
 	return Doc
 }
 
-func GenOpenapi(methodInfo *ApiDocInfo, api *apidoc.API, dec string) {
+func GenOpenapi(methodInfo *ApiDocInfo, api *openapi.API, dec string) {
 	for _, route := range methodInfo.ApiInfo.Routes {
 		r := api.Route(route.Method, route.Path)
 		numIn := methodInfo.Method.NumIn()
 		if numIn == 3 {
-			r.HasRequest(apidoc.Model{Type: methodInfo.Method.In(2).Elem()})
+			r.HasRequest(openapi.Model{Type: methodInfo.Method.In(2).Elem()})
 		}
 		r.HasTags([]string{dec, methodInfo.ApiInfo.Title + route.Remark})
 		if methodInfo.Method.Out(0).Implements(ErrorType) {
-			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: ErrRespType})
+			r.HasResponseModel(http.StatusOK, openapi.Model{Type: ErrRespType})
 		} else {
-			r.HasResponseModel(http.StatusOK, apidoc.Model{Type: methodInfo.Method.Out(0)})
+			r.HasResponseModel(http.StatusOK, openapi.Model{Type: methodInfo.Method.Out(0)})
 		}
-		r.HasResponseModel(http.StatusBadRequest, apidoc.Model{Type: ErrRespType})
+		r.HasResponseModel(http.StatusBadRequest, openapi.Model{Type: ErrRespType})
 
 	}
 }

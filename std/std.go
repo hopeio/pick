@@ -50,7 +50,7 @@ func Register(engine *http.ServeMux, svcs ...pick.Service[Middleware]) {
 				if httpContext {
 					params[1] = reflect.ValueOf(&Context{r, w})
 				} else {
-					r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, &Context{r, w}))
+					r = r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, &Context{r, w}))
 					params[1] = reflect.ValueOf(r.Context())
 				}
 				params[2] = in2

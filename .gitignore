@@ -17,5 +17,5 @@
 # vendor/
 
 .idea
-apidoc/api
+apidoc
 .idea

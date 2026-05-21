@@ -65,7 +65,7 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err any) (int, err
 	}
 	ow := w
 	if uw, ok := w.(httpx.Unwrapper); ok {
-		w = uw.Unwrap()
+		ow = uw.Unwrap()
 	}
 	if recorder, ok := ow.(httpx.RecordBodyer); ok {
 		recorder.RecordBody(buf, errresp)

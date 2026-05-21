@@ -15,7 +15,6 @@ import (
 	"unsafe"
 
 	"github.com/hopeio/gox/log"
-	unsafei "github.com/hopeio/gox/unsafe"
 )
 
 const Template = `
@@ -218,11 +217,11 @@ func GetMethodInfo(method *reflect.Method, preUrl string, httpContext reflect.Ty
 					v.routes[i].Path = preUrl + v.routes[i].Path
 				}
 				info = v
-			} else if v, ok := err.(*apiInfo); ok {
+			} else if v, ok := err.(apiInfo); ok {
 				for i := range v.routes {
 					v.routes[i].Path = preUrl + v.routes[i].Path
 				}
-				info = unsafei.Cast[apiInfo](v)
+				info = &v
 			} else {
 				log.Error(err)
 			}

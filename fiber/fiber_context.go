@@ -24,12 +24,12 @@ type Context struct {
 	wroteHeader bool
 }
 
-func (w Context) WriteHeader(code int) {
+func (w *Context) WriteHeader(code int) {
 	w.writeHeader()
 	w.Ctx.Status(code)
 }
 
-func (w Context) writeHeader() {
+func (w *Context) writeHeader() {
 	if !w.wroteHeader {
 		header := &w.Ctx.Response().Header
 		for k, v := range w.respHeader {
@@ -41,23 +41,23 @@ func (w Context) writeHeader() {
 	}
 }
 
-func (w Context) Header() http.Header {
+func (w *Context) Header() http.Header {
 	if w.respHeader == nil {
 		w.respHeader = http.Header{}
 	}
 	return w.respHeader
 }
 
-func (w Context) HeaderX() httpx.Header {
+func (w *Context) HeaderX() httpx.Header {
 	return ResponseHeader{ResponseHeader: &w.Response().Header}
 }
 
-func (w Context) Write(p []byte) (int, error) {
+func (w *Context) Write(p []byte) (int, error) {
 	w.writeHeader()
 	return w.Ctx.Write(p)
 }
 
-func (w Context) RespondStream(ctx context.Context, dataSource iter.Seq[iox.WriterToCloser]) {
+func (w *Context) RespondStream(ctx context.Context, dataSource iter.Seq[iox.WriterToCloser]) {
 	w.Ctx.Set(httpx.HeaderTransferEncoding, "chunked")
 	w.Ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		for data := range dataSource {

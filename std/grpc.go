@@ -46,7 +46,7 @@ func RegisterGrpcService(engine *http.ServeMux, svcs ...pick.Service[Middleware]
 				}
 				params := make([]reflect.Value, 3)
 				params[0] = value
-				r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, Context{r, w}))
+				r = r.WithContext(context.WithValue(r.Context(), httpx.RequestCtxKey, &Context{r, w}))
 				params[1] = reflect.ValueOf(r.Context())
 				params[2] = in2
 				result := methodValue.Call(params)

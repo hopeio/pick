@@ -51,7 +51,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			handler := func(ctx fiber.Ctx) error {
 				in2 := reflect.New(in2Type)
 				if err := binding.Bind(ctx, in2.Interface()); err != nil {
-					_, err = pick.RespondError(ctx.Context(), Context{Ctx: ctx}, errorsx.InvalidArgument.Msg(err.Error()))
+					_, err = pick.RespondError(ctx.Context(), &Context{Ctx: ctx}, errorsx.InvalidArgument.Msg(err.Error()))
 
 					return err
 				}
@@ -65,7 +65,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 				}
 				params[2] = in2
 				result := methodValue.Call(params)
-				_, err := pick.Respond(ctx.Context(), Context{Ctx: ctx}, result)
+				_, err := pick.Respond(ctx.Context(), &Context{Ctx: ctx}, result)
 				return err
 			}
 			for _, url := range methodInfoExport.Routes {

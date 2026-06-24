@@ -16,7 +16,7 @@ import (
 	iox "github.com/hopeio/gox/io"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
-	"github.com/hopeio/gox/strstruct"
+	"github.com/hopeio/gox/kvstruct"
 	"github.com/valyala/fasthttp"
 )
 
@@ -28,15 +28,15 @@ type RequestSource struct {
 	fiber.Ctx
 }
 
-func (s RequestSource) Uri() strstruct.Getter {
+func (s RequestSource) Uri() kvstruct.Getter {
 	return uriSource{s.Ctx}
 }
 
-func (s RequestSource) Query() strstruct.ValuesGetter {
+func (s RequestSource) Query() kvstruct.ValuesGetter {
 	return (*ArgsSource)(s.Request().URI().QueryArgs())
 }
 
-func (s RequestSource) Header() strstruct.ValuesGetter {
+func (s RequestSource) Header() kvstruct.ValuesGetter {
 	return (*HeaderSource)(&s.Request().Header)
 }
 

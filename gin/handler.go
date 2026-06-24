@@ -76,8 +76,7 @@ func HandlerWrapCommon[REQ, RESP any](service types.Service[*REQ, *RESP]) gin.Ha
 func Respond(ctx *gin.Context, v any) {
 	if err, ok := v.(error); ok {
 		httpx.ServeError(ctx.Writer, ctx.Request, err)
-		ctx.Abort()
-
+		return
 	}
 	httpx.ServeSuccess(ctx.Writer, ctx.Request, v)
 }

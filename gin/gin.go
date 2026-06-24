@@ -11,7 +11,6 @@ import (
 
 	errorsx "github.com/hopeio/gox/errors"
 	httpx "github.com/hopeio/gox/net/http"
-	ginx "github.com/hopeio/gox/net/http/gin"
 	"github.com/hopeio/pick"
 
 	"log"
@@ -49,10 +48,10 @@ func Register(engine *gin.Engine, svcs ...pick.Service[gin.HandlerFunc]) {
 
 			handler := func(ctx *gin.Context) {
 				in2 := reflect.New(in2Type)
-				err := ginx.Bind(ctx, in2.Interface())
+				err := Bind(ctx, in2.Interface())
 				if err != nil {
 					ctx.Header(httpx.HeaderErrorCode, strconv.Itoa(int(errorsx.InvalidArgument)))
-					ginx.Respond(ctx, errorsx.InvalidArgument.Msg(err.Error()))
+					Respond(ctx, errorsx.InvalidArgument.Msg(err.Error()))
 					return
 				}
 				params := make([]reflect.Value, 3)

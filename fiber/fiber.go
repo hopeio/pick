@@ -14,7 +14,6 @@ import (
 
 	httpx "github.com/hopeio/gox/net/http"
 	"github.com/hopeio/pick"
-	"github.com/hopeio/pick/fiber/binding"
 
 	"github.com/hopeio/gox/log"
 )
@@ -50,7 +49,7 @@ func Register(engine *fiber.App, svcs ...pick.Service[fiber.Handler]) {
 			fiberContext := methodType.In(1).Implements(FiberContextType)
 			handler := func(ctx fiber.Ctx) error {
 				in2 := reflect.New(in2Type)
-				if err := binding.Bind(ctx, in2.Interface()); err != nil {
+				if err := Bind(ctx, in2.Interface()); err != nil {
 					_, err = pick.RespondError(ctx.Context(), &Context{Ctx: ctx}, errorsx.InvalidArgument.Msg(err.Error()))
 
 					return err

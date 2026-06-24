@@ -4,18 +4,20 @@
  * @Created by jyb
  */
 
-package binding
+package pickfiber
 
 import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/gofiber/fiber/v3"
 	iox "github.com/hopeio/gox/io"
-	"github.com/hopeio/gox/strstruct"
 	httpx "github.com/hopeio/gox/net/http"
 	stringsx "github.com/hopeio/gox/strings"
+	"github.com/hopeio/gox/strstruct"
+	"github.com/valyala/fasthttp"
 )
 
 func Bind(c fiber.Ctx, obj interface{}) error {
@@ -48,4 +50,47 @@ func (s RequestSource) Body() (context.Context, string, io.ReadCloser) {
 		return s.Context(), contentType, iox.WrapReader(req.BodyStream(), req.CloseBodyStream)
 	}
 	return s.Context(), contentType, iox.RawBytes(req.Body())
+}
+
+type ArgsSource fasthttp.Args
+
+func (form *ArgsSource) Get(key string) ([]string, bool) {
+	var values []string
+	(*fasthttp.Args)(form).VisitAll(func(k, v []byte) {
+		if string(k) == key {
+			values = append(values, stringsx.FromBytes(v))
+		}
+	})
+	return values, len(values) > 0
+}
+
+type CtxSource fasthttp.RequestCtx
+
+
+func (form *CtxSource) Get(key string) (string, bool) {
+	v := (*fasthttp.RequestCtx)(form).UserValue(key).(string)
+	return v, v != ""
+}
+
+type HeaderSource fasthttp.RequestHeader
+
+func (form *HeaderSource) Get(key string) ([]string, bool) {
+	var values []string
+	(*fasthttp.RequestHeader)(form).VisitAll(func(k, v []byte) {
+		if string(k) == key {
+			v, _ := url.QueryUnescape(stringsx.FromBytes(v))
+			values = append(values, v)
+		}
+	})
+	return values, len(values) > 0
+}
+
+
+type uriSource struct {
+	fiber.Ctx
+}
+
+func (s uriSource) Get(key string) (string, bool) {
+	v := s.Params(key)
+	return v, v != ""
 }
